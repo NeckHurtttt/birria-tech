@@ -1,20 +1,18 @@
 // Datos del prototipo. Distancias, velocidades y alturas son ESTIMADOS para la demo:
 // hay que calibrarlos con SEARPI / COED antes de usarlos de verdad.
-export const SENSOR = { id: 'angostura', nombre: 'Oído del río · Puente La Angostura', lon: -63.560, lat: -18.153 };
+export const SENSOR = { id: 'angostura', nombre: 'Oído del río · Puente La Angostura', lon: -63.5405, lat: -18.1727 };
 
-// Cauce aproximado del Piraí (de sur a norte) para dibujarlo en el mapa.
-export const CAUCE = [
-  [-63.62, -18.22], [-63.560, -18.153], [-63.50, -18.10], [-63.45, -18.06], [-63.425, -18.045],
-  [-63.385, -17.995], [-63.33, -17.93], [-63.29, -17.86], [-63.25, -17.80], [-63.215, -17.760],
-  [-63.21, -17.68], [-63.22, -17.58], [-63.24, -17.48], [-63.26, -17.36],
-];
+import { CAUCE_PIRAI } from './cauce-pirai.js';
+export const CAUCE = CAUCE_PIRAI;
+/** índice del cauce más cercano al sensor: desde ahí se miden los km */
+export const SENSOR_IDX = CAUCE.reduce((m, p, i) => (Math.hypot(p[0] - SENSOR.lon, p[1] - SENSOR.lat) < Math.hypot(CAUCE[m][0] - SENSOR.lon, CAUCE[m][1] - SENSOR.lat) ? i : m), 0);
 
-export const SINUOSIDAD = 1.35; // el río serpentea: más largo que la línea dibujada
+export const SINUOSIDAD = 1.05; // el trazado real ya está simplificado
 
-/** km acumulados del cauce desde el sensor (índice 1) hasta cada vértice. */
+/** km acumulados del cauce desde el sensor hasta cada vértice (0 río arriba del sensor). */
 export const KM_CAUCE = (() => {
-  const km = [0, 0];
-  for (let i = 2; i < CAUCE.length; i++) km.push(km[i - 1] + distKm(CAUCE[i - 1], CAUCE[i]) * SINUOSIDAD);
+  const km = CAUCE.map(() => 0);
+  for (let i = SENSOR_IDX + 1; i < CAUCE.length; i++) km[i] = km[i - 1] + distKm(CAUCE[i - 1], CAUCE[i]) * SINUOSIDAD;
   return km;
 })();
 export const KM_TOTAL = KM_CAUCE[KM_CAUCE.length - 1];
@@ -36,7 +34,7 @@ export function distKm(a, b) {
 /** Proyecta un punto sobre el cauce y devuelve los km desde el sensor. */
 export function kmEnCauce(p) {
   let mejor = { d: Infinity, km: 0 };
-  for (let i = 1; i < CAUCE.length - 1; i++) {
+  for (let i = SENSOR_IDX; i < CAUCE.length - 1; i++) {
     const a = CAUCE[i], b = CAUCE[i + 1], dx = b[0] - a[0], dy = b[1] - a[1];
     const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / (dx * dx + dy * dy)));
     const q = [a[0] + t * dx, a[1] + t * dy], d = distKm(p, q);
@@ -46,8 +44,8 @@ export function kmEnCauce(p) {
 }
 /** Punto del cauce a km recorridos desde el sensor (para dibujar la crecida). */
 export function tramoHasta(km) {
-  const pts = [CAUCE[1]];
-  for (let i = 2; i < CAUCE.length; i++) {
+  const pts = [CAUCE[SENSOR_IDX]];
+  for (let i = SENSOR_IDX + 1; i < CAUCE.length; i++) {
     if (KM_CAUCE[i] <= km) { pts.push(CAUCE[i]); continue; }
     const t = (km - KM_CAUCE[i - 1]) / (KM_CAUCE[i] - KM_CAUCE[i - 1]);
     if (t > 0) pts.push([CAUCE[i - 1][0] + (CAUCE[i][0] - CAUCE[i - 1][0]) * t, CAUCE[i - 1][1] + (CAUCE[i][1] - CAUCE[i - 1][1]) * t]);

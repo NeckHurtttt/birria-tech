@@ -132,12 +132,16 @@ select { min-height: 36px; border-radius: var(--r-chico); background: var(--supe
   html, body { height: auto; }
   body { overflow: visible; }
   .barra { flex-wrap: wrap; padding: 12px 16px; }
-  .chips { order: 3; width: 100%; }
+  .chips { order: 3; width: 100%; flex-wrap: wrap; }
+  .chip { font-size: 12px; padding: 4px 10px; white-space: nowrap; }
   .barra .btn.primario { padding: 8px 12px; }
   .tablero { height: auto; display: flex; flex-direction: column; padding: 0 16px 96px; gap: 16px; pointer-events: auto; }
   .mapa { position: relative; height: 52vh; margin: 0 -16px; inset: auto; }
   .cuenta { order: 2; } .oido { order: 1; } .guardianes { order: 3; }
   .panel { max-height: none; overflow: visible; }
+  .marca { padding: 3px 7px; font-size: 10px; border-radius: 8px; }
+  .marca .cr { font-size: 10px; }
+  .marca:not([data-estado="alerta"]):not([data-estado="llego"]):not(.sensor) .cr { display: none; }
   .flotante { position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 5; }
 }
 .btn.primario.late { animation: llama 1.6s ease-in-out infinite; }

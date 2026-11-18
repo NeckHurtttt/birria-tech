@@ -18,7 +18,10 @@ export function crearMapa(el) {
     map.addLayer({ id: 'crecida', type: 'line', source: 'crecida', paint: { 'line-color': '#ff5a4a', 'line-width': 9, 'line-blur': 2, 'line-opacity': 0.9 } });
   };
   map.on('style.load', capas);
-  map.on('load', () => clearTimeout(t));
+  map.on('load', () => {
+    clearTimeout(t);
+    if (innerWidth <= 900) el.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show');
+  });
 
   const marcas = {};
   const marca = (id, lon, lat, html, clase) => {
@@ -42,7 +45,7 @@ export function crearMapa(el) {
       m.el.querySelector('.cr').textContent = texto; m.el.dataset.estado = estado;
     },
     volar(b) { map.flyTo({ center: [b.lon, b.lat], zoom: 11, pitch: 58, duration: 2500, padding: PAD() }); },
-    tramo(b) { map.fitBounds([[Math.min(SENSOR.lon, b.lon), Math.min(SENSOR.lat, b.lat)], [Math.max(SENSOR.lon, b.lon), Math.max(SENSOR.lat, b.lat)]], { padding: { ...PAD(), top: PAD().top + 60, bottom: PAD().bottom + 60 }, pitch: 50, duration: 2500 }); },
+    tramo(b) { map.fitBounds([[Math.min(SENSOR.lon, b.lon), Math.min(SENSOR.lat, b.lat)], [Math.max(SENSOR.lon, b.lon), Math.max(SENSOR.lat, b.lat)]], { padding: { top: 60, bottom: 120, left: 80, right: 60 }, pitch: 50, duration: 2500 }); },
     general() { map.flyTo({ center: [-63.36, -17.93], zoom: 9.2, pitch: 55, bearing: -20, duration: 2000, padding: PAD() }); },
   };
 }

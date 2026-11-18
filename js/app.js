@@ -218,4 +218,4 @@ lluviaRioArriba().then(l => {
 });
 
 if (JURADO) { $('#btn-simulacro').classList.add('late'); document.title = 'El Río Suena · demo'; }
-window.__rs = { est, alerta, confirmar, oido }; // para pruebas
+window.__rs = { est, alerta, confirmar, oido, mapa }; // para pruebas
