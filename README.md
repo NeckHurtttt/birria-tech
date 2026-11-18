@@ -10,7 +10,7 @@
 ## Problema
 Las riadas del Piraí (El Torno, desastre departamental) y el fenómeno de El Niño 2026-27 ponen en riesgo a los barrios de la ribera. Las alertas actuales son por colores y para todo el departamento. Nadie le dice a cada cuadra **cuánto falta**, y las personas que no pueden evacuar solas (adultos mayores, personas en silla de ruedas, personas sordas, niños solos) dependen de la suerte.
 
-## Solución: tres piezas
+## Solución
 1. **Oídos del río.** Celulares viejos donados se instalan en los puentes río arriba. Antes de que suba el nivel, una crecida arrastra piedras y el río ruge en tonos graves (20–300 Hz). La app compara ese rugido con la línea base del río normal y avisa. La lluvia real río arriba (Open-Meteo) y las **fotos de reglas pintadas** sirven para confirmar la alerta o descartar una falsa alarma.
 2. **Cuenta regresiva por barrio**, calculada sobre el cauce: «el agua llega a El Torno en 2 h 20 min».
 3. **El agua en tu pared.** Se apunta la cámara a la casa y la app muestra hasta dónde llegaría el agua. Muchas personas no evacúan porque no creen que el agua vaya a llegar.
