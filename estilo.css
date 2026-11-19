@@ -146,3 +146,26 @@ select { min-height: 36px; border-radius: var(--r-chico); background: var(--supe
 }
 .btn.primario.late { animation: llama 1.6s ease-in-out infinite; }
 @keyframes llama { 50% { box-shadow: 0 0 0 8px rgba(91,231,240,.18); } }
+
+/* vigía: índice de riesgo con datos abiertos */
+.estado[data-e="vigilancia"] { color: var(--aviso); background: rgba(255,179,71,.12); }
+.estado[data-e="alerta"] { color: #fff; background: var(--alerta); animation: late 1s infinite; }
+.riesgo { display: grid; grid-template-columns: 96px 1fr; gap: 16px; align-items: center; margin-bottom: 8px; }
+.aguja { --p: 0; --c: var(--acento); width: 96px; height: 96px; border-radius: 50%; display: grid; place-content: center; text-align: center;
+  background: radial-gradient(closest-side, var(--superficie-solida) 78%, transparent 79%), conic-gradient(var(--c) calc(var(--p) * 1%), rgba(255,255,255,.07) 0);
+  transition: --p .4s; }
+.aguja b { font: 700 28px/1 var(--mono); color: var(--c); }
+.aguja span { font-size: 11px; color: var(--texto-2); text-transform: uppercase; letter-spacing: .08em; }
+.aguja[data-e="vigilancia"] { --c: var(--aviso); }
+.aguja[data-e="alerta"] { --c: var(--alerta); }
+.partes { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.partes li { display: grid; font-size: 13px; line-height: 1.3; }
+.partes .medidor { margin: 4px 0 2px; height: 6px; }
+.partes .medidor i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--acento), var(--aviso), var(--alerta)); transition: width .4s; }
+.partes small { color: var(--texto-2); font: 400 12px var(--mono); }
+.extra { margin-top: 12px; border-top: 1px solid var(--borde); padding-top: 8px; }
+.extra summary { cursor: pointer; color: var(--texto-2); font-size: 13px; min-height: 32px; display: flex; align-items: center; }
+.extra summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.extra[open] summary { margin-bottom: 8px; }
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+@media (max-width: 420px) { .riesgo { grid-template-columns: 80px 1fr; } .aguja { width: 80px; height: 80px; } .aguja b { font-size: 22px; } }

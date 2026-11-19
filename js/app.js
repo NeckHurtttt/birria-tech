@@ -1,17 +1,17 @@
-import { BARRIOS, PERSONAS, SENSOR, minutosHasta, alturaEn, formatoTiempo, confianza, nivelDeRegla, VELOCIDAD_KMH } from './datos.js';
+import { BARRIOS, PERSONAS, minutosHasta, alturaEn, formatoTiempo, confianza, nivelDeRegla, VELOCIDAD_KMH, indiceRiesgo, LAG_CUENCA_MIN } from './datos.js';
 import { Oido } from './oido.js';
 import { crearMapa } from './mapa.js';
 import { Pared } from './pared.js';
-import { lluviaRioArriba } from './lluvia.js';
+import { escanear } from './lluvia.js';
 import { temaDemo, abrirCanal } from './canal.js';
 
 const $ = s => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 const JURADO = params.has('jurado');
-const ACELERA = Number(params.get('x')) || (JURADO ? 150 : 60); // minutos simulados por minuto real
+const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simulados por minuto real
 const tema = temaDemo();
 
-const est = { fase: 'espera', intensidad: 1, simMin: 0, lluvia: null, personas: {}, regla: null };
+const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0 }, personas: {}, regla: null };
 PERSONAS.forEach(p => est.personas[p.id] = 'tranquilo');
 
 // ---------- mapa ----------
@@ -21,7 +21,7 @@ const mapa = crearMapa($('#mapa'));
 const lista = $('#lista-barrios');
 BARRIOS.forEach(b => {
   const li = document.createElement('li'); li.id = 'b-' + b.id; li.dataset.e = 'tranquilo';
-  li.innerHTML = `<span class="nombre">${b.nombre}</span><span class="tiempo">—</span><span class="info">${b.km} km río abajo del oído</span><span class="barra-t"><i></i></span>`;
+  li.innerHTML = `<span class="nombre">${b.nombre}</span><span class="tiempo">—</span><span class="info">${b.km} km río abajo de La Angostura</span><span class="barra-t"><i></i></span>`;
   li.onclick = () => { mapa.volar(b); $('#pared-sel').value = b.id; };
   lista.append(li);
 });
@@ -51,7 +51,7 @@ const canal = abrirCanal(tema, m => { if (m.tipo === 'ok' && m.id) confirmar(m.i
 function urlGuardian(id) { const u = new URL('guardian.html', location.href); u.search = `?t=${tema}&p=${id}`; return u.href; }
 function avisarGuardianes() {
   PERSONAS.forEach(p => {
-    const b = BARRIOS.find(x => x.id === p.barrio), min = minutosHasta(b, est.intensidad) - est.simMin;
+    const b = BARRIOS.find(x => x.id === p.barrio), min = minutosHasta(b, est.intensidad, est.lag) - est.simMin;
     est.personas[p.id] = 'avisado';
     canal.enviar({ tipo: 'alerta', id: p.id, min: Math.round(min) }, {
       titulo: `Crecida del Piraí: ayuda a ${p.nombre}`,
@@ -85,17 +85,21 @@ const oido = new Oido($('#espectro'), {
     else if (estado === 'normal') detalle.textContent = 'Río normal. Escuchando el rugido grave (20–300 Hz).';
     else if (estado === 'subiendo') detalle.textContent = `Rugido ${ratio.toFixed(1)}× más fuerte que lo normal: piedras en movimiento…`;
   },
-  onDetecta({ intensidad }) { alerta(intensidad, 'oído del río'); },
+  onDetecta({ intensidad }) { alerta(intensidad, 'el oído del río'); },
 });
 
-function alerta(intensidad, fuente) {
+const enVoz = t => formatoTiempo(t).replace('h', 'horas').replace('min', 'minutos');
+/** lag: minutos hasta que la crecida llega a La Angostura (0 si ya se vio en el río). */
+function alerta(intensidad, fuente, lag = 0) {
   if (est.fase === 'alerta') return;
-  est.fase = 'alerta'; est.intensidad = Math.max(2, intensidad); est.simMin = 0; est.ultimo = performance.now();
-  mapa.sensor('crecida');
-  const torno = BARRIOS.find(b => b.id === 'eltorno');
-  detalle.textContent = `Crecida detectada por ${fuente}. Intensidad ${est.intensidad.toFixed(1)} de 4.`;
+  est.fase = 'alerta'; est.intensidad = Math.max(2, intensidad); est.lag = lag; est.simMin = 0; est.ultimo = performance.now();
+  if (!lag) mapa.sensor('crecida');
+  const torno = BARRIOS.find(b => b.id === 'eltorno'), min = minutosHasta(torno, est.intensidad, lag);
+  $('#detalle-riesgo').textContent = `Alerta por ${fuente}. Intensidad ${est.intensidad.toFixed(1)} de 4.` + (lag ? ` La crecida llegaría a La Angostura en ${formatoTiempo(lag)}.` : '');
   mostrarConfianza();
-  hablar(`Atención. El río suena. Crecida detectada en La Angostura. El agua llegaría a El Torno en ${formatoTiempo(minutosHasta(torno, est.intensidad)).replace('h', 'horas').replace('min', 'minutos')}.`);
+  hablar(lag
+    ? `Atención. Lluvia fuerte en la cuenca alta del Piraí. La crecida llegaría a La Angostura en ${enVoz(lag)} y a El Torno en ${enVoz(min)}.`
+    : `Atención. El río suena. Crecida detectada en La Angostura. El agua llegaría a El Torno en ${enVoz(min)}.`);
   avisarGuardianes();
   $('#chip-reloj').hidden = false;
   setTimeout(() => mapa.tramo(torno), 1500);
@@ -113,11 +117,13 @@ setInterval(() => {
   if (est.fase !== 'alerta') return;
   const ahora = performance.now(); est.simMin += (ahora - est.ultimo) / 60000 * ACELERA; est.ultimo = ahora;
   const v = VELOCIDAD_KMH * Math.min(1.6, Math.max(0.8, Math.sqrt(est.intensidad)));
-  mapa.crecida(est.simMin / 60 * v);
+  const enRio = est.simMin - est.lag;
+  if (enRio >= 0) mapa.sensor('crecida');
+  mapa.crecida(Math.max(0, enRio) / 60 * v);
   $('#chip-reloj').className = 'chip reloj';
   $('#chip-reloj').textContent = `×${ACELERA} · +${formatoTiempo(Math.floor(est.simMin)).replace('ya llegó', '0 min')}`;
   BARRIOS.forEach(b => {
-    const total = minutosHasta(b, est.intensidad), resta = Math.round(total - est.simMin);
+    const total = minutosHasta(b, est.intensidad, est.lag), resta = Math.round(total - est.simMin);
     const li = $('#b-' + b.id), llego = resta <= 0;
     li.dataset.e = llego ? 'llego' : 'alerta';
     li.querySelector('.tiempo').textContent = llego ? `${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m` : formatoTiempo(resta);
@@ -130,20 +136,34 @@ setInterval(() => {
 }, 250);
 
 // ---------- botones ----------
+// Simulacro: la tormenta de una noche de riada crece en la cuenca alta en ~7 s y el índice cruza el umbral.
+const TORMENTA = { ll6: 46, ll24: 64, prox6: 30, prox24: 45, caudalPico: 30 };
+let rampa;
 $('#btn-simulacro').onclick = () => {
   reiniciar(); oido.simular();
-  est.escenario = { mm24: 64, fuente: 'escenario' }; // tormenta río arriba, como la noche de una riada
+  const base = est.lluvia || { ll6: 0, ll24: 0, prox6: 0, prox24: 0, caudalPico: 7.5 }, t0 = performance.now();
+  clearInterval(rampa);
+  rampa = setInterval(() => {
+    const k = Math.min(1, (performance.now() - t0) / 7000), e = k * k * (3 - 2 * k);
+    est.escenario = { fuente: 'escenario del simulacro' };
+    for (const c in TORMENTA) est.escenario[c] = (base[c] || 0) + (TORMENTA[c] - (base[c] || 0)) * e;
+    est.escenario.mm24 = est.escenario.ll24;
+    if (k > 0.4 && !est.vecinos.crecido) { est.vecinos.crecido = 1; $('#v-vecinos').dataset.extra = '1 reporte · Bermejo: «baja turbio»'; }
+    evaluar();
+    if (k >= 1) clearInterval(rampa);
+  }, 150);
   $('#btn-simulacro').lastChild.textContent = 'Reiniciar simulacro';
 };
 $('#btn-mic').onclick = async () => {
   reiniciar();
-  est.escenario = null;
   try { await oido.microfono(); } catch { detalle.textContent = 'No se pudo usar el micrófono. Usa «Iniciar simulacro».'; }
 };
 function reiniciar() {
-  est.fase = 'espera'; est.simMin = 0; est.regla = null;
+  clearInterval(rampa);
+  est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0 };
+  delete $('#v-vecinos').dataset.extra; evaluar();
   PERSONAS.forEach(p => est.personas[p.id] = 'tranquilo'); pintarPersonas();
-  BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = '—'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo del oído`; mapa.barrio(b.id, 'a salvo', ''); });
+  BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = '—'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'a salvo', ''); });
   mapa.crecida(0); mapa.sensor(''); mapa.general();
   $('#confianza').hidden = true; $('#chip-reloj').hidden = true; $('#exito').hidden = true;
 }
@@ -191,7 +211,8 @@ cvR.onpointerdown = e => {
     if (n == null) { $('#regla-paso').textContent = 'La marca de 3 m tiene que estar arriba del 0. Prueba de nuevo.'; toques = []; return; }
     est.regla = n; $('#regla-paso').textContent = `Nivel leído: ${n.toFixed(2).replace('.', ',')} m. Reporte enviado.`;
     mostrarConfianza(); $('#confianza').hidden = false;
-    if (n >= 1.5 && est.fase !== 'alerta') alerta(1 + n, 'foto de la regla');
+    if (n >= 1) { est.vecinos.desborde++; evaluar(); }
+    if (n >= 1.5 && est.fase !== 'alerta') alerta(1 + n, 'la foto de la regla');
   }
 };
 $('#regla-cerrar').onclick = () => $('#dlg-regla').close();
@@ -209,13 +230,36 @@ function hablar(t) {
   try { const u = new SpeechSynthesisUtterance(t); u.lang = 'es-419'; u.rate = 1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
 }
 
-// lluvia real
-lluviaRioArriba().then(l => {
-  est.lluvia = l;
-  $('#chip-lluvia span').textContent = `Lluvia río arriba: ${l.mm24.toFixed(0)} mm (24 h) · ${l.prox24.toFixed(0)} mm próx.`;
-  $('#chip-lluvia').title = `Fuente: ${l.fuente}`;
-  mostrarConfianza();
-});
+// ---------- vigía: escaneo de datos abiertos + reportes ----------
+const fmt = x => x.toFixed(x < 10 ? 1 : 0).replace('.', ',');
+function evaluar() {
+  const d = est.escenario || est.lluvia; if (!d) return;
+  const idx = indiceRiesgo({ ll6: d.ll6, ll24: d.ll24, prox6: d.prox6, caudal: d.caudalPico, ...est.vecinos });
+  const e = est.fase === 'alerta' ? 'alerta' : idx.estado;
+  $('#riesgo-num').textContent = Math.round(idx.r * 100);
+  const ag = $('.aguja'); ag.style.setProperty('--p', Math.round(idx.r * 100)); ag.dataset.e = e;
+  $('#estado-riesgo').dataset.e = e; $('#estado-riesgo').textContent = e;
+  $('#p-lluvia').style.width = idx.partes.lluvia * 100 + '%';
+  $('#p-rio').style.width = idx.partes.rio * 100 + '%';
+  $('#p-vecinos').style.width = idx.partes.vecinos * 100 + '%';
+  $('#v-lluvia').textContent = `${fmt(d.ll6)} mm 6 h · ${fmt(d.prox6)} próx.`;
+  $('#v-rio').textContent = `${fmt(d.caudalPico)} m³/s (p95 17)`;
+  const nv = est.vecinos.crecido + est.vecinos.desborde;
+  $('#v-vecinos').textContent = $('#v-vecinos').dataset.extra || `${nv} reporte${nv === 1 ? '' : 's'}`;
+  $('#fuente-escaneo').textContent = d === est.escenario ? 'Simulacro: tormenta en la cuenca alta (datos reales de hoy como punto de partida)' : `Datos abiertos de la cuenca alta · ${d.fuente} · sin hardware`;
+  if (idx.estado === 'alerta' && est.fase !== 'alerta') alerta(idx.intensidad, 'datos abiertos de la cuenca alta', LAG_CUENCA_MIN);
+  if (est.fase !== 'alerta') $('#detalle-riesgo').textContent = idx.estado === 'vigilancia'
+    ? 'Vigilancia: el riesgo sube. Pedimos a los vecinos de la ribera foto de la regla.'
+    : 'La lluvia en Samaipata y Bermejo tarda unas 2 h 30 min en bajar hasta La Angostura: ese es el tiempo que ganamos.';
+}
+async function escaneo() {
+  const l = await escanear(); est.lluvia = l;
+  $('#chip-lluvia span').textContent = `Cuenca alta: ${l.ll24.toFixed(0)} mm (24 h) · ${l.prox24.toFixed(0)} mm próx.`;
+  $('#chip-lluvia').title = `Fuente: ${l.fuente}` + (l.puntos.length ? ' · ' + l.puntos.map(p => `${p.nombre} ${p.ll24.toFixed(0)} mm`).join(', ') : '');
+  evaluar(); mostrarConfianza();
+}
+escaneo(); setInterval(escaneo, 10 * 60 * 1000);
+$('#btn-crecio').onclick = () => { est.vecinos.crecido++; delete $('#v-vecinos').dataset.extra; evaluar(); };
 
 if (JURADO) { $('#btn-simulacro').classList.add('late'); document.title = 'El Río Suena · demo'; }
-window.__rs = { est, alerta, confirmar, oido, mapa }; // para pruebas
+window.__rs = { est, alerta, confirmar, oido, mapa, evaluar }; // para pruebas

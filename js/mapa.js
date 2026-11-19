@@ -28,7 +28,7 @@ export function crearMapa(el) {
     const d = document.createElement('div'); d.className = 'marca ' + clase; d.innerHTML = html;
     marcas[id] = { el: d, m: new maplibregl.Marker({ element: d }).setLngLat([lon, lat]).addTo(map) };
   };
-  marca('sensor', SENSOR.lon, SENSOR.lat, '<span class="pulso"></span><b>Oído del río</b>', 'sensor');
+  marca('sensor', SENSOR.lon, SENSOR.lat, '<span class="pulso"></span><b>La Angostura</b>', 'sensor');
   BARRIOS.forEach(b => marca(b.id, b.lon, b.lat, `<b>${b.nombre}</b><span class="cr" id="cr-${b.id}">a salvo</span>`, 'barrio'));
 
   return {

@@ -11,3 +11,10 @@ t('lectura de regla', () => { assert.equal(nivelDeRegla(1000, 400, 3, 640), 1.8)
 t('tramo de crecida', () => { assert.equal(tramoHasta(0).length, 1); assert.ok(tramoHasta(KM_TOTAL).length >= 10); });
 t('tags ida y vuelta', () => assert.deepEqual(deTags(aTags({ tipo: 'ok', id: 'rosa' })), { tipo: 'ok', id: 'rosa' }));
 console.log(`${n} pruebas ok`);
+import { indiceRiesgo } from './js/datos.js';
+t('índice: hoy normal, tormenta alerta, vecinos solos no alertan', () => {
+  assert.equal(indiceRiesgo({ ll6: 0, ll24: 3, caudal: 7.6 }).estado, 'normal');
+  assert.equal(indiceRiesgo({ ll6: 46, ll24: 64, prox6: 30, caudal: 30, crecido: 1 }).estado, 'alerta');
+  assert.notEqual(indiceRiesgo({ crecido: 5, desborde: 5 }).estado, 'alerta');
+});
+console.log('índice ok');

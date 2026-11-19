@@ -16,5 +16,12 @@ Pendiente:
 - Aviso en video LSB (puente con Manos que hablan) y audios en quechua/guaraní grabados por hablantes.
 - Subir a GitHub Pages (HTTPS para cámara y micrófono), video de respaldo, slides.
 
+## Giro 19/11: datos abiertos, sin hardware
+La alerta principal ya no depende del micrófono: el **Vigía del Piraí** calcula un índice de riesgo 0–100 con
+lluvia de 5 puntos de la cuenca alta (Open-Meteo), caudal GloFAS en La Angostura (Open-Meteo Flood API) y reportes de vecinos
+(`indiceRiesgo` en js/datos.js, escaneo en js/lluvia.js cada 10 min). Al cruzar 55 → alerta con 2 h 30 min de ventaja
+(LAG_CUENCA_MIN) antes de que la crecida llegue a La Angostura. Reportes de vecinos solos no alertan (solo vigilancia).
+El oído del río (micrófono) queda como extra opcional. ?jurado acelera ×300.
+
 ## Cómo retomar
 `python3 -m http.server 8765` → `localhost:8765/?jurado`. Atajo para pruebas en consola: `__rs.alerta(3,'prueba')`, `__rs.confirmar('rosa','central')`. Parámetro `x=` cambia la aceleración (por defecto 150 en ?jurado).

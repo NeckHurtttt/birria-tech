@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>El Río Suena</title>
-<meta name="description" content="Cuando el río suena, piedras trae: celulares que escuchan el Piraí, cuenta regresiva por barrio y vecinos guardianes para quien no puede salir solo.">
+<meta name="description" content="Cuando el río suena, piedras trae: lluvia y caudal abiertos de la cuenca del Piraí, cuenta regresiva por barrio y vecinos guardianes para quien no puede salir solo.">
 <meta property="og:title" content="El Río Suena · alerta de crecidas del Piraí">
-<meta property="og:description" content="Escucha el río, cuenta regresiva por barrio y vecinos guardianes. Santa Cruz, Bolivia.">
+<meta property="og:description" content="Datos abiertos de la cuenca, cuenta regresiva por barrio y vecinos guardianes. Santa Cruz, Bolivia.">
 <meta property="og:image" content="portada.png">
 <meta name="theme-color" content="#071219">
 <link rel="icon" href="icono.svg" type="image/svg+xml">
@@ -31,17 +31,30 @@
   <div id="mapa" class="mapa" aria-label="Mapa del río Piraí"></div>
 
   <section class="panel oido" aria-labelledby="t-oido">
-    <header><h2 id="t-oido">Oído del río</h2><span class="estado" id="estado-oido" data-e="apagado">apagado</span></header>
-    <p class="sub">Puente La Angostura · celular donado con cargador solar</p>
-    <canvas id="espectro" width="520" height="150" aria-label="Espectrograma del sonido del río"></canvas>
-    <div class="medidor"><div id="medidor-barra"></div></div>
-    <p class="detalle" id="detalle-oido">El rugido grave (20–300 Hz) de las piedras arrastradas sube antes que el nivel del agua.</p>
+    <header><h2 id="t-oido">Vigía del Piraí</h2><span class="estado" id="estado-riesgo" data-e="normal">escaneando…</span></header>
+    <p class="sub" id="fuente-escaneo">Datos abiertos de la cuenca alta · sin sensores ni hardware</p>
+    <div class="riesgo">
+      <div class="aguja"><b id="riesgo-num">–</b><span>riesgo</span></div>
+      <ul class="partes">
+        <li><span>Lluvia en la cuenca alta</span><div class="medidor"><i id="p-lluvia"></i></div><small id="v-lluvia">5 puntos · Open-Meteo</small></li>
+        <li><span>Caudal en La Angostura</span><div class="medidor"><i id="p-rio"></i></div><small id="v-rio">GloFAS · Copernicus</small></li>
+        <li><span>Reportes de vecinos</span><div class="medidor"><i id="p-vecinos"></i></div><small id="v-vecinos">0 reportes</small></li>
+      </ul>
+    </div>
+    <p class="detalle" id="detalle-riesgo">La lluvia en Samaipata y Bermejo tarda unas 2 h 30 min en bajar hasta La Angostura: ese es el tiempo que ganamos.</p>
     <div class="fila">
-      <button class="btn" id="btn-mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Escuchar con micrófono</button>
+      <button class="btn" id="btn-crecio"><svg viewBox="0 0 24 24"><path d="M3 17c3-3 5 3 9 0s6 3 9 0M12 3v9M8 8l4 4 4-4"/></svg>Vecino: «el río creció»</button>
       <button class="btn" id="btn-regla"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="1"/><path d="M8 7h4M8 11h3M8 15h4M8 19h3"/></svg>Foto de la regla</button>
       <input type="file" accept="image/*" capture="environment" id="foto-regla" hidden>
     </div>
     <p class="confianza" id="confianza" hidden></p>
+    <details class="extra">
+      <summary>Extra opcional: oído del río (micrófono)</summary>
+      <canvas id="espectro" width="520" height="120" aria-label="Espectrograma del sonido del río"></canvas>
+      <div class="medidor"><div id="medidor-barra"></div></div>
+      <p class="detalle"><span class="estado" id="estado-oido" data-e="apagado">apagado</span> <span id="detalle-oido">El rugido grave (20–300 Hz) de las piedras arrastradas sube antes que el nivel del agua.</span></p>
+      <button class="btn chico" id="btn-mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Escuchar con micrófono</button>
+    </details>
   </section>
 
   <section class="panel cuenta" aria-labelledby="t-cuenta">

@@ -1,6 +1,30 @@
-// Datos del prototipo. Distancias, velocidades y alturas son ESTIMADOS para la demo:
-// hay que calibrarlos con SEARPI / COED antes de usarlos de verdad.
-export const SENSOR = { id: 'angostura', nombre: 'Oído del río · Puente La Angostura', lon: -63.5405, lat: -18.1727 };
+// Datos del prototipo. Distancias, velocidades, umbrales y alturas son ESTIMADOS para la demo:
+// hay que calibrarlos con SEARPI / COED antes de usarlos de verdad. Todo sale de datos abiertos: no hay hardware.
+// Punto de control (solo un lugar del mapa): desde aquí se miden los km río abajo.
+export const SENSOR = { id: 'angostura', nombre: 'Punto de control · La Angostura', lon: -63.5405, lat: -18.1727 };
+
+// Cuenca alta del Piraí (río arriba de La Angostura): puntos donde se escanea la lluvia.
+export const CUENCA = [
+  { nombre: 'Bermejo', lat: -18.16, lon: -63.62 },
+  { nombre: 'Cuevas', lat: -18.18, lon: -63.70 },
+  { nombre: 'Samaipata', lat: -18.18, lon: -63.87 },
+  { nombre: 'Alto Piraí', lat: -18.30, lon: -63.78 },
+  { nombre: 'Achira', lat: -18.10, lon: -63.78 },
+];
+// Caudal modelado GloFAS en La Angostura, 2024–2026 (Open-Meteo Flood API): referencia para el percentil.
+export const CAUDAL_HIST = { mediana: 7.8, p95: 17.2, max: 24.4 };
+export const LAG_CUENCA_MIN = 150; // tiempo estimado de la lluvia en la cuenca alta hasta La Angostura
+
+/** Índice de riesgo 0–1 combinando escaneos y reportes. */
+export function indiceRiesgo({ ll6 = 0, ll24 = 0, prox6 = 0, caudal = 0, crecido = 0, desborde = 0 } = {}) {
+  const c = x => Math.min(1, Math.max(0, x));
+  const lluvia = Math.max(c((ll6 - 10) / 40), 0.8 * c((ll24 - 25) / 75), 0.7 * c((prox6 - 10) / 40));
+  const rio = c((caudal - CAUDAL_HIST.p95) / (CAUDAL_HIST.max * 1.5 - CAUDAL_HIST.p95));
+  const vecinos = c(crecido * 0.34 + desborde * 0.6);
+  const r = c(Math.max(lluvia, rio) * 0.75 + vecinos * 0.35);
+  return { r, intensidad: 1 + 3 * r, estado: r >= 0.55 ? 'alerta' : r >= 0.25 ? 'vigilancia' : 'normal', partes: { lluvia, rio, vecinos } };
+}
+export const UMBRAL_ALERTA = 0.55;
 
 import { CAUCE_PIRAI } from './cauce-pirai.js';
 export const CAUCE = CAUCE_PIRAI;
@@ -65,9 +89,10 @@ export const PERSONAS = [
 ];
 
 /** Minutos que tarda la crecida en llegar a un barrio. intensidad 1 = normal, >1 más rápida. */
-export function minutosHasta(barrio, intensidad = 1, vel = VELOCIDAD_KMH) {
-  const v = vel * Math.min(1.6, Math.max(0.8, Math.sqrt(intensidad)));
-  return Math.round((barrio.km / v) * 60);
+export const velocidad = (intensidad = 1, vel = VELOCIDAD_KMH) => vel * Math.min(1.6, Math.max(0.8, Math.sqrt(intensidad)));
+/** Minutos hasta que la crecida llega al barrio. lag = minutos que tarda en llegar a La Angostura (LAG_CUENCA_MIN si la alerta sale de la lluvia en la cuenca alta, 0 si ya está en el río). */
+export function minutosHasta(barrio, intensidad = 1, lag = 0) {
+  return Math.round(lag + (barrio.km / velocidad(intensidad)) * 60);
 }
 
 /** Altura estimada del agua (m) en un barrio según la intensidad detectada (1–4). */
@@ -82,7 +107,7 @@ export function formatoTiempo(min) {
   return h ? `${h} h ${String(m).padStart(2, '0')} min` : `${m} min`;
 }
 
-/** Confianza de una alerta según la lluvia real río arriba (mm en 24 h). */
+/** Qué tan respaldada está la alerta por la lluvia real. */
 export function confianza(mm24, intensidad) {
   if (mm24 >= 20) return { nivel: 'alta', texto: `Confirmado: ${mm24.toFixed(0)} mm de lluvia río arriba en 24 h` };
   if (mm24 >= 5 || intensidad >= 3) return { nivel: 'media', texto: `Lluvia moderada río arriba (${mm24.toFixed(0)} mm). Pedimos foto de la regla.` };
