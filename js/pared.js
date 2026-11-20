@@ -6,19 +6,42 @@ export class Pared {
     this.piso = null; this.techo = null; this.metrosRef = 2.0; this.altura = 1.2; this.actual = 0; this.ola = 0;
     canvas.addEventListener('pointerdown', e => this._toque(e));
     new ResizeObserver(() => this._tam()).observe(canvas);
-    this._tam(); this._bucle();
+    this._tam(); this.raf = 0;
   }
-  _tam() { const r = this.cv.getBoundingClientRect(); this.cv.width = r.width * devicePixelRatio; this.cv.height = r.height * devicePixelRatio; }
+  // al girar el celular se reescalan las marcas en vez de perder la calibración
+  _tam() {
+    const r = this.cv.getBoundingClientRect(), w = Math.round(r.width * devicePixelRatio), h = Math.round(r.height * devicePixelRatio);
+    if (!w || !h || (w === this.cv.width && h === this.cv.height)) return;
+    const k = this.cv.height ? h / this.cv.height : 1;
+    if (this.piso != null) this.piso *= k; if (this.techo != null) this.techo *= k;
+    this.cv.width = w; this.cv.height = h;
+  }
   async camara() {
+    this.apagar(); this._iniciar();
+    const pedido = this.pedido = Symbol();
+    this.piso = this.techo = null; this.actual = 0; this.sinCamara = false; this.info.textContent = 'Pidiendo la cámara…';
+    let reloj;
     try {
+      if (!navigator.mediaDevices?.getUserMedia) throw new Error('sin cámara');
+      const pide = navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      // si el permiso llega tarde (después de los 8 s o con la pantalla ya cerrada) se apaga: si no, la cámara queda prendida
+      let tarde = false;
+      pide.then(s => { if (tarde || pedido !== this.pedido) s.getTracks().forEach(t => t.stop()); }, () => {});
       // si el permiso no llega en 8 s, seguimos con la pared dibujada
-      const espera = new Promise((_, no) => setTimeout(() => no(new Error('sin respuesta')), 8000));
-      this.stream = await Promise.race([navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false }), espera]);
-      this.v.srcObject = this.stream; await this.v.play(); this.sinCamara = false;
-    } catch { this.sinCamara = true; }
-    this.piso = this.techo = null; this.actual = 0; this._msg();
+      const espera = new Promise((_, no) => { reloj = setTimeout(() => { tarde = true; no(new Error('sin respuesta')); }, 8000); });
+      const s = await Promise.race([pide, espera]);
+      if (pedido !== this.pedido) return;
+      this.stream = s; this.v.srcObject = s; await this.v.play();
+    } catch { if (pedido === this.pedido) { this.stream?.getTracks().forEach(t => t.stop()); this.stream = null; this.sinCamara = true; this.v.srcObject = null; } }
+    finally { clearTimeout(reloj); }
+    if (pedido === this.pedido) this._msg();
   }
-  apagar() { this.stream?.getTracks().forEach(t => t.stop()); this.stream = null; }
+  /** Apaga cámara y animación (se llama al cerrar la pantalla, también con Esc). */
+  apagar() {
+    this.pedido = null;
+    this.stream?.getTracks().forEach(t => t.stop()); this.stream = null; this.v.srcObject = null;
+    cancelAnimationFrame(this.raf); this.raf = 0;
+  }
   calibrarSolo() { const h = this.cv.height; this.piso = h * 0.92; this.techo = h * 0.22; this._msg(); }
   ponerAltura(m) { this.altura = m; this.actual = 0; this._msg(); }
   _toque(e) {
@@ -30,9 +53,10 @@ export class Pared {
     const t = this.piso == null ? 'Toca el PISO junto a una puerta' : this.techo == null ? 'Ahora toca el BORDE DE ARRIBA de la puerta (2 m)' : `Aquí llegaría el agua: ${this.altura.toFixed(2).replace('.', ',')} m`;
     this.info.textContent = t;
   }
-  _bucle() {
+  _iniciar() {
+    if (this.raf) return;
     const paso = () => {
-      requestAnimationFrame(paso);
+      this.raf = requestAnimationFrame(paso);
       const { g, cv } = this, w = cv.width, h = cv.height; g.clearRect(0, 0, w, h);
       if (this.sinCamara) fondoPared(g, w, h);
       const dpr = devicePixelRatio;
@@ -51,7 +75,7 @@ export class Pared {
       g.font = `600 ${18 * dpr}px "Space Grotesk", sans-serif`; g.fillStyle = '#fff'; g.textAlign = 'left';
       g.fillText(`${this.actual.toFixed(2).replace('.', ',')} m`, 16 * dpr, top - 12 * dpr);
     };
-    paso();
+    this.raf = requestAnimationFrame(paso);
   }
 }
 function fondoPared(g, w, h) {
