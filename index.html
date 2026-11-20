@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Río Suena</title>
+<meta name="description" content="Cuando el río suena, piedras trae: celulares que escuchan el Piraí, cuenta regresiva por barrio y vecinos guardianes para quien no puede salir solo.">
+<meta property="og:title" content="El Río Suena · alerta de crecidas del Piraí">
+<meta property="og:description" content="Escucha el río, cuenta regresiva por barrio y vecinos guardianes. Santa Cruz, Bolivia.">
+<meta property="og:image" content="capturas/escritorio-guardianes.png">
+<meta name="theme-color" content="#071219">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="stylesheet" href="vendor/fuentes.css">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<header class="barra">
+  <div class="marca-app">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 20c4-4 6 4 10 0s6 4 10 0 5 2 6 1" /><path d="M3 26c4-4 6 4 10 0s6 4 10 0 5 2 6 1" opacity=".5"/><circle cx="16" cy="9" r="3"/><path d="M10 9a6 6 0 0 1 12 0M6 9a10 10 0 0 1 20 0" opacity=".6"/></svg>
+    <div><h1>El Río Suena</h1><p class="lema">Cuando el río suena, piedras trae</p></div>
+  </div>
+  <div class="chips">
+    <span class="chip" id="chip-lluvia" title="Lluvia real río arriba"><svg viewBox="0 0 24 24"><path d="M7 15a5 5 0 1 1 2-9.6A6 6 0 0 1 20 9a4 4 0 0 1-1 7.9H7z"/><path d="M8 19l-1 2M12 19l-1 2M16 19l-1 2"/></svg><span>Lluvia…</span></span>
+    <span class="chip" id="chip-reloj" hidden></span>
+  </div>
+  <button class="btn primario" id="btn-simulacro"><svg viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></svg>Iniciar simulacro</button>
+</header>
+
+<main class="tablero">
+  <div id="mapa" class="mapa" aria-label="Mapa del río Piraí"></div>
+
+  <section class="panel oido" aria-labelledby="t-oido">
+    <header><h2 id="t-oido">Oído del río</h2><span class="estado" id="estado-oido" data-e="apagado">apagado</span></header>
+    <p class="sub">Puente La Angostura · celular donado con cargador solar</p>
+    <canvas id="espectro" width="520" height="150" aria-label="Espectrograma del sonido del río"></canvas>
+    <div class="medidor"><div id="medidor-barra"></div></div>
+    <p class="detalle" id="detalle-oido">El rugido grave (20–300 Hz) de las piedras arrastradas sube antes que el nivel del agua.</p>
+    <div class="fila">
+      <button class="btn" id="btn-mic"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Escuchar con micrófono</button>
+      <button class="btn" id="btn-regla"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="1"/><path d="M8 7h4M8 11h3M8 15h4M8 19h3"/></svg>Foto de la regla</button>
+      <input type="file" accept="image/*" capture="environment" id="foto-regla" hidden>
+    </div>
+    <p class="confianza" id="confianza" hidden></p>
+  </section>
+
+  <section class="panel cuenta" aria-labelledby="t-cuenta">
+    <header><h2 id="t-cuenta">Cuenta regresiva por barrio</h2></header>
+    <ol id="lista-barrios" class="barrios"></ol>
+    <p class="nota">Tiempos y alturas estimados para el prototipo; se calibran con SEARPI y el COED.</p>
+  </section>
+
+  <section class="panel guardianes" aria-labelledby="t-guard">
+    <header><h2 id="t-guard">Vecinos guardianes</h2><button class="btn chico" id="btn-qr"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/></svg>Celular del guardián</button></header>
+    <p class="sub">Quien no puede salir solo tiene un vecino asignado. Si nadie confirma, pasa al rescate oficial.</p>
+    <ul id="lista-personas" class="personas"></ul>
+  </section>
+
+  <button class="btn flotante" id="btn-pared"><svg viewBox="0 0 24 24"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M4 15c3-2 5 2 8 0s5 2 8 0"/></svg>El agua en tu pared</button>
+</main>
+
+<dialog id="dlg-pared" class="dlg pantalla">
+  <div class="pared">
+    <video id="video" playsinline muted></video>
+    <canvas id="lienzo-pared"></canvas>
+    <div class="pared-info"><b id="pared-barrio">El Torno</b><span id="pared-msg">…</span></div>
+    <div class="pared-acciones">
+      <select id="pared-sel" aria-label="Barrio"></select>
+      <button class="btn chico" id="pared-auto">Calibrar solo</button>
+      <button class="btn chico" id="pared-cerrar">Cerrar</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlg-regla" class="dlg">
+  <h3>Lectura de la regla pintada</h3>
+  <p id="regla-paso">Toca la marca de 0 m</p>
+  <div class="regla-img"><canvas id="lienzo-regla"></canvas></div>
+  <div class="fila"><button class="btn chico" id="regla-cerrar">Cerrar</button></div>
+</dialog>
+
+<dialog id="dlg-qr" class="dlg">
+  <h3>Celular del guardián</h3>
+  <p>Escanea con otro celular. Cuando suene la alerta le llega el aviso y confirma con un toque.</p>
+  <div id="qr" class="qr"></div>
+  <p class="nota" id="qr-link"></p>
+  <p class="nota">Para que suene con la pantalla apagada: app <b>ntfy</b> → suscribirse al tema <code id="qr-tema"></code>.</p>
+  <div class="fila"><button class="btn chico" id="qr-cerrar">Cerrar</button></div>
+</dialog>
+
+<div class="exito" id="exito" hidden>
+  <div class="exito-caja">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><path d="M19 33l9 9 18-20"/></svg>
+    <h2>Todos a salvo</h2>
+    <p id="exito-texto"></p>
+    <p class="lema">Cuando el río suena, el barrio responde.</p>
+    <button class="btn primario" id="exito-cerrar">Ver el mapa</button>
+  </div>
+</div>
+
+<script src="vendor/maplibre-gl.js"></script>
+<script src="vendor/qrcode.min.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
