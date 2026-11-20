@@ -19,20 +19,26 @@ export class Oido {
   }
   reiniciar() { this.base = null; this.muestrasBase = 0; this.sobre = 0; this.detectado = false; }
   detener() {
-    this.extra.forEach(n => { try { n.stop ? n.stop() : n.disconnect(); } catch {} });
+    // parar Y desconectar: un nodo detenido pero conectado retiene su buffer de 40 s (~7 MB)
+    this.extra.forEach(n => { try { n.stop?.(); } catch {} try { n.disconnect(); } catch {} });
     this.extra = [];
     if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null; }
     if (this.fuente) { try { this.fuente.disconnect(); } catch {} this.fuente = null; }
   }
   async microfono() {
     const ctx = this._ctx(); this.detener(); this.reiniciar();
-    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
-    this.fuente = ctx.createMediaStreamSource(this.stream); this.fuente.connect(this.an);
+    if (!navigator.mediaDevices?.getUserMedia) throw new Error('sin micrófono (¿HTTPS?)');
+    const pedido = this.pedido = Symbol();
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    // si mientras se pedía el permiso se inició el simulacro, este micrófono ya no se usa
+    if (pedido !== this.pedido || this.fuente) { stream.getTracks().forEach(t => t.stop()); return; }
+    this.stream = stream;
+    this.fuente = ctx.createMediaStreamSource(stream); this.fuente.connect(this.an); this.extra.push(this.fuente);
     this.modo = 'micrófono';
   }
   /** Simulacro: 4 s de río normal y después la crecida con piedras. Se escucha por el parlante. */
   simular({ sonar = true } = {}) {
-    const ctx = this._ctx(); this.detener(); this.reiniciar();
+    const ctx = this._ctx(); this.detener(); this.reiniciar(); this.pedido = null;
     const seg = 40, sr = ctx.sampleRate, buf = ctx.createBuffer(1, seg * sr, sr), d = buf.getChannelData(0);
     let ult = 0;
     for (let i = 0; i < d.length; i++) { ult = (ult + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = ult * 3.2; }
@@ -47,11 +53,11 @@ export class Oido {
     gan.gain.setValueAtTime(0.05, t0); gan.gain.setValueAtTime(0.05, t0 + 4); gan.gain.linearRampToValueAtTime(0.9, t0 + 11);
     src.connect(lp).connect(gan); gan.connect(this.an);
     const vol = ctx.createGain(); vol.gain.value = sonar ? 0.5 : 0; gan.connect(vol).connect(ctx.destination);
-    src.start(); this.extra.push(src, gan, vol); this.fuente = gan; this.modo = 'simulacro';
+    src.start(); this.extra.push(src, lp, gan, vol); this.fuente = gan; this.modo = 'simulacro';
   }
   // Con setInterval (no requestAnimationFrame) para que el tiempo sea real aunque la compu vaya lenta.
   _bucle() {
-    let antes = performance.now();
+    let antes = performance.now(); this.vacios = 0;
     const paso = () => {
       const ahora = performance.now(), dt = Math.min(0.5, (ahora - antes) / 1000); antes = ahora;
       this.an.getFloatFrequencyData(this.datos);
@@ -61,7 +67,9 @@ export class Oido {
         const f = i * hz; if (f > 8000) break;
         const p = Math.pow(10, this.datos[i] / 10); total += p; if (f >= 20 && f <= 300) bajo += p;
       }
-      if (!this.fuente) { this._dibujar(hz, 0); return; }
+      // sin fuente: unos cuadros más para que el espectro se vacíe y luego no se dibuja (ahorra CPU/batería)
+      if (!this.fuente) { if (this.vacios++ < 300) this._dibujar(hz, 0); return; }
+      this.vacios = 0;
       if (this.muestrasBase < 2.5) { // 2,5 s de calibración
         this.base = this.base == null ? bajo : this.base * 0.9 + bajo * 0.1; this.muestrasBase += dt;
         this.onNivel({ estado: 'calibrando', ratio: 1, intensidad: 1, avance: this.muestrasBase / 2.5 });
@@ -75,7 +83,7 @@ export class Oido {
       if (!this.detectado && this.sobre > 1.5) { this.detectado = true; this.onDetecta({ intensidad, ratio }); }
       this._dibujar(hz, intensidad);
     };
-    setInterval(paso, 40);
+    this.intervalo = setInterval(() => { if (!document.hidden) paso(); }, 40);
   }
   _dibujar(hz) {
     const { cv, g } = this, w = cv.width, h = cv.height;

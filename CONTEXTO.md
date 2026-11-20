@@ -8,7 +8,7 @@
 - [ ] Preguntar a MLSA si se permite una base previa (si no: llevar solo idea/diseño)
 
 ## Estado (18/11)
-Hecho: oído (simulacro + micrófono), mapa, cuenta regresiva, lluvia real, confianza, regla pintada (lectura con 3 toques), pared con cámara y respaldo dibujado, guardianes (ntfy + BroadcastChannel), pantalla de éxito, ?jurado, celular OK, 8 pruebas.
+Hecho: oído (simulacro + micrófono), mapa, cuenta regresiva, lluvia real, confianza, regla pintada (lectura con 3 toques), pared con cámara y respaldo dibujado, guardianes (ntfy + BroadcastChannel), pantalla de éxito, ?jurado, celular OK, 11 pruebas.
 Pendiente:
 - Probar ntfy con internet real y 2 celulares (desde esta compu ntfy.sh no respondía).
 - Probar micrófono con parlante real (rugido grabado de un río).
