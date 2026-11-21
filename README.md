@@ -3,8 +3,8 @@
 # El Río Suena
 
 > **Cuando el río suena, piedras trae.**
->
-> Sistema de alerta temprana de crecidas para la ribera del río Piraí (Santa Cruz, Bolivia). Informa a cada barrio cuánto tiempo falta para la llegada del agua y asigna a cada persona que no puede evacuar por sí misma un vecino responsable de su traslado. Utiliza datos abiertos, reportes de vigías ubicados río arriba y teléfonos celulares existentes, y funciona sin conexión a internet.
+
+**La madrugada del 13 de diciembre de 2025, el río Piraí entró en El Torno sin aviso: murieron 26 personas y los vecinos tuvieron que subirse a los techos.** El Río Suena es un sistema de alerta temprana para que eso no se repita. Le dice a **cada barrio cuántos minutos le quedan** antes de que llegue el agua y a **cada vecino a quién tiene que ir a buscar**.
 
 <p align="center">
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
@@ -24,17 +24,30 @@
 <sub>Cada idioma se despliega aquí mismo, sin recargar · Each language opens right here, no reload · 各语言在本页展开，无需刷新</sub><br>
 🎤 <a href="pitch-el-rio-suena.md">Guion del pitch</a> · 📊 <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
 
+### En 30 segundos
+
+| | |
+|---|---|
+| **El problema** | Las alertas oficiales se emiten por colores y para todo el departamento. Ninguna le dice a una cuadra cuánto tiempo tiene, y quien no puede evacuar por sí mismo depende de que alguien se acuerde de él. |
+| **Qué hacemos** | Vigilamos la lluvia donde cae, en la cuenca alta, y sumamos el aviso de vigías río arriba. Con eso calculamos una **cuenta regresiva por barrio** y le asignamos un **vecino guardián** a cada persona vulnerable. Si nadie confirma su traslado 30 minutos antes de que llegue el agua, el caso pasa al rescate oficial. |
+| **Por qué creernos** | Lo probamos contra la riada real. Con datos abiertos únicamente, el sistema **no habría alertado**, y lo decimos. Con dos vigías río arriba, el aviso habría llegado **unas 4 horas antes** del desborde (estimación). La alerta y la confirmación ya funcionan en dos teléfonos reales. |
+| **Cuánto cuesta** | **Bs 0 para las familias.** El piloto en una comunidad cuesta alrededor de Bs 1.500. Funciona **sin internet** y con los celulares que la gente ya tiene. |
+| **Qué buscamos** | Un piloto en El Torno esta temporada de lluvias, con la junta vecinal, la Gobernación (COED) y SEARPI. La nota formal ya fue enviada: [`docs/carta-instituciones.md`](docs/carta-instituciones.md). |
+
 ![Simulacro completo: tormenta, alerta, cuenta regresiva y confirmación de todas las personas](capturas/simulacro.gif)
 
-**Demostración en vivo:** https://neckhurtttt.github.io/el-rio-suena/?jurado. Presione **Iniciar simulacro**; en el modo `?jurado` el tiempo transcurre 300 veces más rápido. Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar.
-**Teléfono del guardián:** el botón **Sé guardián** muestra un código QR que puede escanearse con cualquier celular, incluso desde una videollamada.
+### Pruébelo en un minuto
 
-Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el track **Ayuda Tecnológica**, que requiere combinar dos o más tracks:
+1. Abra la **[demostración en vivo](https://neckhurtttt.github.io/el-rio-suena/?jurado)** y presione **Iniciar simulacro**. En el modo `?jurado` el tiempo corre 300 veces más rápido.
+2. Presione **Sé guardián** y escanee el código QR con su celular (funciona incluso desde una videollamada). Toque **Activar avisos**.
+3. Cuando su celular suene, toque **«Ya la ayudé»**: la central registra su respuesta en tiempo real.
 
-- **Comunicación:** transforma la manera en que un barrio ribereño se informa, se conecta y se coordina, mediante la cuenta regresiva por barrio, los reportes de vecinos y la confirmación del vecino guardián.
-- **Educación:** enseña a interpretar el riesgo con la regla pintada (lectura en tres toques), la simulación del nivel del agua sobre la pared de la vivienda y un índice de 0 a 100 explicado en lenguaje sencillo.
+Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar. **Video de respaldo** (sin conexión, 1 min 45 s, con subtítulos): [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
 
-**Video de respaldo (sin conexión, 1 min 45 s, con subtítulos):** [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4). Muestra el código QR para guardianes, el registro compartido de la junta, el simulacro con las respuestas en tiempo real y la validación con la riada de 2025. También está disponible en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
+Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el track **Ayuda Tecnológica**, que combina:
+
+- **Comunicación:** cambia la manera en que un barrio ribereño se informa, se conecta y se coordina, con la cuenta regresiva por barrio, los reportes de vecinos y la confirmación del vecino guardián.
+- **Educación:** enseña a leer el riesgo con la regla pintada (lectura en tres toques), el agua simulada sobre la pared de la propia casa y un índice de 0 a 100 explicado en lenguaje sencillo.
 
 ---
 
@@ -298,25 +311,39 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 <summary><img src="capturas/en/banner.svg" alt="El Río Suena — When the river roars, it brings stones" width="100%"><br><b>▶ Open the full documentation in English</b> · opens right here, no page reload</summary>
 
 > **When the river roars, it brings stones.**
-> **The idea:** no family on the banks of the Piraí should learn about a flood when the water is already at the door. El Río Suena tells **each neighborhood how many minutes it has left** and **each neighbor who they have to go and get**. It uses open data, upstream watchers and phones people already own, and **it works offline**.
+
+**In the early hours of 13 December 2025, the Piraí river swept into El Torno without warning: 26 people died and neighbors had to climb onto their roofs.** El Río Suena is an early-warning system so that this doesn’t happen again. It tells **each neighborhood how many minutes it has left** before the water arrives and **each neighbor who they have to go and get**.
 
 <p align="center">
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en"><img src="https://img.shields.io/badge/▶_Live_demo-judge_mode-5ee6f0?style=for-the-badge" alt="Live demo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
-  <img src="https://img.shields.io/badge/no_backend-GitHub_Pages-222?style=for-the-badge&logo=github" alt="No backend">
-  <img src="https://img.shields.io/badge/tests-17_ok-2ea043?style=for-the-badge" alt="17 tests ok">
+  <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
+  <img src="https://img.shields.io/badge/tests-17_passed-2ea043?style=for-the-badge" alt="17 tests passed">
 </p>
+
+#### In 30 seconds
+
+| | |
+|---|---|
+| **The problem** | Official alerts are issued by color and for the whole department. None of them tells a block how much time it has, and people who can’t evacuate alone depend on someone remembering them. |
+| **What we do** | We watch the rain where it falls, in the upper basin, and add reports from upstream watchers. With that we compute a **countdown per neighborhood** and assign a **neighbor guardian** to every vulnerable person. If nobody confirms 30 minutes before the water arrives, the case goes to official rescue. |
+| **Why trust it** | We tested it against the real flood. With open data alone it **would not have warned**, and we say so. With two upstream watchers, the warning would have come **about 4 hours before** the overflow (estimate). Alert and confirmation already work on two real phones. |
+| **What it costs** | **Bs 0 for families.** A pilot in one community costs about Bs 1,500. It works **offline**, on phones people already have. |
+| **What we’re looking for** | A pilot in El Torno this rainy season, with the neighborhood board, the Departmental Government (COED) and SEARPI. The formal letter has already been sent: [`docs/carta-instituciones.md`](docs/carta-instituciones.md) (Spanish). |
 
 ![Full drill: storm, alert, countdown and Everyone safe](capturas/en/simulacro.gif)
 
-**▶ Live demo:** https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en. Press **Start drill**: in `?jurado` time runs ×300. The **ES · EN · 中文** buttons in the top bar switch the interface language without reloading.
-**📱 Guardian’s phone:** “Guardian’s phone” button → scan the QR code (`guardian.html?t=<topic>&p=rosa`).
+#### Try it in one minute
 
-Abstracthon 2026 · Team **Birria TECH** · **Technology Aid** track, which requires combining two or more tracks. The project sits where these meet:
-- **Communication:** it changes how a riverside neighborhood gets informed, connects and coordinates. It has the countdown per neighborhood, neighbor reports and the Neighbor Guardian, who confirms with one tap.
-- **Education:** it teaches people to read risk with the painted gauge (read in 3 taps), the water on your wall and a 0–100 index explained in plain words.
+1. Open the **[live demo](https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en)** and press **Start drill**. In `?jurado` mode, time runs 300 times faster.
+2. Press **Be a guardian** and scan the QR code with your phone (it even works over a video call). Tap **Turn on alerts**.
+3. When your phone rings, tap **“I helped her”**: the control room logs your response in real time.
 
-🎥 **Backup video (offline):** [capturas/en/demo-respaldo.mp4](capturas/en/demo-respaldo.mp4) · also in the [v1.0-abstracthon release](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon) (Spanish).
+The **ES · EN · 中文** buttons in the top bar switch the interface language without reloading. **Backup video** (offline): [capturas/en/demo-respaldo.mp4](capturas/en/demo-respaldo.mp4).
+
+Presented at Abstracthon 2026 by team **Birria TECH**, in the **Technology Aid** track, combining:
+- **Communication:** it changes how a riverside neighborhood gets informed, connects and coordinates: the countdown per neighborhood, neighbor reports and the guardian’s one-tap confirmation.
+- **Education:** it teaches people to read risk with the painted gauge (read in 3 taps), the water drawn on their own wall and a 0–100 index explained in plain words.
 
 ---
 
@@ -525,25 +552,39 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 <summary><img src="capturas/zh/banner.svg" alt="El Río Suena — 河水作响，必有石来" width="100%"><br><b>▶ 展开完整中文文档</b> · 在本页直接展开，无需刷新</summary>
 
 > **河水作响，必有石来。**
-> **我们的目标：** 不让皮拉伊河（Piraí）沿岸的任何一个家庭，等到洪水已经到了门口才知道。“河水作响”（El Río Suena）告诉**每个社区还剩多少分钟**，告诉**每位邻居该去接谁**。它使用开放数据、上游观察员和人们已有的手机，并且**可以离线运行**。
+
+**2025 年 12 月 13 日凌晨，皮拉伊河（Piraí）毫无预警地冲进 El Torno：26 人遇难，居民只能爬上屋顶避险。** “河水作响”（El Río Suena）是一个早期预警系统，为的是不让悲剧重演。它告诉**每个社区洪水到达前还剩多少分钟**，告诉**每位邻居该去接谁**。
 
 <p align="center">
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh"><img src="https://img.shields.io/badge/▶_在线演示-评委模式-5ee6f0?style=for-the-badge" alt="在线演示"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
-  <img src="https://img.shields.io/badge/无后端-GitHub_Pages-222?style=for-the-badge&logo=github" alt="无后端">
+  <img src="https://img.shields.io/badge/后端-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
   <img src="https://img.shields.io/badge/测试-17_通过-2ea043?style=for-the-badge" alt="17 项测试通过">
 </p>
 
+#### 30 秒了解
+
+| | |
+|---|---|
+| **问题** | 官方警报按颜色等级发布，覆盖整个省。没有一条警报告诉某个街区还有多少时间；无法独自撤离的人只能指望有人记得他们。 |
+| **我们做什么** | 在降雨发生的上游流域盯住雨情，并汇总上游观察员的报告，据此计算**各社区倒计时**，并为每位弱势人员指定一位**邻居守护者**。若洪水到达前 30 分钟仍无人确认，则转交官方救援。 |
+| **为什么可信** | 我们用真实洪灾做了检验。仅靠开放数据，系统**本来无法预警**，我们如实说明。有两名上游观察员时，预警**约可提前 4 小时**（估算）。警报与确认已在两部真机上跑通。 |
+| **成本** | **对家庭免费（0 玻利维亚诺）。** 一个社区的试点约 1,500 玻利维亚诺。**可离线运行**，使用人们已有的手机。 |
+| **我们在寻求** | 本雨季在 El Torno 开展试点，与社区委员会、省政府（COED）和 SEARPI 合作。正式函件已经发出：[`docs/carta-instituciones.md`](docs/carta-instituciones.md)（西班牙语）。 |
+
 ![完整演练：暴雨、警报、倒计时与全员安全](capturas/zh/simulacro.gif)
 
-**▶ 在线演示：** https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh。点击 **开始演练**：在 `?jurado` 模式下时间加速 300 倍。顶部的 **ES · EN · 中文** 按钮可直接切换界面语言，无需刷新。
-**📱 守护者手机：** 点击「守护者手机」→ 扫描二维码（`guardian.html?t=<主题>&p=rosa`）。
+#### 一分钟上手
 
-Abstracthon 2026 · **Birria TECH** 团队 · **科技助力**赛道（要求融合两个或更多赛道）。本项目位于以下两者的交汇处：
-- **沟通：** 改变河岸社区获取信息、彼此联系和协同行动的方式。包括各社区倒计时、邻居报告，以及一键确认的「邻居守护者」。
-- **教育：** 教人们读懂风险：水尺读数（点击 3 次）、墙上的水位，以及用通俗语言解释的 0–100 风险指数。
+1. 打开 **[在线演示](https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh)**，点击 **开始演练**。在 `?jurado` 模式下时间加速 300 倍。
+2. 点击 **成为守护者**，用手机扫描二维码（视频通话中也可以扫）。点击 **开启提醒**。
+3. 手机响起后，点击 **「我已帮她撤离」**：指挥中心会实时记录你的响应。
 
-🎥 **备用视频（离线可看）：** [capturas/zh/demo-respaldo.mp4](capturas/zh/demo-respaldo.mp4) · 也可在 [v1.0-abstracthon 发布版](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon)中找到（西班牙语）。
+顶部的 **ES · EN · 中文** 按钮可直接切换界面语言，无需刷新。**备用视频**（离线可看）：[capturas/zh/demo-respaldo.mp4](capturas/zh/demo-respaldo.mp4)。
+
+由 **Birria TECH** 团队在 Abstracthon 2026 **科技助力**赛道提交，融合了：
+- **沟通：** 改变河岸社区获取信息、彼此联系和协同行动的方式：各社区倒计时、邻居报告，以及守护者的一键确认。
+- **教育：** 教人们读懂风险：水尺读数（点击 3 次）、画在自家墙上的水位，以及用通俗语言解释的 0–100 风险指数。
 
 ---
 
