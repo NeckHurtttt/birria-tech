@@ -1,7 +1,17 @@
 // Canal entre la central y los celulares de los guardianes.
-// ntfy.sh (pub/sub público, sin cuenta) + BroadcastChannel como respaldo en la misma compu.
-// Solo para la demo: un tema público no es privado; en producción va con servidor propio.
-const BASE = 'https://ntfy.sh/';
+// ntfy del nodo comunitario (si está configurado) + ntfy.sh público como respaldo + BroadcastChannel en la misma compu.
+// Se escucha y se publica en todos a la vez: si el servidor de la comunidad se cae, los avisos siguen por ntfy.sh,
+// y los duplicados se descartan por uid. Un tema público no es privado: en producción va solo el servidor propio.
+import { NTFY_PROPIO } from './config.js';
+const PUBLICO = 'https://ntfy.sh/';
+const conBarra = u => u.replace(/\/*$/, '/');
+/** Servidores ntfy en orden: el propio (de ?ntfy= o de config.js) y después ntfy.sh. Solo https, o http en localhost. */
+export function basesNtfy(param = '', propio = NTFY_PROPIO) {
+  const ok = u => { try { const x = new URL(u); return x.protocol === 'https:' || (x.protocol === 'http:' && /^(localhost|127\.)/.test(x.hostname)); } catch { return false; } };
+  const l = [param, propio].filter(Boolean).filter(ok).map(conBarra);
+  return [...new Set([...l, PUBLICO])];
+}
+const BASES = basesNtfy(typeof location === 'object' ? new URLSearchParams(location.search).get('ntfy') || '' : '');
 const MAX_VISTOS = 200;          // memoria acotada para no repetir mensajes
 const ENVIO_MS = 6000;           // un POST colgado no debe trabar la interfaz
 const REINTENTO_MIN = 3000, REINTENTO_MAX = 60000;
@@ -49,31 +59,36 @@ export function abrirCanal(tema, alRecibir) {
 
   // EventSource reintenta solo cada ~3 s para siempre: sin internet eso llena la consola.
   // Aquí se reconecta a mano con espera creciente y se pausa si el navegador está offline.
-  let es = null, espera = REINTENTO_MIN, timer = null, cerrado = false;
-  const conectar = () => {
-    clearTimeout(timer); timer = null;
-    if (cerrado || !tema || typeof EventSource !== 'function') return;
-    if (navigator.onLine === false) return; // se retoma con el evento 'online'
-    try { es = new EventSource(`${BASE}${tema}/sse?since=30s`); } catch { return programar(); }
-    es.onopen = () => { espera = REINTENTO_MIN; };
-    es.onmessage = e => {
-      try {
-        const d = JSON.parse(e.data); const m = deTags(d.tags);
-        if (d.event === 'message' && m) entregar({ ...m, uid: m.uid || d.id, titulo: d.title, texto: d.message });
-      } catch { /* mensaje ajeno al formato */ }
+  let cerrado = false;
+  const suscribir = base => {
+    let es = null, espera = REINTENTO_MIN, timer = null;
+    const conectar = () => {
+      clearTimeout(timer); timer = null;
+      if (cerrado || !tema || typeof EventSource !== 'function') return;
+      if (navigator.onLine === false) return; // se retoma con el evento 'online'
+      try { es = new EventSource(`${base}${tema}/sse?since=30s`); } catch { return programar(); }
+      es.onopen = () => { espera = REINTENTO_MIN; };
+      es.onmessage = e => {
+        try {
+          const d = JSON.parse(e.data); const m = deTags(d.tags);
+          if (d.event === 'message' && m) entregar({ ...m, uid: m.uid || d.id, titulo: d.title, texto: d.message });
+        } catch { /* mensaje ajeno al formato */ }
+      };
+      es.onerror = () => { es?.close(); es = null; programar(); };
     };
-    es.onerror = () => { es?.close(); es = null; programar(); };
+    const programar = () => {
+      if (cerrado || timer) return;
+      timer = setTimeout(conectar, espera); espera = Math.min(REINTENTO_MAX, espera * 2);
+    };
+    conectar();
+    return { enLinea() { espera = REINTENTO_MIN; if (!es) conectar(); }, cerrar() { clearTimeout(timer); es?.close(); es = null; } };
   };
-  const programar = () => {
-    if (cerrado || timer) return;
-    timer = setTimeout(conectar, espera); espera = Math.min(REINTENTO_MAX, espera * 2);
-  };
-  const enLinea = () => { espera = REINTENTO_MIN; if (!es) conectar(); };
+  const subs = BASES.map(suscribir);
+  const enLinea = () => subs.forEach(s => s.enLinea());
   addEventListener('online', enLinea);
-  conectar();
 
   const cerrar = () => {
-    cerrado = true; clearTimeout(timer); es?.close(); es = null; bc?.close();
+    cerrado = true; subs.forEach(s => s.cerrar()); bc?.close();
     removeEventListener('online', enLinea); removeEventListener('pagehide', cerrar);
   };
   addEventListener('pagehide', cerrar);
@@ -85,15 +100,16 @@ export function abrirCanal(tema, alRecibir) {
       const m = { ...datos, uid, titulo: aviso.titulo, texto: aviso.texto };
       vistos.add(uid);
       try { bc?.postMessage(m); } catch { /* canal ya cerrado */ }
-      const red = (async () => {
-        if (cerrado || navigator.onLine === false) return false;
+      const cuerpo = JSON.stringify({ topic: tema, title: aviso.titulo, message: aviso.texto || ' ', tags: aTags({ ...datos, uid }), priority: aviso.prioridad || 3, actions: aviso.acciones });
+      const uno = async base => {
         const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), ENVIO_MS);
-        try {
-          const r = await fetch(BASE, { method: 'POST', signal: ctl.signal, body: JSON.stringify({ topic: tema, title: aviso.titulo, message: aviso.texto || ' ', tags: aTags({ ...datos, uid }), priority: aviso.prioridad || 3, actions: aviso.acciones }) });
-          return r.ok;
-        } catch { return false; /* sin internet: queda el canal local */ }
+        try { return (await fetch(base, { method: 'POST', signal: ctl.signal, body: cuerpo })).ok; }
+        catch { return false; /* ese servidor no responde: queda el otro y el canal local */ }
         finally { clearTimeout(t); }
-      })();
+      };
+      // true si llegó a algún servidor (el propio o ntfy.sh)
+      const red = cerrado || navigator.onLine === false ? Promise.resolve(false)
+        : Promise.all(BASES.map(uno)).then(r => r.some(Boolean));
       return Object.assign(m, { red });
     },
     cerrar,

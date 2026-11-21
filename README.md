@@ -12,7 +12,7 @@
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
-  <img src="https://img.shields.io/badge/pruebas-17_aprobadas-2ea043?style=for-the-badge" alt="17 pruebas aprobadas">
+  <img src="https://img.shields.io/badge/pruebas-18_aprobadas-2ea043?style=for-the-badge" alt="18 pruebas aprobadas">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/JavaScript-ES2022_modules-F7DF1E?logo=javascript&logoColor=000" alt="JavaScript">
@@ -271,8 +271,9 @@ js/historico.js        riada del 12–13/12/2025 (datos abiertos)
 js/idioma.js           interfaz en castellano, inglés y chino
 supabase/esquema.sql   tablas y funciones del registro compartido
 sw.js                  funcionamiento sin conexión (PWA)
+nodo/                  nodo comunitario: ntfy propio, túnel y vigía por Telegram con Whisper
 herramientas/validar.py  reproduce la validación con Open-Meteo
-pruebas.mjs            17 pruebas automatizadas (índice, riada, tiempos, canal, PWA, CSV, idiomas)
+pruebas.mjs            18 pruebas automatizadas (índice, riada, tiempos, canal, PWA, CSV, idiomas)
 ```
 
 ## Ejecución local
@@ -286,6 +287,16 @@ python3 herramientas/validar.py  # riada de 2025 y 42 años de GloFAS
 - La cámara y el micrófono requieren HTTPS o `localhost`.
 - El parámetro `?x=60` modifica la aceleración del tiempo (por defecto ×300 en `?jurado`). Los parámetros `?lang=en` y `?lang=zh` abren la interfaz en inglés o chino.
 - Para otra comunidad o junta: parámetro `?c=<comunidad>` y una fila nueva en `rs_juntas`.
+
+## Nodo comunitario: el vigía manda un audio
+
+Una PC de la junta o del COED funciona como **servidor de la comunidad**, con IA que corre ahí mismo, sin nube extranjera ni costo por mensaje ([`nodo/`](nodo/README.md)):
+
+- **ntfy propio + túnel de Cloudflare.** Los avisos salen de un servidor de la comunidad; la app publica a la vez en ntfy.sh, así que si el nodo se cae los avisos siguen.
+- **Vigía por Telegram.** El vigía río arriba manda un **audio** («el río está creciendo, ya tapa la piedra grande»). **Whisper** lo transcribe en la PC, se decide si es un reporte de crecida (reglas o un modelo local con Ollama) y la central lo cuenta como vigía, con lo que dijo a la vista. No hay que instalar ninguna app: un audio es lo que la gente ya manda.
+- **Mismas reglas de seguridad:** solo cuentan los vigías dados de alta por la junta, y hacen falta dos vigías distintos para la alerta.
+
+Instalación con Docker en unos 20 minutos: [`nodo/README.md`](nodo/README.md).
 
 ## Próximos pasos
 
@@ -330,7 +341,7 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en"><img src="https://img.shields.io/badge/▶_Live_demo-judge_mode-5ee6f0?style=for-the-badge" alt="Live demo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
-  <img src="https://img.shields.io/badge/tests-17_passed-2ea043?style=for-the-badge" alt="17 tests passed">
+  <img src="https://img.shields.io/badge/tests-18_passed-2ea043?style=for-the-badge" alt="18 tests passed">
 </p>
 
 #### How it works, at a glance
@@ -529,14 +540,15 @@ js/registro.js    people register, board approval, CSV
 js/historico.js   real flood of 12–13 Dec 2025 (open data)
 js/idioma.js      interface in Spanish, English and Chinese
 sw.js             works offline (PWA)
+nodo/             community node: own ntfy, tunnel and Telegram watcher bot with Whisper
 herramientas/validar.py  redoes the validation with Open-Meteo
-pruebas.mjs       17 tests (index, 2025 flood, times, channel, PWA, CSV, languages)
+pruebas.mjs       18 tests (index, 2025 flood, times, channel, PWA, CSV, languages)
 ```
 
 ### 🚀 Run it
 ```bash
 python3 -m http.server 8765    # http://localhost:8765/?jurado&lang=en
-node pruebas.mjs               # 17 tests ok
+node pruebas.mjs               # 18 tests ok
 python3 herramientas/validar.py  # 2025 flood + 42 years of GloFAS
 ```
 - Camera and microphone need HTTPS or localhost.
@@ -580,7 +592,7 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh"><img src="https://img.shields.io/badge/▶_在线演示-评委模式-5ee6f0?style=for-the-badge" alt="在线演示"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/后端-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
-  <img src="https://img.shields.io/badge/测试-17_通过-2ea043?style=for-the-badge" alt="17 项测试通过">
+  <img src="https://img.shields.io/badge/测试-18_通过-2ea043?style=for-the-badge" alt="18 项测试通过">
 </p>
 
 #### 一图看懂工作原理
@@ -779,14 +791,15 @@ js/registro.js    人员登记、委员会审批、CSV
 js/historico.js   2025 年 12 月 12–13 日真实洪灾（开放数据）
 js/idioma.js      西班牙语、英语、中文界面
 sw.js             离线运行（PWA）
+nodo/             社区节点：自建 ntfy、隧道，以及基于 Whisper 的 Telegram 观察员机器人
 herramientas/validar.py  用 Open-Meteo 重新验证
-pruebas.mjs       17 项测试（指数、2025 洪灾、时间、通道、PWA、CSV、语言）
+pruebas.mjs       18 项测试（指数、2025 洪灾、时间、通道、PWA、CSV、语言）
 ```
 
 ### 🚀 运行
 ```bash
 python3 -m http.server 8765    # http://localhost:8765/?jurado&lang=zh
-node pruebas.mjs               # 17 项测试通过
+node pruebas.mjs               # 18 项测试通过
 python3 herramientas/validar.py  # 2025 年洪灾 + 42 年 GloFAS 数据
 ```
 - 摄像头和麦克风需要 HTTPS 或 localhost。
