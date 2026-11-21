@@ -39,6 +39,10 @@ Sin embargo, río arriba, en Bermejo y en el río Espejos, **los vecinos sí ve�
 
 Con dos vigías que reporten el crecimiento del río, la alerta se activa **unas cuatro horas antes** del desborde.
 
+*(Si el bot está encendido: reproducir el audio de Telegram de un vigía, «está viniendo turbio, ya tapa la piedra». Aparece en la central «Vigía en Bermejo».)*
+
+Y no necesitan aprender ninguna aplicación: **el vigía manda un audio por Telegram**, una computadora del barrio lo entiende y lo cuenta como reporte.
+
 ---
 
 ## III. La solución · 0:55 – 2:15 · *funcionamiento, creatividad, propuesta*
@@ -123,6 +127,12 @@ Son estimaciones del prototipo. Durante el piloto se calibrarán con SEARPI y el
 **«¿Y las falsas alarmas?»**
 Un único reporte no activa la alerta: se requieren dos vigías, lluvia intensa en la cuenca o un caudal superior al percentil 95 de 42 años. Los reportes de la ribera por sí solos únicamente colocan la zona en vigilancia.
 
+**«¿Quién vigila de noche?»**
+Una computadora del equipo revisa la cuenca alta cada 10 minutos, las 24 horas, y deja la última lectura en la nube. Si esa computadora se apaga, cada celular sigue vigilando por su cuenta: no hay un único punto de falla.
+
+**«¿Y si el vigía no sabe usar apps?»**
+Manda un audio por Telegram, como lo haría con su familia. La computadora del barrio lo transcribe sin enviar el audio a ninguna empresa y solo cuentan los vigías dados de alta por la junta.
+
 **«¿Y si se cae el internet?»**
 La aplicación queda instalada y abre sin conexión con la última información disponible. Los guardianes pueden recibir el aviso por SMS o llamada.
 
@@ -147,5 +157,8 @@ Para las familias es gratuito. El piloto cuesta aproximadamente Bs 1.500; poster
 - [ ] Volumen del parlante al máximo y probado
 - [ ] La página abierta con HTTPS (Pages), ya instalada como app por si falla el wifi
 - [ ] Video de respaldo listo: `capturas/demo-respaldo.mp4`
+- [ ] La PC de Rodrigo encendida y subiendo lecturas: la fuente del Vigía debe decir **«vigía central (PC del equipo)»**
+- [ ] Bot de Telegram encendido (`nodo/`) y un audio de vigía grabado listo para mandar; si falla, usar el botón «Vigía río arriba»
+- [ ] En el discurso mostrar solo **dos** cosas nuevas: el audio del vigía y la cuenta regresiva; lo demás, para las preguntas
 - [ ] Ensayado con cronómetro: **menos de 3:45** (son 4 min + 3 de preguntas)
 - [ ] Tono respetuoso al referirse a las víctimas del 13/12/2025: son la razón del proyecto
