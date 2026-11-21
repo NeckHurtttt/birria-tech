@@ -59,3 +59,59 @@ t('idioma: textos fijos, con números y compuestos', () => {
   assert.equal(tr('texto que no está en el diccionario', 'en'), 'texto que no está en el diccionario');
 });
 console.log('idioma ok');
+
+// ---------- recolector (PC del equipo) ----------
+import { calcularFila, decidirAlerta, mensajeAlerta, encolar, leerCola, vaciarCola, REARME } from './recolector/nucleo.mjs';
+import { lecturaComoEscaneo, VIGENCIA_MIN } from './js/nube.js';
+import { UMBRAL_ALERTA } from './js/datos.js';
+import fs from 'node:fs'; import os from 'node:os'; import path from 'node:path';
+const TORMENTA_R = { vivo: true, ll6: 46, ll24: 64, prox6: 30, prox24: 45, caudal: 30, caudalPico: 58 };
+t('recolector: fila calculada con el índice y los minutos por barrio de la app', () => {
+  const f = calcularFila(TORMENTA_R, new Date('2026-11-21T20:00:00Z'));
+  assert.equal(f.creado_en, '2026-11-21T20:00:00.000Z');
+  assert.equal(f.nivel, 'alerta'); assert.ok(f.indice >= UMBRAL_ALERTA * 100);
+  assert.equal(f.caudal, 58); assert.equal(f.origen, 'pc');
+  assert.equal(f.barrios.length, 5); assert.ok(f.barrios.every(b => b.minutos > 0));
+  assert.ok(f.barrios[0].minutos < f.barrios[4].minutos); // río abajo llega después
+  assert.equal(calcularFila({ ...TORMENTA_R, vivo: false }), null); // el respaldo inventado no se sube
+  assert.equal(calcularFila({ ...TORMENTA_R, lluviaVivo: true }).origen, 'pc-parcial'); // GloFAS falló: caudal de respaldo
+  assert.equal(calcularFila({ ...TORMENTA_R, lluviaVivo: true, caudalVivo: true }).origen, 'pc');
+  assert.equal(calcularFila({ vivo: true, ll6: 0, ll24: 1, prox6: 0, caudal: 7, caudalPico: 8 }).nivel, 'normal');
+});
+t('recolector: la alerta se publica una sola vez por evento', () => {
+  let e = {}, publicadas = 0;
+  for (const i of [20, 60, 70, 65, 50, 60, 30, 70]) { const d = decidirAlerta(e, i); if (d.publicar) publicadas++; e = d.estado; }
+  // 60 publica; 70, 65 no; 50 no rearma (está sobre el margen); 60 no; 30 rearma; 70 publica de nuevo
+  assert.equal(publicadas, 2);
+  assert.ok(REARME < UMBRAL_ALERTA);
+  const m = mensajeAlerta(calcularFila(TORMENTA_R), 'rio suena!');
+  assert.equal(m.topic, 'riosuena'); assert.deepEqual(deTags(m.tags).tipo, 'lectura');
+});
+{ // async: se espera con await de nivel superior antes de comprobar
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-')), cola = path.join(dir, 'pendientes.jsonl');
+  [1, 2, 3].forEach(n => encolar(cola, { n }));
+  fs.appendFileSync(cola, 'línea rota\n'); // una línea corrupta no rompe la cola
+  const subidas = [];
+  const r1 = await vaciarCola(cola, async f => { if (f.n === 2) throw Error('sin red'); subidas.push(f.n); });
+  const tras1 = leerCola(cola).map(f => f.n);
+  const r2 = await vaciarCola(cola, async f => { subidas.push(f.n); });
+  t('recolector: cola de pendientes en orden y sin perder filas', () => {
+    assert.equal(r1.subidas, 1); assert.equal(r1.quedan, 2); assert.deepEqual(tras1, [2, 3]);
+    assert.deepEqual(subidas, [1, 2, 3]); assert.equal(r2.quedan, 0); assert.equal(fs.existsSync(cola), false);
+  });
+}
+t('app: usa la lectura del recolector solo si tiene menos de 20 min', () => {
+  const ahora = Date.parse('2026-11-21T20:00:00Z'), fila = calcularFila(TORMENTA_R, new Date(ahora - 5 * 60000));
+  const l = lecturaComoEscaneo(fila, ahora);
+  assert.equal(l.fuente, 'Vigía central (PC del equipo)'); assert.equal(l.caudalPico, 58); assert.equal(l.vivo, true);
+  assert.equal(lecturaComoEscaneo({ ...fila, creado_en: new Date(ahora - (VIGENCIA_MIN + 1) * 60000).toISOString() }, ahora), null);
+  assert.equal(lecturaComoEscaneo(undefined, ahora), null);
+});
+console.log('recolector ok');
+import { registrar as anotar } from './recolector/nucleo.mjs';
+t('recolector: el registro rota al pasar el tamaño máximo', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'rs-')), log = path.join(dir, 'registro.log');
+  anotar(log, 'a'.repeat(50), 40); anotar(log, 'b', 40);
+  assert.ok(fs.existsSync(log + '.1')); assert.match(fs.readFileSync(log, 'utf8'), / b\n$/);
+});
+console.log('registro ok');

@@ -187,6 +187,7 @@ const D = {
   'habla quechua': ['speaks Quechua', '说克丘亚语'],
   // fuentes de datos
   'respaldo (sin internet)': ['offline fallback', '离线备用数据'],
+  'Vigía central (PC del equipo)': ['Central watch (team PC)', '中央守望（团队电脑）'],
   'Open-Meteo + GloFAS, en vivo': ['Open-Meteo + GloFAS, live', 'Open-Meteo + GloFAS，实时'],
   'datos abiertos de la cuenca alta': ['open data from the upper basin', '上游流域开放数据'],
   'dos vigías río arriba': ['two upstream watchers', '两名上游观察员'],

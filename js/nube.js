@@ -38,3 +38,30 @@ export const nube = {
   aprobar: (clave, id, si = true) => rpc('rs_aprobar', { p_comunidad: comunidad, p_clave: clave, p_id: id, p_aprobado: si }),
   quitar: (clave, id) => rpc('rs_quitar', { p_comunidad: comunidad, p_clave: clave, p_id: id }),
 };
+
+// ---------- lecturas del recolector (PC del equipo, ver recolector/) ----------
+// rs_lecturas tiene lectura pública. Si la última es reciente, la app la usa en vez de escanear desde el navegador;
+// si la PC está apagada (lectura vieja o ninguna), la app escanea sola como siempre.
+export const VIGENCIA_MIN = 20;
+export const FUENTE_CENTRAL = 'Vigía central (PC del equipo)';
+
+/** Convierte una fila de rs_lecturas al formato de escanear() (js/lluvia.js). null si es vieja o inválida. */
+export function lecturaComoEscaneo(fila, ahora = Date.now()) {
+  const t = Date.parse(fila?.creado_en);
+  if (!fila || !Number.isFinite(t) || ahora - t > VIGENCIA_MIN * 60000 || ahora - t < -5 * 60000) return null;
+  const n = k => Math.max(0, Number(fila[k]) || 0);
+  return { ll6: n('ll6'), ll24: n('ll24'), prox6: n('prox6'), prox24: n('prox24'), caudal: n('caudal'), caudalPico: n('caudal'),
+    mm24: n('ll24'), puntos: [], vivo: true, fuente: FUENTE_CENTRAL, creado_en: fila.creado_en };
+}
+
+export async function ultimaLectura() {
+  if (!hayNube() || globalThis.navigator?.onLine === false) return null;
+  const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 6000);
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rs_lecturas?select=*&order=creado_en.desc&limit=1`,
+      { signal: ctl.signal, headers: { apikey: SUPABASE_KEY } });
+    if (!r.ok) return null; // tabla aún no creada, sin red, etc.: la app escanea sola
+    const [fila] = await r.json();
+    return lecturaComoEscaneo(fila);
+  } catch { return null; } finally { clearTimeout(t); }
+}

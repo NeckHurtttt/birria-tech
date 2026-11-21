@@ -80,3 +80,29 @@ end $$;
 
 revoke all on function rs_clave_ok(text, text) from public, anon, authenticated;
 grant execute on function rs_registrar(text, jsonb), rs_listar(text, text), rs_aprobar(text, text, uuid, boolean), rs_quitar(text, text, uuid) to anon, authenticated;
+
+-- ============================================================================================
+-- Lecturas del río (recolector en la PC del equipo, ver recolector/README.md).
+-- Lectura PÚBLICA (la app las muestra sin clave). Escritura solo con la clave service_role,
+-- que se salta RLS: no hay política de insert/update/delete para anon ni authenticated.
+-- ============================================================================================
+create table if not exists rs_lecturas (
+  id bigint generated always as identity primary key,
+  creado_en timestamptz not null default now(),
+  ll6 real not null check (ll6 >= 0),          -- lluvia de las últimas 6 h (mm, peor punto de la cuenca alta)
+  ll24 real not null check (ll24 >= 0),        -- últimas 24 h
+  prox6 real not null check (prox6 >= 0),      -- pronóstico próximas 6 h
+  prox24 real not null default 0 check (prox24 >= 0),
+  caudal real not null check (caudal >= 0),    -- caudal GloFAS en La Angostura (pico próximos días, m³/s)
+  indice int not null check (indice between 0 and 100),
+  nivel text not null check (nivel in ('normal', 'vigilancia', 'alerta')),
+  barrios jsonb not null default '[]'::jsonb,  -- [{id, nombre, km, minutos}]
+  origen text not null default 'pc' check (length(origen) <= 40)
+);
+create index if not exists rs_lecturas_creado on rs_lecturas (creado_en desc);
+
+alter table rs_lecturas enable row level security;
+revoke all on rs_lecturas from anon, authenticated;
+grant select on rs_lecturas to anon, authenticated;
+drop policy if exists rs_lecturas_leer on rs_lecturas;
+create policy rs_lecturas_leer on rs_lecturas for select to anon, authenticated using (true);

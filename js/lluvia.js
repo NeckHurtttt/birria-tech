@@ -34,11 +34,11 @@ export async function escanear() {
     const lista = Array.isArray(ll.value) ? ll.value : [ll.value];
     r.puntos = lista.map((d, i) => ({ nombre: CUENCA[i].nombre, ...ventanas(d.hourly) }));
     for (const k of ['ll6', 'll24', 'prox6', 'prox24']) r[k] = Math.max(...r.puntos.map(p => p[k]));
-    r.vivo = true;
+    r.vivo = r.lluviaVivo = true;
   }
   if (fl.status === 'fulfilled' && fl.value.daily) {
     const q = fl.value.daily.river_discharge.filter(x => x != null);
-    r.caudal = q[1] ?? q[0]; r.caudalPico = Math.max(...q.slice(1)); r.vivo = true;
+    r.caudal = q[1] ?? q[0]; r.caudalPico = Math.max(...q.slice(1)); r.vivo = r.caudalVivo = true;
   }
   r.fuente = r.vivo ? 'Open-Meteo + GloFAS, en vivo' : RESPALDO.fuente;
   r.mm24 = r.ll24; // compatibilidad con confianza()
