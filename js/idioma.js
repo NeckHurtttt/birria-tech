@@ -188,6 +188,7 @@ const D = {
   // fuentes de datos
   'respaldo (sin internet)': ['offline fallback', '离线备用数据'],
   'Open-Meteo + GloFAS, en vivo': ['Open-Meteo + GloFAS, live', 'Open-Meteo + GloFAS，实时'],
+  'vigía central (PC del equipo)': ['central watcher (team PC)', '中央守望（团队电脑）'],
   'datos abiertos de la cuenca alta': ['open data from the upper basin', '上游流域开放数据'],
   'dos vigías río arriba': ['two upstream watchers', '两名上游观察员'],
   'el oído del río': ['the river ear', '河之耳'],

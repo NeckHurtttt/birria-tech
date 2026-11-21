@@ -5,7 +5,7 @@ import { Pared } from './pared.js';
 import { escanear } from './lluvia.js';
 import { temaDemo, abrirCanal } from './canal.js';
 import { activas, todas, registrar, aprobar, quitar, aCSV, sincronizar, subirPendientes } from './registro.js';
-import { hayNube, claveJunta, comunidad } from './nube.js';
+import { hayNube, claveJunta, comunidad, vigiaCentral, deLectura } from './nube.js';
 import { RIADA_2025 } from './historico.js';
 import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
@@ -366,7 +366,11 @@ function evaluar() {
     : 'La lluvia en Samaipata y Bermejo tarda unas 2 h 30 min en bajar hasta La Angostura: ese es el tiempo que ganamos.';
 }
 async function escaneo() {
-  const l = await escanear(); est.lluvia = l;
+  // primero la PC del equipo (vigía central); si no hay lectura fresca, el navegador escanea solo
+  let l = null;
+  if (hayNube()) { try { l = deLectura(await vigiaCentral.ultima()); } catch {} }
+  if (!l) l = await escanear();
+  est.lluvia = l;
   $('#chip-lluvia span').textContent = `Cuenca alta: ${l.ll24.toFixed(0)} mm (24 h) · ${l.prox24.toFixed(0)} mm próx.`;
   $('#chip-lluvia').title = `Fuente: ${l.fuente}` + (l.puntos.length ? ' · ' + l.puntos.map(p => `${p.nombre} ${p.ll24.toFixed(0)} mm`).join(', ') : '');
   evaluar(); mostrarConfianza();

@@ -39,3 +39,8 @@ Hecho:
 - README: propuesta, público, validación, diferenciación, tecnologías, implementación con costos, impacto. Pitch reescrito (3:30). PPTX: diapositivas 1, 2 (nueva, gráfica), 5, 6, 11, 12 cambiadas SIN poder renderizar → revisar a mano.
 - Video de respaldo nuevo (riada + simulacro + junta + registro + guardián + pared, 90 s).
 Pendiente: revisar PPTX visualmente; base compartida para el registro; vigías reales.
+
+## 21/11 tarde: vigía central en la PC de Rodrigo (Reynaldo, Windows)
+- `recolector/` corre cada 10 min por Tarea programada, sube a `rs_lecturas` vía RPC `rs_subir_lectura` con token propio (no service_role).
+- La app usa la lectura si tiene < 20 min (`deLectura` en js/nube.js); si no, escanea desde el navegador. La PC NO es punto único de falla.
+- Pasos del dueño: correr `supabase/esquema.sql`, dar de alta `pc-rodrigo` con un token (ver recolector/README.md) y pasárselo por privado.

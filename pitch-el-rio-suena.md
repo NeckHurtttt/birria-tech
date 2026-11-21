@@ -81,7 +81,7 @@ Está dirigido a las familias de la ribera, a las personas que no pueden evacuar
 
 La junta registra y aprueba a cada persona desde cualquier teléfono, en un registro compartido protegido por clave.
 
-Es una aplicación web que **se instala sin tienda de aplicaciones y funciona sin internet**. No requiere sensores costosos: un teléfono, pintura y vecinos.
+Es una aplicación web que **se instala sin tienda de aplicaciones y funciona sin internet**. No requiere sensores costosos: un teléfono, pintura y vecinos. Además, una PC del equipo vigila la cuenca las 24 horas y deja la última lectura en la nube; si esa PC se apaga, cada celular sigue vigilando por su cuenta.
 
 Proponemos un piloto en **El Torno durante esta temporada de lluvias**: diez vigías, cinco reglas pintadas y cincuenta personas registradas, por aproximadamente **mil quinientos bolivianos**. Para las familias, **el servicio es gratuito**.
 

@@ -248,6 +248,7 @@ flowchart LR
 - **Audio:** Web Audio con una FFT de 4096 muestras; compara la energía entre 20 y 300 Hz con la línea base y señala un aumento sostenido durante 1,5 segundos.
 - **Canal con los guardianes:** ntfy.sh (publicación y suscripción, compatible con la aplicación ntfy), con BroadcastChannel como respaldo local.
 - **Registro compartido:** `js/nube.js` y `js/registro.js` con Supabase; funciones RPC definidas en `supabase/esquema.sql`.
+- **Vigía central:** una PC del equipo corre `recolector/` cada 10 min (Tarea programada en Windows) y sube la lectura de la cuenca a Supabase (`rs_lecturas`, con token propio). La app la usa si tiene menos de 20 min; si no, cada navegador escanea por su cuenta, así que esa PC no es un punto único de falla. Ver [recolector/README.md](recolector/README.md).
 - **Funcionamiento sin conexión:** `sw.js` almacena la aplicación, la última consulta de datos y el mapa visitado; los guardianes cuentan con SMS y llamada de respaldo.
 - **Idiomas:** `js/idioma.js` traduce la interfaz al inglés y al chino con los botones **ES · EN · 中文**, sin recargar; `?lang=en` y `?lang=zh` abren la interfaz en ese idioma. Los mensajes para los guardianes (SMS/ntfy) y el CSV permanecen en castellano, el idioma de la ribera.
 - **Accesibilidad:** botón **Aa** (letra grande y alto contraste) y lectura del aviso en voz alta, en el idioma elegido.
