@@ -25,3 +25,17 @@ El oído del río (micrófono) queda como extra opcional. ?jurado acelera ×300.
 
 ## Cómo retomar
 `python3 -m http.server 8765` → `localhost:8765/?jurado`. Atajo para pruebas en consola: `__rs.alerta(3,'prueba')`, `__rs.confirmar('rosa','central')`. Parámetro `x=` cambia la aceleración (por defecto 150 en ?jurado).
+
+## 21/11 madrugada: «que el proyecto sea perfecto»
+Criterios del jurado (WhatsApp): originalidad, creatividad, diferenciación, implementación, funcionamiento, propuesta, adecuación de tecnologías, relevancia, claridad del público, beneficio, innovación/viabilidad/impacto.
+Hecho:
+- **Validación con la riada real 13/12/2025** (El Torno, ≥20 muertos): ningún modelo abierto vio la tormenta (≤26 mm, GloFAS plano) → con solo datos abiertos NO habría avisado. Cambio de diseño: **2 vigías río arriba disparan la alerta** (`vigias` en indiceRiesgo, LAG_VIGIA_MIN 60). Con vigías: ~4 h de aviso (hora de reporte hipotética). Botón en la app + `herramientas/validar.py` + `js/historico.js`.
+- CAUDAL_HIST recalibrado con 42 años de GloFAS (p95 35, antes 17 con 2024–26).
+- PWA sin internet (`sw.js`, manifest, iconos PNG), chip «Sin internet».
+- SMS / llamada al guardián desde cada persona avisada.
+- Registro de personas + aprobación de la junta + panel junta/COED (CSV `;`, imprimir) — `js/registro.js` (localStorage).
+- Accesibilidad: botón Aa (letra grande + contraste), 🔊 leer aviso.
+- «Todos a salvo» con métricas: personas, margen promedio, 0 Bs.
+- README: propuesta, público, validación, diferenciación, tecnologías, implementación con costos, impacto. Pitch reescrito (3:30). PPTX: diapositivas 1, 2 (nueva, gráfica), 5, 6, 11, 12 cambiadas SIN poder renderizar → revisar a mano.
+- Video de respaldo nuevo (riada + simulacro + junta + registro + guardián + pared, 90 s).
+Pendiente: revisar PPTX visualmente; probar ntfy con 2 celulares; base compartida para el registro; vigías reales.

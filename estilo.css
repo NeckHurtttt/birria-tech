@@ -169,3 +169,90 @@ select { min-height: 36px; border-radius: var(--r-chico); background: var(--supe
 .extra[open] summary { margin-bottom: 8px; }
 @property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
 @media (max-width: 420px) { .riesgo { grid-template-columns: 80px 1fr; } .aguja { width: 80px; height: 80px; } .aguja b { font-size: 22px; } }
+
+/* ---- vigías, riada real, registro, junta, accesibilidad, sin internet ---- */
+.btn.icono { min-width: 40px; padding: 6px 10px; }
+.btn.icono b { font-size: 14px; }
+.btn[aria-pressed="true"] { background: var(--acento); color: #04222a; }
+.btn.riada { width: 100%; margin-top: 12px; border-color: rgba(255,179,71,.4); background: rgba(255,179,71,.08); }
+.btn.riada:hover { background: rgba(255,179,71,.16); }
+.btn.riada svg { stroke: var(--aviso); }
+.guardianes .pie { margin-top: 12px; }
+.personas .acciones { grid-column: 2 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
+.personas .acciones .ok { grid-column: auto; }
+a.btn { text-decoration: none; }
+.dlg.ancha { max-width: min(760px, calc(100vw - 32px)); width: 100%; }
+.formulario { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+.formulario .ancho { grid-column: 1 / -1; }
+.formulario label { display: grid; gap: 4px; font-size: 13px; color: var(--texto-2); }
+.formulario input, .formulario select, #pared-sel { font: 15px var(--f); color: var(--texto); background: #06121b; border: 1px solid var(--borde); border-radius: var(--r-chico); padding: 10px; min-height: 44px; }
+.formulario input:focus-visible, .formulario select:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+.tabla-env { overflow-x: auto; margin-bottom: 16px; }
+.junta { width: 100%; border-collapse: collapse; font-size: 13px; }
+.junta th { text-align: left; color: var(--texto-2); font-weight: 500; padding: 6px 8px; border-bottom: 1px solid var(--borde); }
+.junta td { padding: 8px; border-bottom: 1px solid rgba(255,255,255,.05); vertical-align: top; }
+.junta small { color: var(--texto-2); }
+.junta .acc { display: flex; gap: 6px; justify-content: flex-end; }
+.junta .est { font: 600 11px var(--mono); text-transform: uppercase; padding: 3px 8px; border-radius: 99px; background: rgba(255,255,255,.06); white-space: nowrap; }
+.junta tr[data-e="avisado"] .est { background: var(--aviso); color: #2a1a00; }
+.junta tr[data-e="rescate"] .est { background: var(--alerta); color: #fff; }
+.junta tr[data-e="salvo"] .est { background: var(--exito); color: #03281a; }
+.junta tr[data-e="pendiente"] .est { border: 1px dashed var(--aviso); color: var(--aviso); background: none; }
+.riada-svg { width: 100%; height: auto; display: block; background: #06121b; border-radius: var(--r-chico); }
+.riada-svg .mm { fill: rgba(91,231,240,.35); }
+.riada-svg .eje { stroke: rgba(255,255,255,.2); }
+.riada-svg .umbral { stroke: var(--alerta); stroke-dasharray: 4 4; opacity: .7; }
+.riada-svg .l-solo { fill: none; stroke: var(--texto-2); stroke-width: 2; stroke-dasharray: 2 3; }
+.riada-svg .l-con { fill: none; stroke: var(--aviso); stroke-width: 3; }
+.riada-svg .m-vigia { stroke: var(--aviso); }
+.riada-svg .m-desb { stroke: var(--alerta); stroke-width: 2; }
+.riada-svg .et { fill: var(--texto-2); font: 11px var(--mono); }
+.riada-svg .et.vig { fill: var(--aviso); }
+.riada-svg .et.des { fill: var(--alerta); }
+.riada-svg .cortina { fill: #06121b; }
+.leyenda { display: flex; flex-wrap: wrap; gap: 4px 14px; align-items: center; font-size: 12px; margin: 8px 0 12px !important; }
+.lg { display: inline-block; width: 14px; height: 4px; margin-right: 4px; vertical-align: middle; border-radius: 2px; }
+.lg.mm { height: 10px; background: rgba(91,231,240,.35); } .lg.solo { background: var(--texto-2); } .lg.con { background: var(--aviso); }
+.veredicto { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; animation: aparece .4s ease; }
+.veredicto .v { display: grid; gap: 4px; padding: 12px; border-radius: var(--r-chico); font-size: 13px; border-left: 3px solid; }
+.veredicto .v.mal { border-color: var(--texto-2); background: rgba(255,255,255,.04); }
+.veredicto .v.bien { border-color: var(--aviso); background: rgba(255,179,71,.08); }
+.veredicto .v span { color: var(--texto-2); } .veredicto strong { color: var(--texto); }
+.veredicto .nota { grid-column: 1 / -1; margin: 0; }
+.exito-datos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 16px 0 8px; }
+.exito-datos div { display: grid; gap: 2px; padding: 10px 6px; border-radius: var(--r-chico); background: rgba(79,227,154,.08); }
+.exito-datos b { font: 700 20px var(--mono); color: var(--exito); }
+.exito-datos span { font-size: 12px; color: var(--texto-2); }
+.sin-red-chip { display: none; background: rgba(255,179,71,.14); border-color: rgba(255,179,71,.4); }
+body.sin-red .sin-red-chip { display: inline-flex; }
+/* letra grande y alto contraste */
+html.grande body { font-size: 18px; }
+html.grande { --texto-2: #d8e6ea; --borde: rgba(91,231,240,.45); --superficie: #0a1a24; }
+html.grande .panel h2 { font-size: 20px; }
+html.grande .sub, html.grande .nota, html.grande .detalle, html.grande .personas .que, html.grande .barrios .info { font-size: 15px; }
+html.grande .personas .quien, html.grande .btn { font-size: 16px; }
+html.grande .barrios .tiempo { font-size: 26px; }
+@media (max-width: 900px) { .veredicto, .exito-datos { grid-template-columns: 1fr; } .formulario { grid-template-columns: 1fr; } }
+@media print {
+  body { overflow: visible; background: #fff; color: #000; }
+  body > :not(#dlg-junta) { display: none !important; }
+  #dlg-junta { position: static; display: block; box-shadow: none; border: 0; background: #fff; color: #000; max-width: none; }
+  #dlg-junta .fila, .junta .acc { display: none; }
+  .junta th, .junta td, .junta small, #dlg-junta p { color: #000; border-color: #999; }
+}
+.riada-svg { stroke: none; stroke-width: 1; }
+.riada-svg text { stroke: none; font-weight: 400; }
+.oido .fila .btn.chico { flex: 1 1 auto; }
+.btn.riada { margin-top: 10px; }
+@media (max-width: 900px) {
+  .barra { flex-wrap: wrap; gap: 8px 10px; }
+  .barra .marca-app { flex: 1 1 100%; margin-right: 0; }
+  .barra .chips { order: 5; flex: 1 1 100%; }
+  .barra .btn.primario { flex: 1; }
+}
+@media (min-width: 901px) {
+  .tablero { grid-template-rows: auto minmax(230px, 1fr); }
+  .oido { max-height: calc(100vh - 65px - 32px - 16px - 230px); }
+  .oido .fila { flex-wrap: nowrap; }
+  .oido .fila .btn.chico { padding: 6px 8px; gap: 6px; }
+}

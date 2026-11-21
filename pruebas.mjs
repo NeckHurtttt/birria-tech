@@ -21,3 +21,30 @@ t('índice: hoy normal, tormenta alerta, vecinos solos no alertan', () => {
   assert.notEqual(indiceRiesgo({ crecido: 5, desborde: 5 }).estado, 'alerta');
 });
 console.log('índice ok');
+import { repetirRiada } from './js/datos.js';
+import { RIADA_2025 } from './js/historico.js';
+t('2 vigías río arriba alertan; 1 solo es vigilancia', () => {
+  assert.equal(indiceRiesgo({ vigias: 2 }).estado, 'alerta');
+  assert.equal(indiceRiesgo({ vigias: 2 }).fuente, 'vigias');
+  assert.equal(indiceRiesgo({ vigias: 1 }).estado, 'vigilancia');
+});
+t('riada 13/12/2025: modelos solos no alertan, con vigías sí y antes del desborde', () => {
+  const r = repetirRiada(RIADA_2025);
+  assert.equal(r.alertaSolo, null);
+  assert.ok(r.alertaCon && r.alertaCon < RIADA_2025.desborde);
+  assert.ok(r.ventajaMin >= 120, 'ventaja ' + r.ventajaMin);
+  console.log('   riada 2025:', r.lluviaTotal.toFixed(1), 'mm vistos, riesgo máx solo', Math.round(r.maxSolo * 100), '· alerta con vigías', r.alertaCon, '· ventaja', r.ventajaMin, 'min');
+});
+console.log('riada ok');
+import { readFileSync, existsSync } from 'node:fs';
+import { limpiarTel, aCSV } from './js/registro.js';
+t('el service worker guarda archivos que existen', () => {
+  const lista = [...readFileSync('sw.js', 'utf8').matchAll(/["']([\w./-]+\.(?:js|css|html|svg|png|woff2|webmanifest))["']/g)].map(m => m[1]).filter(f => f !== 'sw.js');
+  assert.ok(lista.length > 15); lista.forEach(f => assert.ok(existsSync(f), 'falta ' + f));
+});
+t('teléfono y CSV de la junta', () => {
+  assert.equal(limpiarTel('71234567'), '+59171234567'); assert.equal(limpiarTel('+591 7123 4567'), '+59171234567');
+  const csv = aCSV([{ id: 'a', nombre: 'Rosa "la abuela"', barrio: 'eltorno', cuadra: 'C4', guardian: 'Marcelo', aprobado: true }], { a: 'salvo' }, () => 'El Torno');
+  assert.ok(csv.includes('"Rosa ""la abuela"""') && csv.includes('"a salvo"') && csv.includes(';'));
+});
+console.log('pwa y registro ok');

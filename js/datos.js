@@ -11,18 +11,27 @@ export const CUENCA = [
   { nombre: 'Alto Piraí', lat: -18.30, lon: -63.78 },
   { nombre: 'Achira', lat: -18.10, lon: -63.78 },
 ];
-// Caudal modelado GloFAS en La Angostura, 2024–2026 (Open-Meteo Flood API): referencia para el percentil.
-export const CAUDAL_HIST = { mediana: 7.8, p95: 17.2, max: 24.4 };
+// Caudal modelado GloFAS en La Angostura, 1984–2026 (Open-Meteo Flood API, herramientas/validar.py): referencia para el percentil.
+export const CAUDAL_HIST = { mediana: 11.3, p95: 35, max: 80.9 };
 export const LAG_CUENCA_MIN = 150; // tiempo estimado de la lluvia en la cuenca alta hasta La Angostura
+export const LAG_VIGIA_MIN = 60; // un vigía río arriba (Bermejo / río Espejos) ve la crecida ~1 h antes de La Angostura (estimado)
 
-/** Índice de riesgo 0–1 combinando escaneos y reportes. */
-export function indiceRiesgo({ ll6 = 0, ll24 = 0, prox6 = 0, caudal = 0, crecido = 0, desborde = 0 } = {}) {
+/**
+ * Índice de riesgo 0–1 combinando escaneos y reportes.
+ * Tres fuentes pueden disparar la alerta solas: lluvia de modelos abiertos, caudal GloFAS y vigías río arriba
+ * (2 reportes independientes). La riada del 13/12/2025 mostró por qué: los modelos globales no vieron la tormenta
+ * del Amboró (máx. 3 mm/h), pero los vecinos río arriba sí veían el río crecer.
+ * Los reportes de la ribera (crecido / desborde) solo suben el índice: solos no alertan.
+ */
+export function indiceRiesgo({ ll6 = 0, ll24 = 0, prox6 = 0, caudal = 0, crecido = 0, desborde = 0, vigias = 0 } = {}) {
   const c = x => Math.min(1, Math.max(0, x));
   const lluvia = Math.max(c((ll6 - 10) / 40), 0.8 * c((ll24 - 25) / 75), 0.7 * c((prox6 - 10) / 40));
   const rio = c((caudal - CAUDAL_HIST.p95) / (CAUDAL_HIST.max * 1.5 - CAUDAL_HIST.p95));
   const vecinos = c(crecido * 0.34 + desborde * 0.6);
-  const r = c(Math.max(lluvia, rio) * 0.75 + vecinos * 0.35);
-  return { r, intensidad: 1 + 3 * r, estado: r >= 0.55 ? 'alerta' : r >= 0.25 ? 'vigilancia' : 'normal', partes: { lluvia, rio, vecinos } };
+  const arriba = c(vigias * 0.5);
+  const r = c(Math.max(lluvia, rio, arriba) * 0.75 + vecinos * 0.35);
+  const fuente = arriba >= Math.max(lluvia, rio) && arriba > 0 ? 'vigias' : rio > lluvia ? 'rio' : 'lluvia';
+  return { r, intensidad: 1 + 3 * r, estado: r >= 0.55 ? 'alerta' : r >= 0.25 ? 'vigilancia' : 'normal', fuente, partes: { lluvia, rio, vecinos, arriba } };
 }
 export const UMBRAL_ALERTA = 0.55;
 
@@ -79,6 +88,31 @@ export function tramoHasta(km) {
 }
 
 export const VELOCIDAD_KMH = 7.1; // supuesto de onda de crecida (~2 m/s)
+
+/** Repite la riada real hora por hora: índice solo con modelos abiertos y con 2 vigías río arriba. */
+export function repetirRiada(R) {
+  const t0 = new Date(R.inicio + ':00-04:00').getTime(), hora = i => new Date(t0 + i * 3.6e6);
+  const iso = d => new Date(d.getTime() - 4 * 3.6e6).toISOString().slice(0, 13) + ':00';
+  const iDesb = R.lluviaHora.findIndex((_, i) => iso(hora(i)) >= R.desborde);
+  // el vigía ve crecer el río cuando a la crecida le falta: vigía → La Angostura → El Torno (crecida rápida = caso conservador)
+  const antes = LAG_VIGIA_MIN + minutosHasta(BARRIOS.find(b => b.id === 'eltorno'), 4);
+  const iVigia = iDesb - Math.floor(antes / 60);
+  const filas = R.lluviaHora.map((mm, i) => {
+    const suma = n => R.lluviaHora.slice(Math.max(0, i - n + 1), i + 1).reduce((a, b) => a + b, 0);
+    const dia = iso(new Date(hora(i).getTime() - 24 * 3.6e6)).slice(0, 10); // caudal de ayer: el de hoy aún no se conoce
+    const base = { ll6: suma(6), ll24: suma(24), caudal: R.caudalDia[dia] ?? Object.values(R.caudalDia)[0] };
+    const solo = indiceRiesgo(base), con = indiceRiesgo({ ...base, vigias: iVigia >= 0 && i >= iVigia ? 2 : 0 });
+    return { i, hora: iso(hora(i)), mm, solo: solo.r, con: con.r, alertaSolo: solo.estado === 'alerta', alertaCon: con.estado === 'alerta' };
+  });
+  const primera = k => filas.find(f => f[k]);
+  const conA = primera('alertaCon'), soloA = primera('alertaSolo');
+  return {
+    filas, iDesborde: iDesb, iVigia,
+    maxSolo: Math.max(...filas.map(f => f.solo)), lluviaTotal: R.lluviaHora.reduce((a, b) => a + b, 0),
+    alertaSolo: soloA ? soloA.hora : null, alertaCon: conA ? conA.hora : null,
+    ventajaMin: conA ? (iDesb - conA.i) * 60 : 0, antesMin: antes,
+  };
+}
 
 // Guardianes de ejemplo para el simulacro (?jurado). Datos ficticios.
 export const PERSONAS = [

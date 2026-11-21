@@ -1,91 +1,93 @@
 # 🎤 El Río Suena — Discurso del pitch
 
-> **Duración:** 2 min 30 s · **En escena:** quien habla + quien opera la demo + el celular del guardián en la mano
-> *Las acotaciones en cursiva no se leen en voz alta.*
+> **Duración:** 3 min 30 s (la guía da 4 min + 3 de preguntas) · **En escena:** quien habla + quien opera la demo + el celular del guardián en la mano
+> *Las acotaciones en cursiva no se leen en voz alta.* Cada bloque dice qué criterio del jurado cubre.
 
 ---
 
-## I. Gancho · 0:00 – 0:15
+## I. Gancho · 0:00 – 0:20 · *relevancia del problema*
 
-*(Silencio. Suena el rugido del simulacro. Esperar tres segundos.)*
+*(Pantalla negra. Silencio de tres segundos.)*
 
-Esto es el Piraí unas horas antes de una riada.
+El 13 de diciembre del año pasado, de madrugada, el Piraí se desbordó en El Torno.
 
-Las piedras ruedan por el fondo… y el río **ruge antes de subir**.
+Al menos **veinte personas murieron**. Cerca de seiscientas familias lo perdieron todo.
 
-Los abuelos de la ribera lo dicen hace siglos:
-**«Cuando el río suena, piedras trae».**
+Fue la riada más grande en 42 años.
 
-Nosotros le enseñamos a un celular viejo a escucharlo.
+*(Pausa.)*
 
----
-
-## II. Problema · 0:15 – 0:45
-
-Hoy la alerta es un color para todo el departamento.
-Y un color no le dice a nadie **cuánto tiempo tiene**.
-
-Pensemos en **Doña Rosa**, en silla de ruedas, en El Torno.
-En **Don Teodoro**, que no oye la sirena.
-En **tres niños solos** hasta las siete de la noche.
-
-*(Pausa. Mirar al jurado.)*
-
-Esas personas no mueren por falta de alerta.
-Mueren porque **nadie llega a buscarlas a tiempo**.
+Y la pregunta que nos hicimos fue: **¿se podía avisar antes?**
 
 ---
 
-## III. Solución · 0:45 – 1:45
+## II. Lo que descubrimos · 0:20 – 0:55 · *originalidad, viabilidad técnica*
 
-El Río Suena hace tres cosas.
+*(Abrir «¿Habría avisado la riada real del 13/12/2025?». Dejar que la gráfica se dibuje.)*
 
-**Uno: escucha.**
-Un celular donado en el puente detecta la crecida antes de que suba el agua.
+Bajamos los datos abiertos de esa noche: cuatro modelos del clima y el caudal del río.
 
-*(Tocar «Iniciar simulacro».)*
+**Ninguno vio la tormenta.** Veinte milímetros. El caudal, plano.
 
-**Dos: le pone hora a cada barrio.**
-No dice «alerta roja».
-Dice: *«el agua llega a El Torno en 2 horas 55 minutos».*
+*(Señalar la línea gris pegada al piso.)*
 
-*(Señalar la cuenta regresiva en el mapa.)*
+Si hubiéramos hecho la app que todos hacen —una que solo lee satélites—, **no habría avisado.**
 
-**Tres: le asigna un vecino a cada persona que no puede salir sola.**
+Pero río arriba, en Bermejo y en el río Espejos, **la gente sí veía crecer el río.**
 
-*(Suena y vibra el celular del guardián. Levantarlo para que el jurado lo vea.)*
+*(Señalar la línea naranja que cruza el umbral.)*
 
-Marcelo recibe el aviso. Ayuda a Doña Rosa. Confirma con un toque.
+Con dos vecinos que reporten «el río creció», la alerta salta **unas cuatro horas antes** del desborde.
+
+---
+
+## III. La solución · 0:55 – 2:15 · *funcionamiento, creatividad, propuesta*
+
+*(Cerrar el diálogo. Tocar «Iniciar simulacro».)*
+
+El Río Suena junta tres ojos: **la lluvia de los modelos, los vigías río arriba y la regla pintada en el puente.**
+
+**Uno: le pone hora a cada barrio.**
+No dice «alerta roja». Dice: *«el agua llega a El Torno en 5 horas»*.
+
+*(Señalar la cuenta regresiva.)*
+
+**Dos: te muestra el agua en tu pared**, porque mucha gente no evacúa porque no cree que el agua llegue a su casa.
+
+**Tres: nadie queda olvidado.**
+Doña Rosa, en silla de ruedas, tiene un vecino guardián: Marcelo.
+
+*(Suena y vibra el celular del guardián. Levantarlo.)*
+
+Marcelo recibe el aviso, la ayuda y confirma con un toque.
 
 *(Tocar «Ya la ayudé».)*
 
-Y si nadie confirma 30 minutos antes de que llegue el agua, el caso pasa al rescate oficial.
-**Nadie queda olvidado.**
+Si no hay internet, sale un **SMS o una llamada** con un toque. Y si nadie confirma 30 minutos antes del agua, **pasa al rescate oficial**.
 
-*(Aparece «Todos a salvo». Dejarlo en pantalla.)*
-
----
-
-## IV. Impacto · 1:45 – 2:10
-
-No reemplazamos la alerta oficial: **la completamos.**
-
-Convertimos los minutos que hoy se pierden en vidas.
-Y lo hacemos con dos cosas que ya existen:
-los celulares que están en un cajón… y la red más fuerte que tiene un barrio: **sus vecinos.**
-
-Además, la cámara te muestra hasta dónde llegaría el agua **en tu propia pared**,
-porque mucha gente no evacúa porque no cree que el agua vaya a llegar.
+*(Aparece «Todos a salvo» con los números.)*
 
 ---
 
-## V. Cierre · 2:10 – 2:30
+## IV. Para quién y cómo se implementa · 2:15 – 3:05 · *claridad del público, implementación*
 
-Con un puente y un barrio piloto,
-este verano de El Niño la ribera del Piraí puede pasar de
-*«ojalá no pase»*
-a
-**«sabemos quién busca a quién, y cuánto tiempo tenemos».**
+Es para las familias de la ribera, para quien no puede salir solo… y para la **junta vecinal y el COED**, que ven en vivo quién falta.
+
+*(Abrir «Panel de la junta / COED» dos segundos.)*
+
+Es una web que **se instala sin tienda y funciona sin internet**. No necesita sensores caros: un celular, pintura y vecinos.
+
+El piloto: **El Torno, esta temporada de lluvias.** Diez vigías, cinco reglas pintadas, cincuenta personas registradas. Unos **mil quinientos bolivianos**. Para las familias, **siempre gratis**.
+
+Después, todo el Piraí. Después, el Río Grande y los ríos del Beni: solo cambia el mapa.
+
+---
+
+## V. Cierre · 3:05 – 3:30 · *impacto*
+
+No reemplazamos la alerta oficial: **le ponemos minutos, nombres y vecinos.**
+
+El 13 de diciembre, el río sonó… y nadie lo estaba escuchando.
 
 *(Pausa.)*
 
@@ -98,23 +100,26 @@ Gracias.
 
 ## 🛡️ Respuestas rápidas para el jurado (20 s cada una)
 
-**«¿Esto detecta de verdad?»**
-Es un prototipo. La detección acústica de crecidas ya existe en investigación; la vamos a validar con grabaciones reales del Piraí y con SEARPI.
+**«¿Cómo saben que funciona?»**
+Lo probamos con la riada real del 13/12/2025 y con 42 años de caudales. El script está en el repo (`herramientas/validar.py`). Lo honesto: con solo satélites **no** habría avisado; por eso sumamos vigías. La hora del reporte de los vigías es una estimación.
 
 **«¿Y los tiempos y alturas?»**
-Son estimaciones del prototipo y se calibran con SEARPI y el COED antes de usarlas en serio.
+Son estimaciones del prototipo. En el piloto se calibran con SEARPI y el COED.
 
 **«¿Y las falsas alarmas?»**
-No alertamos solo por un ruido: lo cruzamos con la lluvia real río arriba y con la foto de la regla pintada.
+Un solo reporte no alerta: hacen falta dos vigías, o lluvia fuerte en la cuenca, o el caudal arriba del percentil 95 de 42 años. Los reportes de la ribera solos dejan la zona en vigilancia.
+
+**«¿Y si se cae el internet?»**
+La app queda instalada y abre sin red con la última alerta. Los guardianes reciben SMS o llamada desde un toque.
 
 **«¿Y los datos de las personas vulnerables?»**
-Solo los ven su guardián y el rescate. En producción va en un servidor propio, nada público.
+Solo los ven su guardián, la junta y el rescate. En producción van en un servidor propio del municipio, nada público.
 
-**«¿Y si roban el celular del puente o se queda sin batería?»**
-Va en una caja cerrada con cargador solar, instalada con el municipio. Si un oído falla, siguen los demás y la alerta oficial.
+**«¿En qué se diferencia de Google Flood Hub o de la alerta por colores?»**
+Esos pronostican por tramo de río o por departamento. Nosotros avisamos **por barrio, con minutos, con un vecino asignado**, y vemos tormentas locales con personas.
 
 **«¿Quién paga esto?»**
-Para las familias es gratis, siempre. Pagan los municipios y la Gobernación con una suscripción por tramo de río. El piloto se financia con cooperación internacional, y las empresas donan celulares y cajas solares como responsabilidad social.
+Para las familias es gratis, siempre. El piloto cuesta unos 1.500 Bs; después pagan el municipio y la Gobernación por tramo de río, con apoyo de cooperación.
 
 ---
 
@@ -122,6 +127,7 @@ Para las familias es gratis, siempre. Pagan los municipios y la Gobernación con
 
 - [ ] Volumen del parlante al máximo y probado
 - [ ] Celular del guardián con **Activar avisos** ya tocado
-- [ ] La página abierta con HTTPS, no solo en `localhost`
-- [ ] Video de respaldo de 60 s listo por si falla el wifi
-- [ ] Ensayado con cronómetro: **menos de 2:30**
+- [ ] La página abierta con HTTPS (Pages), ya instalada como app por si falla el wifi
+- [ ] Video de respaldo listo: `capturas/demo-respaldo.mp4`
+- [ ] Ensayado con cronómetro: **menos de 3:30**
+- [ ] Tono respetuoso al hablar de las víctimas del 13/12/2025: no es un truco, es la razón del proyecto
