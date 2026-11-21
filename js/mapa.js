@@ -6,8 +6,11 @@ const ESTILO_RESPALDO = { version: 8, sources: {}, layers: [{ id: 'fondo', type:
 export function crearMapa(el) {
   const map = new maplibregl.Map({ container: el, style: ESTILO, center: [-63.36, -17.93], zoom: 9.2, pitch: 55, bearing: -20, attributionControl: { compact: true } });
   map.setPadding(PAD());
+  // al girar el celular o cambiar el tamaño de ventana, el padding de los paneles cambia
+  let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => map.setPadding(PAD()), 200); });
   let respaldo = false;
   const t = setTimeout(() => { if (!map.isStyleLoaded()) { respaldo = true; map.setStyle(ESTILO_RESPALDO); } }, 6000);
+  // sin internet, cada tesela fallida lanza un error: solo se cambia de estilo una vez y se silencia el resto
   map.on('error', e => { if (!respaldo && /style|tiles/i.test(e?.error?.message || '')) { respaldo = true; clearTimeout(t); map.setStyle(ESTILO_RESPALDO); } });
   const capas = () => {
     if (map.getSource('cauce')) return;
@@ -30,6 +33,15 @@ export function crearMapa(el) {
   };
   marca('sensor', SENSOR.lon, SENSOR.lat, '<span class="pulso"></span><b>La Angostura</b>', 'sensor');
   BARRIOS.forEach(b => marca(b.id, b.lon, b.lat, `<b>${b.nombre}</b><span class="cr" id="cr-${b.id}">a salvo</span>`, 'barrio'));
+  // un marcador cortado contra el borde del mapa se ve como un error: se oculta mientras esté ahí
+  const recortar = () => {
+    const w = el.clientWidth, h = el.clientHeight;
+    Object.values(marcas).forEach(({ el: d, m }) => {
+      const { x, y } = map.project(m.getLngLat());
+      d.style.visibility = x < 40 || x > w - 40 || y < 36 || y > h - 20 ? 'hidden' : '';
+    });
+  };
+  map.on('move', recortar); map.on('resize', recortar); map.once('idle', recortar);
 
   return {
     map,
@@ -45,7 +57,8 @@ export function crearMapa(el) {
       m.el.querySelector('.cr').textContent = texto; m.el.dataset.estado = estado;
     },
     volar(b) { map.flyTo({ center: [b.lon, b.lat], zoom: 11, pitch: 58, duration: 2500, padding: PAD() }); },
-    tramo(b) { map.fitBounds([[Math.min(SENSOR.lon, b.lon), Math.min(SENSOR.lat, b.lat)], [Math.max(SENSOR.lon, b.lon), Math.max(SENSOR.lat, b.lat)]], { padding: { top: 60, bottom: 120, left: 80, right: 60 }, pitch: 50, duration: 2500 }); },
+    // MapLibre suma este padding al de los paneles (setPadding), por eso aquí va solo el margen extra
+    tramo(b) { const m = innerWidth > 900 ? { top: 60, bottom: 120, left: 80, right: 60 } : { top: 30, bottom: 30, left: 20, right: 20 }; map.fitBounds([[Math.min(SENSOR.lon, b.lon), Math.min(SENSOR.lat, b.lat)], [Math.max(SENSOR.lon, b.lon), Math.max(SENSOR.lat, b.lat)]], { padding: m, pitch: 50, duration: 2500 }); },
     general() { map.flyTo({ center: [-63.36, -17.93], zoom: 9.2, pitch: 55, bearing: -20, duration: 2000, padding: PAD() }); },
   };
 }

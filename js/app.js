@@ -12,6 +12,10 @@ const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simul
 const tema = temaDemo();
 
 const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0 }, personas: {}, regla: null };
+// temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
+const timers = new Set();
+const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
+const cancelarTimers = () => { timers.forEach(clearTimeout); timers.clear(); };
 PERSONAS.forEach(p => est.personas[p.id] = 'tranquilo');
 
 // ---------- mapa ----------
@@ -37,8 +41,9 @@ function pintarPersonas() {
     li.innerHTML = `<span class="av">${p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0]}</span>
       <div><div class="quien">${p.nombre} · ${b.nombre}, ${p.cuadra}</div><div class="que">${p.necesidad} · guardián: ${p.guardian}</div></div>
       <span class="est">${txt}</span>`;
-    if (e === 'avisado') {
-      const ok = document.createElement('button'); ok.className = 'btn chico ok'; ok.textContent = 'Confirmar desde aquí';
+    if (e === 'avisado' || e === 'rescate') {
+      const ok = document.createElement('button'); ok.className = 'btn chico ok';
+      ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar desde aquí';
       ok.onclick = () => confirmar(p.id, 'central'); li.append(ok);
     }
     listaP.append(li);
@@ -66,12 +71,13 @@ function avisarGuardianes() {
   pintarPersonas();
 }
 function confirmar(id, desde) {
-  if (est.personas[id] === 'salvo') return;
+  // solo se confirma a quien fue avisado: ignora toques viejos o de otro simulacro
+  if (est.fase !== 'alerta' || !['avisado', 'rescate'].includes(est.personas[id])) return;
   est.personas[id] = 'salvo'; pintarPersonas();
   const p = PERSONAS.find(x => x.id === id);
   hablar(`${p.nombre} está a salvo.`);
   if (desde === 'central') canal.enviar({ tipo: 'ok', id }, { titulo: `${p.nombre}: a salvo`, texto: 'Confirmado desde la central' });
-  if (PERSONAS.every(x => est.personas[x.id] === 'salvo')) setTimeout(exito, 900);
+  if (PERSONAS.every(x => est.personas[x.id] === 'salvo')) despues(exito, 900);
 }
 
 // ---------- oído ----------
@@ -102,7 +108,7 @@ function alerta(intensidad, fuente, lag = 0) {
     : `Atención. El río suena. Crecida detectada en La Angostura. El agua llegaría a El Torno en ${enVoz(min)}.`);
   avisarGuardianes();
   $('#chip-reloj').hidden = false;
-  setTimeout(() => mapa.tramo(torno), 1500);
+  despues(() => mapa.tramo(torno), 1500);
 }
 function mostrarConfianza() {
   const c = $('#confianza'); const ll = est.escenario || est.lluvia; if (!ll) return;
@@ -116,6 +122,7 @@ function mostrarConfianza() {
 setInterval(() => {
   if (est.fase !== 'alerta') return;
   const ahora = performance.now(); est.simMin += (ahora - est.ultimo) / 60000 * ACELERA; est.ultimo = ahora;
+  let cambio = false;
   const v = VELOCIDAD_KMH * Math.min(1.6, Math.max(0.8, Math.sqrt(est.intensidad)));
   const enRio = est.simMin - est.lag;
   if (enRio >= 0) mapa.sensor('crecida');
@@ -131,8 +138,9 @@ setInterval(() => {
     li.querySelector('.info').textContent = llego ? 'El agua llegó' : `${b.km} km · hasta ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m de agua`;
     mapa.barrio(b.id, llego ? `agua ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m` : formatoTiempo(resta), llego ? 'llego' : 'alerta');
     // sin confirmación 30 min antes de que llegue el agua → rescate oficial
-    PERSONAS.filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; pintarPersonas(); });
+    PERSONAS.filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; cambio = true; });
   });
+  if (cambio) pintarPersonas();
 }, 250);
 
 // ---------- botones ----------
@@ -153,14 +161,18 @@ $('#btn-simulacro').onclick = () => {
     if (k >= 1) clearInterval(rampa);
   }, 150);
   $('#btn-simulacro').lastChild.textContent = 'Reiniciar simulacro';
+  $('#btn-simulacro').classList.remove('late');
 };
 $('#btn-mic').onclick = async () => {
   reiniciar();
-  try { await oido.microfono(); } catch { detalle.textContent = 'No se pudo usar el micrófono. Usa «Iniciar simulacro».'; }
+  est.escenario = null;
+  try { await oido.microfono(); }
+  catch { estadoOido.dataset.e = 'apagado'; estadoOido.textContent = 'apagado'; detalle.textContent = 'No se pudo usar el micrófono (permiso negado o sin HTTPS). Usa «Iniciar simulacro».'; }
 };
 function reiniciar() {
-  clearInterval(rampa);
-  est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0 };
+  clearInterval(rampa); cancelarTimers(); oido.detener();
+  try { speechSynthesis.cancel(); } catch {}
+  est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.intensidad = 1; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0 };
   delete $('#v-vecinos').dataset.extra; evaluar();
   PERSONAS.forEach(p => est.personas[p.id] = 'tranquilo'); pintarPersonas();
   BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = '—'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'a salvo', ''); });
@@ -175,12 +187,20 @@ BARRIOS.forEach(b => sel.add(new Option(b.nombre, b.id)));
 sel.value = 'eltorno';
 const alturaPared = () => { const b = BARRIOS.find(x => x.id === sel.value); $('#pared-barrio').textContent = b.nombre; pared.ponerAltura(alturaEn(b, est.fase === 'alerta' ? est.intensidad : 3)); };
 sel.onchange = alturaPared;
-$('#btn-pared').onclick = async () => { $('#dlg-pared').showModal(); await pared.camara(); alturaPared(); if (pared.sinCamara) pared.calibrarSolo(); };
+$('#btn-pared').onclick = async () => {
+  const dlg = $('#dlg-pared'); if (dlg.open) return;
+  dlg.showModal(); alturaPared();
+  await pared.camara();
+  if (!dlg.open) return; // se cerró mientras esperaba el permiso
+  alturaPared(); if (pared.sinCamara) pared.calibrarSolo();
+};
 $('#pared-auto').onclick = () => pared.calibrarSolo();
-$('#pared-cerrar').onclick = () => { pared.apagar(); $('#dlg-pared').close(); };
+$('#pared-cerrar').onclick = () => $('#dlg-pared').close();
+$('#dlg-pared').addEventListener('close', () => pared.apagar()); // también con Esc o el botón atrás
 
 // QR del guardián
 $('#btn-qr').onclick = () => {
+  if ($('#dlg-qr').open) return;
   const url = urlGuardian('rosa'), q = $('#qr'); q.innerHTML = '';
   try { new QRCode(q, { text: url, width: 220, height: 220, colorDark: '#071219', colorLight: '#ffffff' }); } catch { q.textContent = 'QR no disponible'; }
   $('#qr-link').textContent = url; $('#qr-tema').textContent = tema;
@@ -194,16 +214,28 @@ const cvR = $('#lienzo-regla'), gR = cvR.getContext('2d'); let img, toques = [];
 $('#btn-regla').onclick = () => $('#foto-regla').click();
 $('#foto-regla').onchange = e => {
   const f = e.target.files[0]; if (!f) return;
-  img = new Image(); img.onload = () => { cvR.width = img.width; cvR.height = img.height; toques = []; dibujarRegla(); $('#dlg-regla').showModal(); };
-  img.src = URL.createObjectURL(f); e.target.value = '';
+  const url = URL.createObjectURL(f), foto = new Image();
+  foto.onload = () => {
+    URL.revokeObjectURL(url);
+    // una foto de 12 MP ocupa ~48 MB en un canvas: se reduce a 1600 px como máximo
+    const k = Math.min(1, 1600 / Math.max(foto.width, foto.height));
+    img = document.createElement('canvas'); img.width = Math.round(foto.width * k); img.height = Math.round(foto.height * k);
+    img.getContext('2d').drawImage(foto, 0, 0, img.width, img.height);
+    cvR.width = img.width; cvR.height = img.height; toques = []; dibujarRegla();
+    if (!$('#dlg-regla').open) $('#dlg-regla').showModal();
+  };
+  foto.onerror = () => { URL.revokeObjectURL(url); detalle.textContent = 'No se pudo leer esa imagen.'; };
+  foto.src = url; e.target.value = '';
 };
 const pasos = ['Toca la marca de 0 m', `Toca la marca de ${REGLA_M} m`, 'Toca la línea del agua'];
 function dibujarRegla() {
+  if (!img) return;
   gR.drawImage(img, 0, 0);
   toques.forEach((y, i) => { gR.fillStyle = ['#5be7f0', '#ffffff', '#ff5a4a'][i]; gR.fillRect(0, y - 3, cvR.width, 6); });
   $('#regla-paso').textContent = pasos[toques.length] || '';
 }
 cvR.onpointerdown = e => {
+  if (!img) return;
   const r = cvR.getBoundingClientRect(), y = (e.clientY - r.top) * (cvR.height / r.height);
   toques.push(y); if (toques.length > 3) toques = [y]; dibujarRegla();
   if (toques.length === 3) {
@@ -222,6 +254,7 @@ function exito() {
   const b = new Set(PERSONAS.map(p => BARRIOS.find(x => x.id === p.barrio).nombre));
   $('#exito-texto').textContent = `${PERSONAS.length} personas que no podían salir solas ya están en el punto seguro (${[...b].join(', ')}), antes de que llegue el agua.`;
   $('#exito').hidden = false; hablar('Todos a salvo.'); oido.detener();
+  est.fase = 'fin'; $('#exito-cerrar').focus();
 }
 $('#exito-cerrar').onclick = () => { $('#exito').hidden = true; mapa.general(); };
 

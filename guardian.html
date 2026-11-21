@@ -32,8 +32,10 @@
 </main>
 <script type="module">
 import { PERSONAS, BARRIOS, formatoTiempo } from './js/datos.js';
-import { abrirCanal } from './js/canal.js';
-const q = new URLSearchParams(location.search), tema = q.get('t'), p = PERSONAS.find(x => x.id === (q.get('p') || 'rosa'));
+import { abrirCanal, limpiarTema } from './js/canal.js';
+// un enlace mal copiado (p= desconocido o t= con símbolos) no debe dejar la pantalla en blanco
+const q = new URLSearchParams(location.search), tema = limpiarTema(q.get('t'));
+const p = PERSONAS.find(x => x.id === q.get('p')) || PERSONAS[0];
 const b = BARRIOS.find(x => x.id === p.barrio), vista = document.getElementById('vista');
 let activo = false, sonido;
 function esperar() {
@@ -42,31 +44,35 @@ function esperar() {
     <div class="tarjeta"><p>Deja esta pantalla abierta. Si el río suena, este celular va a sonar y vibrar.</p></div>
     <button id="activar">${activo ? 'Avisos activados ✓' : 'Activar avisos'}</button>`;
   document.getElementById('activar').onclick = () => {
-    activo = true; sonido = new (window.AudioContext || window.webkitAudioContext)(); sonido.resume();
-    try { Notification.requestPermission(); } catch {}
+    activo = true;
+    // un solo AudioContext: el navegador limita cuántos puede haber abiertos
+    try { sonido ??= new (window.AudioContext || window.webkitAudioContext)(); sonido.resume(); } catch {}
+    try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch {}
     esperar();
   };
 }
 function sirena() {
-  if (!sonido) return;
+  if (!sonido || sonido.state === 'closed') return;
+  sonido.resume?.();
   const o = sonido.createOscillator(), g = sonido.createGain(), t = sonido.currentTime;
   o.type = 'sawtooth'; g.gain.value = 0.15; o.connect(g).connect(sonido.destination);
   for (let i = 0; i < 6; i++) { o.frequency.setValueAtTime(700, t + i * 0.5); o.frequency.linearRampToValueAtTime(1100, t + i * 0.5 + 0.25); }
-  o.start(t); o.stop(t + 3);
+  o.start(t); o.stop(t + 3); o.onended = () => { o.disconnect(); g.disconnect(); };
 }
 function alerta(m) {
   document.body.className = 'alerta'; navigator.vibrate?.([600, 200, 600, 200, 600]); sirena();
-  try { if (Notification.permission === 'granted') new Notification(`Crecida: ayuda a ${p.nombre}`, { body: `El agua llega en ${formatoTiempo(Number(m.min))}` }); } catch {}
+  try { if ('Notification' in window && Notification.permission === 'granted') new Notification(`Crecida: ayuda a ${p.nombre}`, { body: `El agua llega en ${formatoTiempo(Number(m.min))}` }); } catch {}
   vista.innerHTML = `<h1>¡El río suena!</h1><p>Ayuda a <b>${p.nombre}</b> (${p.necesidad})<br>${b.nombre}, ${p.cuadra}</p>
     <div class="tarjeta"><p>El agua llega en</p><div class="grande">${formatoTiempo(Number(m.min))}</div><p>Punto seguro: la loma de la plaza principal</p></div>
     <button class="ok" id="ok">Ya la ayudé ✓</button>`;
-  document.getElementById('ok').onclick = async () => {
-    await canal.enviar({ tipo: 'ok', id: p.id }, { titulo: `${p.nombre}: a salvo`, texto: `Confirmado por ${p.guardian}` });
-    document.body.className = 'salvo';
+  document.getElementById('ok').onclick = () => {
+    // la pantalla responde al instante; el envío por internet sigue en segundo plano
+    canal.enviar({ tipo: 'ok', id: p.id }, { titulo: `${p.nombre}: a salvo`, texto: `Confirmado por ${p.guardian}` });
+    navigator.vibrate?.(0); document.body.className = 'salvo';
     vista.innerHTML = `<h1>¡Gracias!</h1><p>${p.nombre} está a salvo. La central ya lo sabe.</p>`;
   };
 }
-const canal = abrirCanal(tema, m => { if (m.tipo === 'alerta' && m.id === p.id) alerta(m); if (m.tipo === 'ok' && m.id === p.id && document.body.className === 'alerta') { document.body.className = 'salvo'; vista.innerHTML = `<h1>${p.nombre} está a salvo</h1><p>Confirmado desde la central.</p>`; } });
+const canal = !tema ? null : abrirCanal(tema, m => { if (m.tipo === 'alerta' && m.id === p.id) alerta(m); if (m.tipo === 'ok' && m.id === p.id && document.body.className === 'alerta') { document.body.className = 'salvo'; vista.innerHTML = `<h1>${p.nombre} está a salvo</h1><p>Confirmado desde la central.</p>`; } });
 if (!tema) vista.innerHTML = '<h1>Falta el código</h1><p>Abre este enlace desde el QR de la central.</p>'; else esperar();
 </script>
 </body>

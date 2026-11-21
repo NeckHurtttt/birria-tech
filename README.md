@@ -9,8 +9,17 @@
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/▶_Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/sin_backend-GitHub_Pages-222?style=for-the-badge&logo=github" alt="Sin backend">
-  <img src="https://img.shields.io/badge/pruebas-8_ok-2ea043?style=for-the-badge" alt="8 pruebas ok">
+  <img src="https://img.shields.io/badge/pruebas-11_ok-2ea043?style=for-the-badge" alt="11 pruebas ok">
 </p>
+<p align="center">
+  <img src="https://img.shields.io/badge/JavaScript-ES2022_modules-F7DF1E?logo=javascript&logoColor=000" alt="JavaScript">
+  <img src="https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=fff" alt="HTML5">
+  <img src="https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=fff" alt="CSS3">
+  <img src="https://img.shields.io/badge/MapLibre_GL-396CB2?logo=maplibre&logoColor=fff" alt="MapLibre">
+  <img src="https://img.shields.io/badge/Open--Meteo-GloFAS-5be7f0" alt="Open-Meteo">
+  <img src="https://img.shields.io/badge/Web_Audio-FFT-5be7f0" alt="Web Audio">
+</p>
+<p align="center"><b>🇧🇴 Español</b> · <a href="#-english">🇬🇧 English</a> · <a href="#-中文">🇨🇳 中文</a> · 🎤 <a href="pitch-el-rio-suena.md">Guion del pitch</a> · 📊 <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
 
 ![Simulacro completo: tormenta, alerta, cuenta regresiva y Todos a salvo](capturas/simulacro.gif)
 
@@ -91,13 +100,13 @@ js/cauce-pirai.js cauce del Piraí (OSM)
 js/oido.js        oído del río (micrófono)
 js/pared.js       el agua en tu pared (cámara)
 js/canal.js       ntfy.sh + BroadcastChannel
-pruebas.mjs       8 pruebas (índice, tiempos, canal)
+pruebas.mjs       11 pruebas (índice, tiempos, canal)
 ```
 
 ## 🚀 Correrlo
 ```bash
 python3 -m http.server 8765    # http://localhost:8765/?jurado
-node pruebas.mjs               # 8 pruebas ok
+node pruebas.mjs               # 11 pruebas ok
 ```
 - La cámara y el micrófono necesitan HTTPS o localhost.
 - `?x=60` cambia la aceleración del tiempo (por defecto ×300 en `?jurado`).
@@ -114,6 +123,30 @@ node pruebas.mjs               # 8 pruebas ok
 - Las personas de la demo son ficticias. El tema público de ntfy sirve solo para la demo.
 
 ## 👥 Equipo Birria TECH
-Sergio (desarrollo) · José Miguel Salinas (pitch) · Rodrigo Camacho (tester) · Deron Zuñiga (programación)
+Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración) · Rodrigo Camacho (tester) · Deron Zuñiga (programación)
 
 **Datos:** Open-Meteo (pronóstico y Flood API/GloFAS) · © colaboradores de OpenStreetMap · OpenFreeMap.
+
+---
+
+## 🇬🇧 English
+**When the river roars, it brings stones.** Early flood warning for the Piraí river (Santa Cruz, Bolivia), neighborhood by neighborhood, for people who can't evacuate alone. It needs no hardware.
+
+- **Piraí Watch:** every 10 min it reads open data: rain at 5 upper-basin points (Open-Meteo), GloFAS discharge at La Angostura and neighbor reports. With that it computes a **0–100 risk index**. Rain in the upper basin takes about **2 h 30 min** to reach La Angostura, and that is the head start for evacuating.
+- **Countdown per neighborhood**, measured along the real river channel: *"water reaches El Torno in 2 h 20 min"*.
+- **Water on your wall:** point the camera at your house and see how high the water would rise.
+- **Neighbor Guardian:** the guardian's phone rings and vibrates, and they confirm with one tap. If nobody confirms 30 min before the water arrives, the case goes to official rescue.
+- **Optional extra:** a phone that *listens* to the river's low rumble (20–300 Hz).
+
+Demo: open `?jurado` → **Iniciar simulacro**. Run locally: `python3 -m http.server 8765`, tests: `node pruebas.mjs`. Distances and heights are estimates until they are calibrated with SEARPI/COED. This complements official stations; it does not replace them.
+
+## 🇨🇳 中文
+**河水作响，必有石来。** 面向玻利维亚圣克鲁斯皮拉伊河沿岸的洪水预警系统：按社区倒计时，为无法独自撤离的人安排邻居守护者，无需任何硬件。
+
+- **皮拉伊河守望**：每 10 分钟读取开放数据，包括上游流域 5 个点的降雨量（Open-Meteo）、La Angostura 的 GloFAS 流量和邻居上报，计算 **0–100 风险指数**。上游降雨约 **2 小时 30 分钟** 后到达 La Angostura，这就是争取到的撤离时间。
+- **按社区倒计时**：沿真实河道计算，例如「洪水 2 小时 20 分钟后到达 El Torno」。
+- **墙上的水位**：用手机摄像头对准自家墙面，显示水会涨到多高。
+- **邻居守护者**：守护者的手机响铃并震动，一键确认；若洪水到达前 30 分钟仍无人确认，则转交官方救援。
+
+演示：打开 `?jurado` → 点击 **Iniciar simulacro**。本地运行：`python3 -m http.server 8765`，测试：`node pruebas.mjs`。距离与水位均为估算，需要与 SEARPI/COED 校准；本系统是官方监测站的补充，不能替代它们。
+
