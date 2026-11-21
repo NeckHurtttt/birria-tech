@@ -1,0 +1,51 @@
+# Nodo comunitario de El Río Suena: corre en la PC de la junta o del COED, sin nube de terceros.
+#   docker compose up -d                 → ntfy propio + túnel https + bot del vigía (solo reglas)
+#   docker compose --profile ia up -d    → además Ollama (IA local para clasificar los reportes)
+# Configuración en nodo/.env (copiar de .env.ejemplo). Guía completa: nodo/README.md
+services:
+  ntfy:
+    image: binwiederhier/ntfy:v2.11.0
+    command: serve
+    volumes:
+      - ./ntfy/server.yml:/etc/ntfy/server.yml:ro
+      - ./datos/ntfy:/var/cache/ntfy
+    ports:
+      - "8090:80"            # http://localhost:8090 en la misma PC
+    restart: unless-stopped
+
+  # Publica el ntfy de la comunidad en internet con https (Cloudflare Tunnel).
+  # Sin cuenta: URL temporal *.trycloudflare.com que aparece en `docker compose logs tunel`.
+  # Con cuenta: poner CLOUDFLARE_TOKEN en .env para una URL fija (ver README).
+  tunel:
+    image: cloudflare/cloudflared:2024.12.2
+    command: ${CLOUDFLARE_CMD:-tunnel --no-autoupdate --url http://ntfy:80}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TOKEN:-}
+    depends_on: [ntfy]
+    restart: unless-stopped
+
+  vigia:
+    build: ./bot
+    env_file: .env
+    environment:
+      - VIGIAS_ARCHIVO=/datos/vigias.json
+      - NTFY_URLS=http://ntfy:80,https://ntfy.sh     # el propio primero; ntfy.sh de respaldo
+      - HF_HOME=/datos/modelos                        # Whisper se descarga una sola vez
+    volumes:
+      - ./datos:/datos
+    depends_on: [ntfy]
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:0.5.4
+    profiles: [ia]
+    volumes:
+      - ./datos/ollama:/root/.ollama
+    ports:
+      - "11434:11434"
+    restart: unless-stopped
+    # Con tarjeta NVIDIA (y NVIDIA Container Toolkit), descomentar:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]

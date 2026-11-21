@@ -1,1 +1,4 @@
 .playwright-mcp/
+nodo/.env
+nodo/datos/
+__pycache__/

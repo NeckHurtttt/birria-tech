@@ -1,6 +1,6 @@
 // El Río Suena funciona sin internet: la app, el último escaneo y el mapa ya visto quedan guardados.
 // En una crecida el internet suele caerse justo cuando más se necesita.
-const VERSION = 'rs-v7';
+const VERSION = 'rs-v8';
 const APP = ['./', 'index.html', 'guardian.html', 'vigia.html', 'estilo.css', 'icono.svg', 'icono-192.png', 'icono-512.png', 'manifest.webmanifest',
   "js/app.js",  "js/canal.js",  "js/cauce-pirai.js",  "js/datos.js",  "js/historico.js",  "js/lluvia.js",  "js/mapa.js",  "js/oido.js",  "js/pared.js",  "js/registro.js",  "js/nube.js",  "js/config.js",  "js/idioma.js",  "vendor/fuentes.css",  "vendor/fuentes/jetbrains-mono-latin-400-normal.woff2",  "vendor/fuentes/jetbrains-mono-latin-600-normal.woff2",  "vendor/fuentes/space-grotesk-latin-400-normal.woff2",  "vendor/fuentes/space-grotesk-latin-500-normal.woff2",  "vendor/fuentes/space-grotesk-latin-600-normal.woff2",  "vendor/fuentes/space-grotesk-latin-700-normal.woff2",  "vendor/maplibre-gl.css",  "vendor/maplibre-gl.js",  "vendor/qrcode.min.js",
 ];

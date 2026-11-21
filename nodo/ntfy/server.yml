@@ -1,0 +1,5 @@
+# ntfy del nodo comunitario. Documentación: https://docs.ntfy.sh/config/
+listen-http: ":80"
+behind-proxy: true                 # detrás del túnel de Cloudflare
+cache-file: "/var/cache/ntfy/cache.db"
+cache-duration: "24h"              # la central recupera avisos de las últimas horas al reconectarse

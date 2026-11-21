@@ -59,3 +59,12 @@ t('idioma: textos fijos, con números y compuestos', () => {
   assert.equal(tr('texto que no está en el diccionario', 'en'), 'texto que no está en el diccionario');
 });
 console.log('idioma ok');
+import { basesNtfy } from './js/canal.js';
+t('ntfy: servidor propio primero, ntfy.sh siempre de respaldo, solo https', () => {
+  assert.deepEqual(basesNtfy('', ''), ['https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('https://nodo.example.org', ''), ['https://nodo.example.org/', 'https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('', 'https://junta.example.org/'), ['https://junta.example.org/', 'https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('http://otro.example.org', ''), ['https://ntfy.sh/']); // http remoto no
+  assert.deepEqual(basesNtfy('http://localhost:8090', ''), ['http://localhost:8090/', 'https://ntfy.sh/']);
+});
+console.log('ntfy ok');

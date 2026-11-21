@@ -87,7 +87,9 @@ function vigiaCelular(m) {
   if (!est.vigiasCel.has(v)) {
     est.vigiasCel.add(v); est.vecinos.vigias++;
     $('#v-vecinos').dataset.extra = `${est.vecinos.vigias} vigía${est.vecinos.vigias > 1 ? 's' : ''} río arriba: «el río creció» (último: ${lugar})`;
-    aviso(`Vigía en ${lugar}: «el río creció»`, est.vecinos.vigias >= 2 ? 'Segundo vigía: se lanza la alerta' : 'Falta un segundo vigía para lanzar la alerta', 'vigia');
+    // por Telegram llega lo que dijo el vigía en su audio (transcrito en el nodo comunitario)
+    const dicho = m.via === 'telegram' && m.texto ? String(m.texto).replace(/^Telegram: /, '').slice(0, 160) + ' · ' : '';
+    aviso(`Vigía en ${lugar}: «el río creció»`, dicho + (est.vecinos.vigias >= 2 ? 'Segundo vigía: se lanza la alerta' : 'Falta un segundo vigía para lanzar la alerta'), 'vigia');
     evaluar();
   }
   // acuse al vigía: un vigía repetido no suma, pero sí recibe respuesta
