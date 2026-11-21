@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200" font-family="Segoe UI, Helvetica, Arial, PingFang SC, Microsoft YaHei, Noto Sans CJK SC, sans-serif">
+<defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06121c"/><stop offset="1" stop-color="#0b2233"/></linearGradient>
+  </defs>
+<rect width="900" height="200" rx="16" fill="url(#cielo)"/>
+<line x1="166" y1="70" x2="288" y2="70" stroke="#5ee6f0" stroke-opacity=".25" stroke-width="4" stroke-linecap="round"/>
+<line x1="166" y1="70" x2="288" y2="70" stroke="#5ee6f0" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 14"><animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.2s" repeatCount="indefinite"/></line>
+<path d="M286 63l9 7-9 7" fill="none" stroke="#5ee6f0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="386" y1="70" x2="508" y2="70" stroke="#5ee6f0" stroke-opacity=".25" stroke-width="4" stroke-linecap="round"/>
+<line x1="386" y1="70" x2="508" y2="70" stroke="#5ee6f0" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 14"><animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.2s" repeatCount="indefinite"/></line>
+<path d="M506 63l9 7-9 7" fill="none" stroke="#5ee6f0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="606" y1="70" x2="728" y2="70" stroke="#5ee6f0" stroke-opacity=".25" stroke-width="4" stroke-linecap="round"/>
+<line x1="606" y1="70" x2="728" y2="70" stroke="#5ee6f0" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 14"><animate attributeName="stroke-dashoffset" from="48" to="0" dur="1.2s" repeatCount="indefinite"/></line>
+<path d="M726 63l9 7-9 7" fill="none" stroke="#5ee6f0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="120" cy="70" r="38" fill="#0c2230" stroke="#5ee6f0" stroke-opacity=".3" stroke-width="2"/>
+<g transform="translate(120 70)"><path d="M-16 4a10 10 0 1 1 4-19 13 13 0 0 1 25 3 8 8 0 0 1-1 16z" fill="none" stroke="#5ee6f0" stroke-width="3" stroke-linejoin="round"/><g stroke="#5ee6f0" stroke-width="3" stroke-linecap="round"><line x1="-10" y1="12" x2="-13" y2="19"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" repeatCount="indefinite"/></line><line x1="0" y1="12" x2="-3" y2="19"><animate attributeName="opacity" values=".2;1;.2" dur="1.2s" repeatCount="indefinite"/></line><line x1="10" y1="12" x2="7" y2="19"><animate attributeName="opacity" values="1;.2;1" dur="1.2s" begin=".4s" repeatCount="indefinite"/></line></g></g>
+<text x="120" y="134" text-anchor="middle" font-size="15.5" font-weight="700" fill="#e8f7fb">Llueve en la</text>
+<text x="120" y="154" text-anchor="middle" font-size="15.5" font-weight="400" fill="#9fc7d3">cuenca alta</text>
+<circle cx="340" cy="70" r="38" fill="#0c2230" stroke="#5ee6f0" stroke-opacity=".3" stroke-width="2"/>
+<g transform="translate(340 70)"><circle r="19" fill="none" stroke="#ffb347" stroke-width="3"/><line x1="0" y1="0" x2="0" y2="-12" stroke="#ffb347" stroke-width="3" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" from="0" to="-360" dur="6s" repeatCount="indefinite"/></line><line x1="0" y1="0" x2="8" y2="0" stroke="#ffb347" stroke-width="3" stroke-linecap="round"/></g>
+<text x="340" y="134" text-anchor="middle" font-size="15.5" font-weight="700" fill="#e8f7fb">Cuenta regresiva</text>
+<text x="340" y="154" text-anchor="middle" font-size="15.5" font-weight="400" fill="#9fc7d3">por barrio</text>
+<circle cx="560" cy="70" r="38" fill="#0c2230" stroke="#5ee6f0" stroke-opacity=".3" stroke-width="2"/>
+<g transform="translate(560 70)"><rect x="-12" y="-20" width="24" height="40" rx="5" fill="none" stroke="#ff6b6b" stroke-width="3"/><line x1="-4" y1="14" x2="4" y2="14" stroke="#ff6b6b" stroke-width="3" stroke-linecap="round"/><g fill="none" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"><path d="M17 -8a12 12 0 0 1 0 16"><animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/></path><path d="M-17 -8a12 12 0 0 0 0 16"><animate attributeName="opacity" values="0;1;0" dur="1s" repeatCount="indefinite"/></path></g></g>
+<text x="560" y="134" text-anchor="middle" font-size="15.5" font-weight="700" fill="#e8f7fb">Suena el celular</text>
+<text x="560" y="154" text-anchor="middle" font-size="15.5" font-weight="400" fill="#9fc7d3">del guardián</text>
+<circle cx="780" cy="70" r="38" fill="#0c2230" stroke="#5ee6f0" stroke-opacity=".3" stroke-width="2"/>
+<g transform="translate(780 70)"><circle r="19" fill="none" stroke="#4fe39a" stroke-width="3"/><path d="M-9 1l6 6 12-13" fill="none" stroke="#4fe39a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>
+<text x="780" y="134" text-anchor="middle" font-size="15.5" font-weight="700" fill="#e8f7fb">Todos a salvo</text>
+<text x="780" y="154" text-anchor="middle" font-size="15.5" font-weight="400" fill="#9fc7d3">antes del agua</text>
+<text x="560" y="186" text-anchor="middle" font-size="13" fill="#ff8a80">sin respuesta a T−30 min → rescate oficial</text>
+</svg>
