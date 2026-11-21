@@ -256,3 +256,23 @@ html.grande .barrios .tiempo { font-size: 26px; }
   .oido .fila { flex-wrap: nowrap; }
   .oido .fila .btn.chico { padding: 6px 8px; gap: 6px; }
 }
+
+/* etiquetas del mapa sin alerta: gris, no verde */
+.marca[data-estado="tranquilo"] .cr { color: var(--texto-2); font-weight: 500; }
+/* botón para que el jurado escanee */
+.qr-jurado { background: var(--exito); color: #062014; border-color: transparent; font-weight: 700; }
+.qr-jurado svg { stroke: currentColor; }
+#dlg-qr .qr { padding: 12px; background: #fff; border-radius: 12px; width: max-content; margin: 8px auto; }
+/* respuestas de guardianes en vivo */
+.respuestas { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); z-index: 20; display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: min(440px, calc(100vw - 32px)); }
+.respuesta { display: flex; flex-direction: column; padding: 12px 16px; border-radius: 12px; background: var(--superficie-solida); border: 1px solid var(--exito); box-shadow: var(--sombra); animation: entra .35s ease-out; }
+.respuesta b { color: var(--exito); font-size: 17px; }
+.respuesta span { color: var(--texto-2); font-size: 13px; }
+.respuesta.cel { border-width: 2px; }
+@keyframes entra { from { opacity: 0; transform: translateY(-10px); } }
+@media (prefers-reduced-motion: reduce) { .respuesta { animation: none; } }
+@media (max-width: 900px) {
+  .flotante { left: auto; right: 16px; bottom: 16px; padding: 10px 14px; font-size: 13px; }
+  .qr-jurado { order: 2; }
+  .respuestas { top: 12px; }
+}

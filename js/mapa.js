@@ -27,12 +27,14 @@ export function crearMapa(el) {
   });
 
   const marcas = {};
-  const marca = (id, lon, lat, html, clase) => {
+  const marca = (id, lon, lat, html, clase, anchor = 'center') => {
     const d = document.createElement('div'); d.className = 'marca ' + clase; d.innerHTML = html;
-    marcas[id] = { el: d, m: new maplibregl.Marker({ element: d }).setLngLat([lon, lat]).addTo(map) };
+    marcas[id] = { el: d, m: new maplibregl.Marker({ element: d, anchor, offset: [0, anchor === 'bottom' ? -6 : anchor === 'top' ? 6 : 0] }).setLngLat([lon, lat]).addTo(map) };
   };
   marca('sensor', SENSOR.lon, SENSOR.lat, '<span class="pulso"></span><b>La Angostura</b>', 'sensor');
-  BARRIOS.forEach(b => marca(b.id, b.lon, b.lat, `<b>${b.nombre}</b><span class="cr" id="cr-${b.id}">a salvo</span>`, 'barrio'));
+  // barrios vecinos en el cauce: uno arriba y otro abajo del punto para que no se tapen
+  BARRIOS.forEach((b, i) => marca(b.id, b.lon, b.lat, `<b>${b.nombre}</b><span class="cr" id="cr-${b.id}">sin alerta</span>`, 'barrio', i % 2 ? 'top' : 'bottom'));
+  Object.values(marcas).forEach(({ el: d }) => { if (d.classList.contains('barrio')) d.dataset.estado = 'tranquilo'; });
   // un marcador cortado contra el borde del mapa se ve como un error: se oculta mientras esté ahí
   const recortar = () => {
     const w = el.clientWidth, h = el.clientHeight;

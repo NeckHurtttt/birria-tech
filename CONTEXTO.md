@@ -10,7 +10,7 @@
 ## Estado (18/11)
 Hecho: oído (simulacro + micrófono), mapa, cuenta regresiva, lluvia real, confianza, regla pintada (lectura con 3 toques), pared con cámara y respaldo dibujado, guardianes (ntfy + BroadcastChannel), pantalla de éxito, ?jurado, celular OK, 11 pruebas.
 Pendiente:
-- Probar ntfy con internet real y 2 celulares (desde esta compu ntfy.sh no respondía).
+- ~~Probar ntfy con 2 celulares~~ HECHO 21/11 09:14: Honor + iPhone vía Pages, alerta → sirena+vibración → "a salvo" de vuelta a la central en ~1:40.
 - Probar micrófono con parlante real (rugido grabado de un río).
 - Audio real de crecida (grabación con licencia libre) en vez del sintetizado.
 - Aviso en video LSB (puente con Manos que hablan) y audios en quechua/guaraní grabados por hablantes.
@@ -38,4 +38,4 @@ Hecho:
 - «Todos a salvo» con métricas: personas, margen promedio, 0 Bs.
 - README: propuesta, público, validación, diferenciación, tecnologías, implementación con costos, impacto. Pitch reescrito (3:30). PPTX: diapositivas 1, 2 (nueva, gráfica), 5, 6, 11, 12 cambiadas SIN poder renderizar → revisar a mano.
 - Video de respaldo nuevo (riada + simulacro + junta + registro + guardián + pared, 90 s).
-Pendiente: revisar PPTX visualmente; probar ntfy con 2 celulares; base compartida para el registro; vigías reales.
+Pendiente: revisar PPTX visualmente; base compartida para el registro; vigías reales.

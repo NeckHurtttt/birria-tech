@@ -14,7 +14,7 @@ const JURADO = params.has('jurado');
 const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simulados por minuto real
 const tema = temaDemo();
 
-const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, personas: {}, margen: {}, regla: null };
+const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {} };
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -28,7 +28,7 @@ const mapa = crearMapa($('#mapa'));
 const lista = $('#lista-barrios');
 BARRIOS.forEach(b => {
   const li = document.createElement('li'); li.id = 'b-' + b.id; li.dataset.e = 'tranquilo';
-  li.innerHTML = `<span class="nombre">${b.nombre}</span><span class="tiempo">—</span><span class="info">${b.km} km río abajo de La Angostura</span><span class="barra-t"><i></i></span>`;
+  li.innerHTML = `<span class="nombre">${b.nombre}</span><span class="tiempo">sin crecida</span><span class="info">${b.km} km río abajo de La Angostura</span><span class="barra-t"><i></i></span>`;
   li.onclick = () => { mapa.volar(b); $('#pared-sel').value = b.id; };
   lista.append(li);
 });
@@ -43,7 +43,7 @@ function pintarPersonas() {
     const li = document.createElement('li'); li.dataset.e = e;
     li.innerHTML = `<span class="av">${esc((p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0] || '?'))}</span>
       <div><div class="quien">${esc(p.nombre)} · ${b.nombre}, ${esc(p.cuadra)}</div><div class="que">${esc(p.necesidad)} · guardián: ${esc(p.guardian)}</div></div>
-      <span class="est">${txt}</span>`;
+      <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}</span>`;
     if (e === 'avisado' || e === 'rescate') {
       const ok = document.createElement('button'); ok.className = 'btn chico ok';
       ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar desde aquí';
@@ -62,10 +62,21 @@ function pintarPersonas() {
 }
 pintarPersonas();
 
+// ---------- respuestas en vivo (tiempo REAL, no simulado) ----------
+const reloj = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+function respuestaEnVivo(id) {
+  const p = activas().find(x => x.id === id), r = est.resp[id], cel = r.desde === 'celular';
+  const t = document.createElement('div'); t.className = 'respuesta' + (cel ? ' cel' : '');
+  t.innerHTML = `<b>${esc(p.nombre)}: a salvo</b><span>${cel ? `${esc(p.guardian)} confirmó desde su celular` : 'confirmado en la central'} · ${reloj(r.seg)} tras el aviso</span>`;
+  $('#respuestas').append(t); setTimeout(() => t.remove(), 9000);
+}
+
 // ---------- canal con guardianes ----------
 const canal = abrirCanal(tema, m => { if (m.tipo === 'ok' && m.id) confirmar(m.id, 'celular'); });
-function urlGuardian(id) { const u = new URL('guardian.html', location.href); u.search = `?t=${tema}&p=${id}`; return u.href; }
+const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
+function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); u.search = `?t=${tema}&p=${id}`; return u.href; }
 function avisarGuardianes() {
+  est.avisoT = Date.now(); est.resp = {};
   activas().forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), min = minutosHasta(b, est.intensidad, est.lag) - est.simMin;
     est.personas[p.id] = 'avisado';
@@ -84,7 +95,9 @@ function avisarGuardianes() {
 function confirmar(id, desde) {
   // solo se confirma a quien fue avisado: ignora toques viejos o de otro simulacro
   if (est.fase !== 'alerta' || !['avisado', 'rescate'].includes(est.personas[id])) return;
-  est.personas[id] = 'salvo'; pintarPersonas();
+  est.personas[id] = 'salvo';
+  est.resp[id] = { seg: Math.round((Date.now() - est.avisoT) / 1000), desde };
+  pintarPersonas(); respuestaEnVivo(id);
   { const pb = activas().find(x => x.id === id), bb = BARRIOS.find(x => x.id === pb.barrio); est.margen[id] = Math.round(minutosHasta(bb, est.intensidad, est.lag) - est.simMin); }
   const p = activas().find(x => x.id === id);
   hablar(`${p.nombre} está a salvo.`);
@@ -188,7 +201,7 @@ function reiniciar() {
   est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.intensidad = 1; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0, vigias: 0 };
   delete $('#v-vecinos').dataset.extra; evaluar();
   activas().forEach(p => est.personas[p.id] = 'tranquilo'); pintarPersonas();
-  BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = '—'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'a salvo', ''); });
+  BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = 'sin crecida'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'sin alerta', 'tranquilo'); });
   mapa.crecida(0); mapa.sensor(''); mapa.general();
   $('#confianza').hidden = true; $('#chip-reloj').hidden = true; $('#exito').hidden = true;
 }
@@ -212,10 +225,11 @@ $('#pared-cerrar').onclick = () => $('#dlg-pared').close();
 $('#dlg-pared').addEventListener('close', () => pared.apagar()); // también con Esc o el botón atrás
 
 // QR del guardián
+$('#btn-qr-jurado').onclick = () => $('#btn-qr').click();
 $('#btn-qr').onclick = () => {
   if ($('#dlg-qr').open) return;
   const url = urlGuardian('rosa'), q = $('#qr'); q.innerHTML = '';
-  try { new QRCode(q, { text: url, width: 220, height: 220, colorDark: '#071219', colorLight: '#ffffff' }); } catch { q.textContent = 'QR no disponible'; }
+  try { new QRCode(q, { text: url, width: 300, height: 300, colorDark: '#071219', colorLight: '#ffffff' }); } catch { q.textContent = 'QR no disponible'; }
   $('#qr-link').textContent = url; $('#qr-tema').textContent = tema;
   $('#dlg-qr').showModal();
 };
