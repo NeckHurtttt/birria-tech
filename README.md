@@ -1,15 +1,16 @@
 <p align="center"><img src="capturas/banner.svg" alt="El Río Suena" width="100%"></p>
 
-# 🌊 El Río Suena
+# El Río Suena
 
 > **Cuando el río suena, piedras trae.**
-> **La propuesta:** que ninguna familia de la ribera del Piraí se entere de la crecida cuando el agua ya está en la puerta. El Río Suena le dice a **cada barrio cuántos minutos le quedan** y a **cada vecino a quién tiene que ir a buscar**. Usa datos abiertos, vigías río arriba y celulares que ya existen, y **funciona sin internet**.
+>
+> Sistema de alerta temprana de crecidas para la ribera del río Piraí (Santa Cruz, Bolivia). Informa a cada barrio cuánto tiempo falta para la llegada del agua y asigna a cada persona que no puede evacuar por sí misma un vecino responsable de su traslado. Utiliza datos abiertos, reportes de vigías ubicados río arriba y teléfonos celulares existentes, y funciona sin conexión a internet.
 
 <p align="center">
-  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/▶_Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
+  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
-  <img src="https://img.shields.io/badge/sin_backend-GitHub_Pages-222?style=for-the-badge&logo=github" alt="Sin backend">
-  <img src="https://img.shields.io/badge/pruebas-15_ok-2ea043?style=for-the-badge" alt="15 pruebas ok">
+  <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
+  <img src="https://img.shields.io/badge/pruebas-16_aprobadas-2ea043?style=for-the-badge" alt="16 pruebas aprobadas">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/JavaScript-ES2022_modules-F7DF1E?logo=javascript&logoColor=000" alt="JavaScript">
@@ -17,145 +18,161 @@
   <img src="https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=fff" alt="CSS3">
   <img src="https://img.shields.io/badge/MapLibre_GL-396CB2?logo=maplibre&logoColor=fff" alt="MapLibre">
   <img src="https://img.shields.io/badge/Open--Meteo-GloFAS-5be7f0" alt="Open-Meteo">
-  <img src="https://img.shields.io/badge/Web_Audio-FFT-5be7f0" alt="Web Audio">
+  <img src="https://img.shields.io/badge/PostgreSQL-Supabase-336791?logo=postgresql&logoColor=fff" alt="PostgreSQL">
 </p>
-<p align="center"><b>🇧🇴 Español</b> · <a href="#-english">🇬🇧 English</a> · <a href="#-中文">🇨🇳 中文</a> · 🎤 <a href="pitch-el-rio-suena.md">Guion del pitch</a> · 📊 <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
+<p align="center"><b>Español</b> · <a href="#english">English</a> · <a href="#中文">中文</a> · <a href="pitch-el-rio-suena.md">Guion del pitch</a> · <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
 
-![Simulacro completo: tormenta, alerta, cuenta regresiva y Todos a salvo](capturas/simulacro.gif)
+![Simulacro completo: tormenta, alerta, cuenta regresiva y confirmación de todas las personas](capturas/simulacro.gif)
 
-**▶ Demo en vivo:** https://neckhurtttt.github.io/el-rio-suena/?jurado. Tocar **Iniciar simulacro**: en `?jurado` el tiempo corre ×300.
-**📱 Celular del guardián:** botón «Celular del guardián» → escanear el QR (`guardian.html?t=<tema>&p=rosa`).
+**Demostración en vivo:** https://neckhurtttt.github.io/el-rio-suena/?jurado. Presione **Iniciar simulacro**; en el modo `?jurado` el tiempo transcurre 300 veces más rápido.
+**Teléfono del guardián:** el botón **Sé guardián** muestra un código QR que puede escanearse con cualquier celular, incluso desde una videollamada.
 
-Abstracthon 2026 · Equipo **Birria TECH** · Track **Ayuda Tecnológica**, que exige mezclar dos o más tracks. El proyecto vive en el cruce de:
-- **Comunicación:** cambia la forma en que un barrio de la ribera se informa, se conecta y se coordina. Tiene la cuenta regresiva por barrio, los reportes de vecinos y el Vecino Guardián, que confirma con un toque.
-- **Educación:** enseña a leer el riesgo con la regla pintada (lectura en 3 toques), el agua en tu pared y el índice 0–100 explicado en palabras simples.
+Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el track **Ayuda Tecnológica**, que requiere combinar dos o más tracks:
 
-🎥 **Video de respaldo (sin internet):** [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4) · también en la [release v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
+- **Comunicación:** transforma la manera en que un barrio ribereño se informa, se conecta y se coordina, mediante la cuenta regresiva por barrio, los reportes de vecinos y la confirmación del vecino guardián.
+- **Educación:** enseña a interpretar el riesgo con la regla pintada (lectura en tres toques), la simulación del nivel del agua sobre la pared de la vivienda y un índice de 0 a 100 explicado en lenguaje sencillo.
+
+**Video de respaldo (sin conexión):** [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también disponible en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
 
 ---
 
-## 😟 Problema
-La madrugada del **13 de diciembre de 2025** el Piraí se desbordó en **El Torno**: al menos **20 fallecidos** y decenas de desaparecidos ([France 24/AFP](https://www.france24.com/es/minuto-a-minuto/20251215-al-menos-20-muertos-y-decenas-de-desaparecidos-por-el-desborde-de-un-r%C3%ADo-en-bolivia)), cerca de **600 familias afectadas** en 11 comunidades ([El País](https://elpais.bo/nacional/20251217_hay-cerca-de-600-familias-afectadas-en-el-torno.html)) y declaratoria de **desastre departamental**. Fue la riada más grande en 42 años, desde el turbión de 1983 ([El Deber](https://eldeber.com.bo/santa-cruz/declaran-desastre-riada-historica-pirai-deja-20-muertos_1765881778), [Wikipedia](https://es.wikipedia.org/wiki/Turbi%C3%B3n_del_r%C3%ADo_Pira%C3%AD_de_1983)). Días después, el alcalde de El Torno contaba **26 fallecidos oficiales y al menos 1.300 familias damnificadas en 18 comunidades** ([El Deber vía eju.tv](https://eju.tv/?p=4852511)). Y no es solo el Piraí: en la temporada 2024-25 las lluvias afectaron a **más de 186.000 familias en Bolivia** y dejaron 42 fallecidos ([El País](https://elpais.bo/nacional/20250313_registran-42-fallecidos-por-las-lluvias-en-bolivia.html)). Con El Niño 2026-27 puede repetirse. Hoy:
+## Problema
 
-- Las alertas se dan **por colores y para todo el departamento**. Ninguna le dice a una cuadra concreta **cuánto tiempo le queda**.
-- Muchas familias **no evacúan porque no creen** que el agua vaya a llegar a su casa.
-- Los adultos mayores, las personas en silla de ruedas, las personas sordas y los niños solos dependen de que **alguien se acuerde de ellos**.
+En la madrugada del **13 de diciembre de 2025**, el río Piraí se desbordó en el municipio de **El Torno**. El alcalde informó posteriormente **26 fallecidos oficiales y al menos 1.300 familias damnificadas en 18 comunidades** ([El Deber vía eju.tv](https://eju.tv/?p=4852511)); la Gobernación declaró **desastre departamental**. Fue la riada de mayor magnitud en 42 años, desde el turbión de 1983 ([El Deber](https://eldeber.com.bo/santa-cruz/declaran-desastre-riada-historica-pirai-deja-20-muertos_1765881778), [Wikipedia](https://es.wikipedia.org/wiki/Turbi%C3%B3n_del_r%C3%ADo_Pira%C3%AD_de_1983)). El problema no se limita al Piraí: en la temporada 2024-2025, las lluvias afectaron a **más de 186.000 familias en Bolivia** y causaron 42 fallecimientos ([El País](https://elpais.bo/nacional/20250313_registran-42-fallecidos-por-las-lluvias-en-bolivia.html)). Ante el fenómeno de El Niño 2026-2027, el riesgo de repetición es alto.
 
-## 🎯 ¿Para quién es?
-| Quién | Qué gana |
+En la actualidad:
+
+- Las alertas se emiten **por colores y para todo el departamento**; ninguna indica a una zona concreta **cuánto tiempo dispone para evacuar**.
+- Una parte de las familias **no evacúa porque no considera probable** que el agua alcance su vivienda.
+- Las personas adultas mayores, con discapacidad física o auditiva y los niños que permanecen solos dependen de que **alguien recuerde acudir por ellos**.
+
+## Público objetivo
+
+| Destinatario | Beneficio |
 |---|---|
-| 🏠 **Familias de la ribera** (El Torno, Jorochito, Porongo, Urubó, Portachuelo) | Una cuenta regresiva para **su** barrio y ver el agua **en su propia pared** |
-| ♿ **Quien no puede evacuar solo**: adultos mayores, personas en silla de ruedas o sordas, niños solos, hablantes de quechua | Un **vecino guardián** asignado; si nadie confirma, pasa al rescate oficial |
-| 🙋 **Guardianes** (vecinos) | Un aviso que suena con la pantalla apagada y se confirma con **un toque** (o SMS/llamada sin internet) |
-| 👀 **Vigías río arriba** (Bermejo, río Espejos) | Dos toques para avisar «el río creció»; ven lo que los satélites no ven |
-| 🏛️ **Quien lo adopta**: junta vecinal, municipio (UGR), COED de la Gobernación, SEARPI | Un **panel en vivo** de quién falta, exportable a CSV o impreso |
+| **Familias de la ribera** (El Torno, Jorochito, Porongo, Urubó, Portachuelo) | Una cuenta regresiva específica para su barrio y la visualización del nivel del agua sobre su propia vivienda |
+| **Personas que no pueden evacuar por sí mismas**: adultos mayores, personas en silla de ruedas o con discapacidad auditiva, niños solos, hablantes de quechua | Un **vecino guardián** asignado; si no se confirma su traslado a tiempo, el caso se deriva al rescate oficial |
+| **Guardianes** (vecinos voluntarios) | Un aviso que suena con la pantalla apagada y se confirma con un solo toque, con respaldo por SMS o llamada si no hay internet |
+| **Vigías río arriba** (Bermejo, río Espejos) | Un reporte de dos toques para indicar que el río creció; observan lo que los satélites no detectan |
+| **Instituciones que lo adoptan**: junta vecinal, Unidad de Gestión de Riesgos municipal, COED de la Gobernación, SEARPI | Un **panel en tiempo real** con el estado de cada persona, exportable a CSV o imprimible |
 
-## 💡 Solución en 4 piezas
+## Solución
 
-| | Pieza | Qué hace |
-|---|---|---|
-| 🛰️ | **Vigía del Piraí** | Cada 10 min revisa la lluvia en 5 puntos de la cuenca alta (Open-Meteo), el caudal GloFAS en La Angostura y los reportes de **vigías río arriba**. Con eso calcula un **índice de riesgo de 0 a 100**. Cualquiera de las tres fuentes puede disparar la alerta (2 vigías bastan). |
-| ⏱️ | **Cuenta regresiva por barrio** | Mide la distancia sobre el cauce real del río (OSM) y muestra avisos como «el agua llega a El Torno en **2 h 20 min**». |
-| 📷 | **El agua en tu pared** | Apuntas la cámara a tu casa y la app dibuja hasta dónde subiría el agua. Si no hay cámara, la muestra sobre una pared dibujada. |
-| 🤝 | **Vecino Guardián** | Cada persona vulnerable tiene un vecino asignado. Cuando hay alerta, el celular del guardián suena y vibra, y el guardián confirma con un toque. **Si nadie confirma 30 min antes de que llegue el agua, el caso pasa al rescate oficial.** |
+| Componente | Función |
+|---|---|
+| **Vigía del Piraí** | Cada diez minutos consulta la precipitación en cinco puntos de la cuenca alta (Open-Meteo), el caudal GloFAS en La Angostura y los reportes de **vigías río arriba**, y calcula un **índice de riesgo de 0 a 100**. Cualquiera de las tres fuentes puede activar la alerta; dos reportes de vigías son suficientes. |
+| **Cuenta regresiva por barrio** | Calcula la distancia sobre el cauce real del río (OpenStreetMap) y muestra avisos como «el agua llega a El Torno en **2 h 20 min**». |
+| **El agua en su pared** | Con la cámara del teléfono, dibuja sobre la vivienda la altura que alcanzaría el agua. Sin cámara, la muestra sobre una pared ilustrada. |
+| **Vecino guardián** | Cada persona vulnerable tiene un vecino asignado. Ante una alerta, el teléfono del guardián suena y vibra, y este confirma el traslado con un toque. **Si no hay confirmación 30 minutos antes de la llegada del agua, el caso se deriva al rescate oficial.** |
+| **Registro compartido** | La junta vecinal registra, aprueba y supervisa a las personas desde cualquier dispositivo, con acceso protegido por clave (ver *Backend*). |
 
-**Extra opcional:** el *oído del río*. Un celular junto a la orilla escucha el rugido grave del agua (20–300 Hz).
+**Complemento experimental:** el *oído del río*, un teléfono ubicado junto a la orilla que analiza el sonido grave del caudal (20–300 Hz).
 
-### ¿Por qué funciona? La ventaja de 2 h 30 min
-La lluvia que cae en la cuenca alta (Samaipata, Bermejo, Cuevas…) tarda unas **2 h 30 min** en bajar hasta La Angostura. Si se mira **donde llueve** y no donde ya creció el río, se gana ese tiempo para evacuar.
+### Fundamento: la ventaja de 2 h 30 min
 
-## 🔬 Validación con la riada real del 13/12/2025
-Antes de confiar en el índice, lo probamos con la noche de la tragedia ([`herramientas/validar.py`](herramientas/validar.py), botón **«¿Habría avisado la riada real?»** en la app):
+La lluvia que cae en la cuenca alta (Samaipata, Bermejo, Cuevas) tarda aproximadamente **2 h 30 min** en llegar a La Angostura. Al observar **dónde llueve** y no únicamente dónde ya creció el río, se obtiene ese tiempo para la evacuación.
 
-| Fuente abierta | Lo que vio en la cuenca alta del Piraí, 12/12 06:00 → 13/12 07:00 |
+## Validación con la riada del 13 de diciembre de 2025
+
+Antes de adoptar el índice, se evaluó su comportamiento con los datos de la noche del desastre ([`herramientas/validar.py`](herramientas/validar.py); en la aplicación, botón **«¿Habría avisado la riada real?»**):
+
+| Fuente abierta | Registro en la cuenca alta del Piraí, 12/12 06:00 a 13/12 07:00 |
 |---|---|
 | Open-Meteo best_match | 20 mm en total, máximo 3 mm/h |
 | ECMWF IFS | 26 mm, máximo 2 mm/h |
 | DWD ICON | 1 mm |
 | NOAA GFS | 18 mm, máximo 3 mm/h |
-| Caudal GloFAS en La Angostura | **no subió** (12 → 12 → 12 m³/s) |
+| Caudal GloFAS en La Angostura | **sin aumento** (12 → 12 → 12 m³/s) |
 
-![Riada del 13/12/2025: lluvia vista por los modelos y riesgo con y sin vigías](capturas/riada-2025.png)
+![Riada del 13/12/2025: lluvia registrada por los modelos y riesgo con y sin vigías](capturas/riada-2025.png)
 
-**Ningún modelo global vio la tormenta del Amboró.** Con solo datos abiertos, el índice no pasa de **2/100**: El Río Suena **no habría avisado**. Lo decimos claro porque cambió el diseño:
+**Ningún modelo global registró la tormenta local del Amboró.** Con datos abiertos únicamente, el índice no supera **2/100**; es decir, el sistema **no habría emitido la alerta**. Este resultado modificó el diseño:
 
-- Ahora **2 vigías río arriba** (Bermejo, río Espejos) que reporten «el río creció» **disparan la alerta solos**. Con el modelo de la app (crecida rápida, caso conservador), eso habría dado **~4 h de aviso** antes del desborde en El Torno. *La hora del reporte es hipotética: no sabemos cuándo lo habría visto un vecino.*
-- También ajustamos el umbral del caudal con **42 años de GloFAS** (1984–2026: mediana 11 m³/s, p95 35 m³/s). Antes usábamos 2024–2026 (p95 17), y eso daba falsas alarmas.
-- **Lección:** los modelos globales sirven para tormentas grandes; las tormentas locales del Amboró las ven **las personas**. Por eso el sistema mezcla datos abiertos, vigías, reglas pintadas y el oído del río.
+- **Dos vigías río arriba** (Bermejo, río Espejos) que reporten el crecimiento del río **activan la alerta por sí solos**. Con el modelo de la aplicación (crecida rápida, escenario conservador), ello habría otorgado **aproximadamente 4 horas de anticipación** antes del desborde en El Torno. *La hora del reporte es hipotética, ya que se desconoce cuándo lo habría observado un vecino.*
+- El umbral de caudal se ajustó con **42 años de datos GloFAS** (1984–2026: mediana de 11 m³/s, percentil 95 de 35 m³/s). El período anterior (2024–2026, percentil 95 de 17) generaba falsas alarmas.
+- **Conclusión:** los modelos globales son útiles para tormentas de gran escala; las tormentas locales del Amboró las detectan **las personas**. Por ello el sistema combina datos abiertos, vigías, reglas pintadas y el oído del río.
 
-## 🆚 ¿En qué se diferencia?
-| | Aviso **por barrio con minutos** | Ve tormentas **locales** | Ayuda a **quien no puede salir** | **Sin internet** | Costo para la familia |
+## Diferenciación
+
+| | Aviso **por barrio con minutos** | Detecta tormentas **locales** | Asiste a **quien no puede evacuar** | Funciona **sin internet** | Costo para la familia |
 |---|:---:|:---:|:---:|:---:|:---:|
-| Alerta oficial por colores (departamental) | ❌ | depende de estaciones | ❌ | radio/TV | 0 |
-| Pronósticos globales de crecidas (GloFAS, Google Flood Hub) | ❌ (por tramo de río) | ❌ (ver arriba) | ❌ | ❌ | 0 |
-| Grupos de WhatsApp del barrio | a veces | si alguien avisa | si alguien se acuerda | ❌ | 0 |
-| Sirenas | ❌ | ❌ | ❌ (no oyen las personas sordas) | ✅ | alto (instalación) |
-| **El Río Suena** | ✅ | ✅ vigías + regla + oído | ✅ guardián + rescate a T−30 | ✅ app guardada + SMS | **0** |
+| Alerta oficial por colores (departamental) | No | Depende de estaciones | No | Radio y televisión | 0 |
+| Pronósticos globales de crecidas (GloFAS, Google Flood Hub) | No (por tramo de río) | No (ver validación) | No | No | 0 |
+| Grupos de WhatsApp del barrio | Ocasionalmente | Solo si alguien avisa | Solo si alguien lo recuerda | No | 0 |
+| Sirenas | No | No | No (no llegan a personas sordas) | Sí | Alto (instalación) |
+| **El Río Suena** | **Sí** | **Sí** (vigías, regla, oído) | **Sí** (guardián y derivación a T−30) | **Sí** (aplicación instalada y SMS) | **0** |
 
-## 🧰 ¿Por qué estas tecnologías?
-| Tecnología | Por qué |
+## Justificación tecnológica
+
+| Tecnología | Motivo |
 |---|---|
-| **Web estática + PWA** (GitHub Pages, service worker) | Se abre con un link o QR, se instala sin tienda de apps y **funciona sin internet**. No hay servidor que se caiga en plena crecida |
-| **Open-Meteo** (lluvia) y **GloFAS** (caudal) | Gratis, sin clave, con historia para validar. Sirven para tormentas grandes |
-| **Vigías + regla pintada** | Cubren lo que los modelos no ven (riada 2025). Solo necesitan un celular básico y pintura |
-| **ntfy** (push abierto) | Suena con la pantalla apagada y no hace falta crear cuentas. Se puede instalar en un servidor propio del municipio |
-| **SMS / llamada** | Respaldo cuando cae el internet; usa el plan del celular |
-| **MapLibre + OpenStreetMap** | Mapa abierto con el cauce real del Piraí; las teselas vistas quedan guardadas |
-| **Web Audio / cámara** | El oído del río y el agua en tu pared corren en el celular, sin enviar audio ni video a nadie |
+| **Aplicación web progresiva** (GitHub Pages, service worker) | Se abre con un enlace o código QR, se instala sin tienda de aplicaciones y **funciona sin internet**. No depende de un servidor que pueda fallar durante la crecida. |
+| **Open-Meteo** (precipitación) y **GloFAS** (caudal) | Gratuitos, sin clave de acceso y con registro histórico para la validación. Adecuados para tormentas de gran escala. |
+| **Vigías y regla pintada** | Cubren lo que los modelos no detectan (riada de 2025). Requieren únicamente un teléfono básico y pintura. |
+| **ntfy** (notificaciones abiertas) | Suena con la pantalla apagada y no exige crear cuentas. Puede instalarse en un servidor propio del municipio. |
+| **Supabase** (PostgreSQL) | Registro compartido de la junta vecinal sin servidor que mantener; acceso exclusivamente mediante funciones validadas y clave de la junta. |
+| **SMS y llamada** | Respaldo ante la caída de internet; utilizan el plan del teléfono. |
+| **MapLibre y OpenStreetMap** | Mapa abierto con el cauce real del Piraí; las zonas consultadas quedan almacenadas para su uso sin conexión. |
+| **Web Audio y cámara** | El oído del río y la simulación sobre la pared se procesan en el propio teléfono, sin transmitir audio ni video. |
 
-## 🏗️ Cómo se implementa
-| Fase | Qué | Quién | Costo estimado |
+## Implementación
+
+| Fase | Alcance | Responsables | Costo estimado |
 |---|---|---|---|
-| **0 · Hoy** | Prototipo funcionando, validado con la riada 2025 | Birria TECH | 0 |
-| **1 · Piloto** (temporada de lluvias dic–mar) | El Torno: 1 junta vecinal, **10 vigías** río arriba, **5 reglas pintadas** en puentes, ~50 personas registradas, servidor ntfy propio. Calibrar tiempos y alturas con SEARPI y COED | Junta vecinal + UGR El Torno + SEARPI | ≈ Bs 1.500 (pintura, VPS por 4 meses, capacitación) |
-| **2 · Todo el Piraí** | Porongo, Santa Cruz (ribera), Urubó, Portachuelo; panel del COED | Gobernación (COED) | suscripción por tramo de río |
-| **3 · Nivel nacional** | Río Grande, Mamoré (Beni), Rocha (Cochabamba), ríos de La Paz: solo se cambia el cauce, los puntos de la cuenca y los barrios | Municipios + Viceministerio de Defensa Civil | igual |
+| **0. Actual** | Prototipo funcional, validado con la riada de 2025 y probado en teléfonos reales | Birria TECH | 0 |
+| **1. Piloto** (temporada de lluvias, diciembre a marzo) | El Torno: una junta vecinal, **10 vigías** río arriba, **5 reglas pintadas** en puentes, alrededor de 50 personas registradas y servidor ntfy propio. Calibración de tiempos y alturas con SEARPI y el COED | Junta vecinal, UGR de El Torno, SEARPI | Aproximadamente Bs 1.500 (pintura, servidor por cuatro meses, capacitación) |
+| **2. Cuenca del Piraí** | Porongo, ribera de Santa Cruz, Urubó y Portachuelo; panel para el COED | Gobernación (COED) | Suscripción por tramo de río |
+| **3. Alcance nacional** | Río Grande, Mamoré (Beni), Rocha (Cochabamba) y ríos de La Paz: únicamente se modifican el cauce, los puntos de la cuenca y los barrios | Municipios y Viceministerio de Defensa Civil | Equivalente por tramo |
 
-**Siempre gratis para las familias.** Los costos son estimaciones del equipo y no cotizaciones.
+**El servicio es gratuito para las familias.** Los costos son estimaciones del equipo y no constituyen cotizaciones.
 
-### 🇧🇴 ¿Por qué sirve para todo el país?
-- **Nada es propio del Piraí:** el cauce, los 5 puntos de lluvia de la cuenca alta, los barrios y el tiempo de viaje del agua son **datos de configuración** (`js/datos.js`). Para otro río se cambian esos datos; la app, los guardianes y el panel son los mismos.
-- **Los datos abiertos cubren toda Bolivia:** Open-Meteo (lluvia) y GloFAS (caudal) tienen cobertura mundial, sin convenios ni sensores.
-- **La red humana ya existe en todo el país:** juntas vecinales, OTB y Unidades de Gestión de Riesgo municipales. El Río Suena les da una herramienta, no crea una estructura nueva.
-- **Costo marginal casi cero:** cada río nuevo es una configuración + un piloto de ≈Bs 1.500; el servidor de avisos es el mismo.
+### Aplicabilidad nacional
 
-### 🗄️ Backend: registro compartido de la junta (Supabase)
-- Quien registra a una persona desde **cualquier celular** la manda al registro compartido de su comunidad; la central y la junta la ven **en ~2 s** (aviso por ntfy + refresco cada 30 s).
-- La junta entra al panel con su **clave** (demo: comunidad `demo`, clave `1312`), aprueba y desde ese momento la persona recibe alertas. Cada persona aprobada tiene su **QR de guardián**.
-- **Privacidad:** las tablas no se pueden leer con la clave pública (RLS sin políticas). Todo pasa por funciones (`rs_registrar`, `rs_listar`, `rs_aprobar`, `rs_quitar`) que validan los datos y exigen la clave de la junta para ver o aprobar. Clave guardada con bcrypt.
-- **Sin internet** se guarda en el celular y se envía solo al volver la conexión; la central conserva la última copia.
-- Esquema completo: [`supabase/esquema.sql`](supabase/esquema.sql). Probado de punta a punta: registro en celular → aparece en la central en 1,3 s → aprobación → QR del guardián → alerta → «a salvo» de vuelta en 0:03.
+- **Ningún componente es exclusivo del Piraí:** el cauce, los cinco puntos de precipitación, los barrios y el tiempo de tránsito del agua son **datos de configuración** (`js/datos.js`). Para otro río basta con modificar esos datos; la aplicación, los guardianes y el panel se mantienen.
+- **Los datos abiertos cubren todo el territorio boliviano:** Open-Meteo y GloFAS tienen cobertura mundial, sin convenios ni sensores.
+- **La red humana ya existe en todo el país:** juntas vecinales, OTB y Unidades de Gestión de Riesgos municipales. El Río Suena les proporciona una herramienta; no crea una estructura nueva.
+- **Costo marginal reducido:** cada río adicional requiere una configuración y un piloto de aproximadamente Bs 1.500; el servidor de avisos es compartido.
 
-## 📈 Impacto y cómo lo medimos
-- **Tiempo de aviso:** ~4 h antes del desborde en la riada 2025 con vigías (hipotético); **2 h 30 min** con lluvia vista por los modelos.
-- **Nadie olvidado:** % de personas registradas confirmadas antes del agua (meta del piloto: **100 %**, el resto pasa al rescate a T−30 min).
-- **Margen:** minutos promedio entre la confirmación y la llegada del agua (la pantalla «Todos a salvo» lo calcula).
-- **Falsas alarmas:** alertas sin crecida por temporada (se cuentan en el piloto con SEARPI).
-- **Costo para la familia:** 0 Bs.
-- **Tiempo real de respuesta del guardián:** la central lo muestra en vivo («a salvo · 1:39 tras el aviso»). Prueba del 21/11/2026 con 2 celulares reales (Android + iPhone): ambos recibieron la alerta y confirmaron de vuelta.
-- **Escala:** El Torno sola tuvo ≥1.300 familias damnificadas en 2025; la meta del piloto es registrar a las personas que no pueden salir solas de 1 comunidad y luego extender a las 18.
+### Backend: registro compartido de la junta vecinal (Supabase)
 
-## 🎬 Demo en 1 minuto (guion para el jurado)
-1. Abrir `?jurado` → **Iniciar simulacro**: cae una tormenta en la cuenca alta.
-2. El índice supera 55 → **ALERTA**, y cada barrio de la ribera muestra su cuenta regresiva.
-3. El celular del guardián (QR) suena → toca **«Ya la ayudé ✓»**.
-4. Cuando todos los guardianes confirman → pantalla **«Todos a salvo»** con las personas, el margen y el costo.
-5. **¿Habría avisado la riada real del 13/12/2025?** → la gráfica de esa noche, hora por hora.
-6. **Panel de la junta / COED** → quién falta; exportar CSV o imprimir. **Registrar persona** → la junta aprueba.
-7. Sin wifi: la app abre igual (ya instalada) y desde cada persona sale un SMS o una llamada al guardián con un toque.
+- Una persona registrada desde **cualquier teléfono** se incorpora al registro compartido de su comunidad y aparece en el panel de la junta en **aproximadamente 1,3 segundos** (aviso inmediato por ntfy y actualización periódica cada 30 segundos).
+- La junta accede al panel con su **clave** (demostración: comunidad `demo`, clave `1312`), aprueba a cada persona y, desde ese momento, esta recibe las alertas. Cada persona aprobada dispone de su propio **código QR de guardián**.
+- **Privacidad:** las tablas no pueden leerse con la clave pública (seguridad a nivel de fila sin políticas de acceso). Todas las operaciones se realizan mediante funciones (`rs_registrar`, `rs_listar`, `rs_aprobar`, `rs_quitar`) que validan los datos y exigen la clave de la junta para consultar o aprobar. La clave se almacena cifrada con bcrypt.
+- **Sin conexión**, el registro se guarda en el teléfono y se envía automáticamente al restablecerse la conexión; la central conserva la última copia disponible.
+- Esquema completo: [`supabase/esquema.sql`](supabase/esquema.sql). Prueba integral realizada: registro en un teléfono, aparición en la central en 1,3 s, aprobación, código QR del guardián, alerta y confirmación de vuelta en 3 segundos.
 
-| 📱 El celular del guardián suena | 🧱 El agua sube en tu pared |
+## Impacto y medición
+
+- **Tiempo de anticipación:** aproximadamente 4 horas antes del desborde de 2025 con vigías (estimación con hora de reporte hipotética); 2 h 30 min cuando los modelos registran la lluvia.
+- **Cobertura:** porcentaje de personas registradas cuyo traslado se confirma antes de la llegada del agua (meta del piloto: 100 %; los casos restantes se derivan al rescate a T−30 min).
+- **Margen:** minutos promedio entre la confirmación y la llegada del agua, calculados en la pantalla de cierre del simulacro.
+- **Tiempo de respuesta del guardián:** la central lo registra en tiempo real. En la prueba del 21 de noviembre de 2026, dos teléfonos reales (Android e iPhone) recibieron la alerta y confirmaron el traslado.
+- **Falsas alarmas:** alertas emitidas sin crecida por temporada, a registrar durante el piloto con SEARPI.
+- **Escala:** solo en El Torno hubo al menos 1.300 familias damnificadas en 2025; el piloto registrará a las personas que no pueden evacuar por sí mismas en una comunidad y luego se extenderá a las 18.
+- **Costo para la familia:** Bs 0.
+
+## Guion de demostración (un minuto)
+
+1. Abrir `?jurado` y presionar **Iniciar simulacro**: se simula una tormenta en la cuenca alta.
+2. El índice supera 55, se emite la **alerta** y cada barrio muestra su cuenta regresiva.
+3. El teléfono del guardián (código QR **Sé guardián**) suena; el guardián presiona **«Ya la ayudé»** y la central muestra el tiempo de respuesta.
+4. Cuando todos los guardianes confirman, aparece la pantalla de cierre con las personas trasladadas, el margen y el costo.
+5. **«¿Habría avisado la riada real del 13/12/2025?»** muestra la gráfica de esa noche, hora por hora.
+6. **Panel de la junta**: se ingresa la clave `1312`; las personas registradas desde otro teléfono aparecen en vivo y pueden aprobarse o exportarse a CSV.
+7. Sin conexión, la aplicación instalada sigue abriendo y desde cada persona se puede enviar un SMS o llamar al guardián.
+
+| Teléfono del guardián | Nivel del agua sobre la vivienda |
 |:---:|:---:|
-| <img src="capturas/guardian.gif" width="280" alt="Guardián recibe la alerta y confirma"> | <img src="capturas/pared.gif" width="280" alt="El agua en tu pared"> |
+| <img src="capturas/guardian.gif" width="280" alt="El guardián recibe la alerta y confirma"> | <img src="capturas/pared.gif" width="280" alt="Simulación del agua sobre la pared"> |
 
-<details><summary>📸 Capturas fijas</summary>
+<details><summary>Capturas fijas</summary>
 
-| Alerta | Guardianes | Todos a salvo |
+| Alerta | Guardianes | Cierre del simulacro |
 |---|---|---|
 | ![](capturas/escritorio-alerta.png) | ![](capturas/escritorio-guardianes.png) | ![](capturas/escritorio-exito.png) |
 </details>
 
-## ⚙️ Cómo funciona
+## Arquitectura
 
 ```mermaid
 flowchart LR
@@ -163,75 +180,86 @@ flowchart LR
   B[Caudal GloFAS<br/>La Angostura] --> I
   V[Vigías río arriba<br/>2 reportes] --> I
   C[Ribera: reportes<br/>+ regla pintada] --> I
-  D[Oído del río<br/>opcional] -.-> I
+  D[Oído del río<br/>experimental] -.-> I
+  R[(Registro de la junta<br/>Supabase)] --> F
   I -- "≥ 55" --> E[Alerta + cuenta<br/>regresiva por barrio]
-  E --> F[Vecino Guardián<br/>ntfy.sh]
+  E --> F[Vecino guardián<br/>ntfy.sh]
   F -. sin internet .-> S[SMS / llamada]
   S --> G
-  F -- confirma --> G[Todos a salvo]
+  F -- confirma --> G[Traslado confirmado]
   F -- sin confirmar a T−30 min --> H[Rescate oficial]
 ```
 
-- **Web estática, sin backend:** se publica en GitHub Pages y abre en cualquier celular.
-- **Mapa:** MapLibre + OpenFreeMap, con el cauce real del Piraí sacado de OpenStreetMap.
-- **Índice:** `indiceRiesgo` en `js/datos.js`. Tres fuentes pueden disparar la alerta: lluvia, caudal y **2 vigías río arriba**. Los reportes de la ribera solos **no** alertan, solo dejan la zona en vigilancia (así se evitan las falsas alarmas).
-- **Audio:** Web Audio con una FFT de 4096 muestras. Compara la energía entre 20 y 300 Hz con la línea base y avisa si la subida dura 1,5 s seguidos.
-- **Canal a los guardianes:** ntfy.sh (pub/sub, también llega a la app ntfy), con BroadcastChannel como respaldo.
-- **Sin internet (PWA):** `sw.js` guarda la app, el último escaneo y el mapa ya visto; se instala desde el navegador. Los guardianes tienen SMS y llamada de respaldo. **La demo no se cae.**
-- **Registro y panel:** `js/registro.js`. Las personas nuevas quedan pendientes hasta que la junta las aprueba; CSV con `;` para Excel en español.
-- **Accesibilidad:** botón **Aa** (letra grande y alto contraste) y botón 🔊 para leer el aviso en voz alta.
+- **Interfaz:** aplicación web estática publicada en GitHub Pages, compatible con cualquier teléfono.
+- **Mapa:** MapLibre y OpenFreeMap, con el cauce real del Piraí obtenido de OpenStreetMap.
+- **Índice:** función `indiceRiesgo` en `js/datos.js`. Tres fuentes pueden activar la alerta: precipitación, caudal y **dos vigías río arriba**. Los reportes de la ribera por sí solos **no** activan la alerta; únicamente colocan la zona en vigilancia, para evitar falsas alarmas.
+- **Audio:** Web Audio con una FFT de 4096 muestras; compara la energía entre 20 y 300 Hz con la línea base y señala un aumento sostenido durante 1,5 segundos.
+- **Canal con los guardianes:** ntfy.sh (publicación y suscripción, compatible con la aplicación ntfy), con BroadcastChannel como respaldo local.
+- **Registro compartido:** `js/nube.js` y `js/registro.js` con Supabase; funciones RPC definidas en `supabase/esquema.sql`.
+- **Funcionamiento sin conexión:** `sw.js` almacena la aplicación, la última consulta de datos y el mapa visitado; los guardianes cuentan con SMS y llamada de respaldo.
+- **Accesibilidad:** botón **Aa** (letra grande y alto contraste) y lectura del aviso en voz alta.
 
-## 📁 Estructura
+## Estructura del repositorio
+
 ```
-index.html        app principal (mapa, índice, alerta, pared)
-guardian.html     pantalla del celular del guardián
-js/datos.js       barrios, guardianes de ejemplo, índice de riesgo
-js/lluvia.js      Vigía: Open-Meteo (lluvia) + GloFAS (caudal)
-js/mapa.js        MapLibre + cuenta regresiva sobre el cauce
-js/cauce-pirai.js cauce del Piraí (OSM)
-js/oido.js        oído del río (micrófono)
-js/pared.js       el agua en tu pared (cámara)
-js/canal.js       ntfy.sh + BroadcastChannel
-js/registro.js    registro de personas, aprobación de la junta, CSV
-js/historico.js   riada real 12–13/12/2025 (datos abiertos)
-sw.js             funciona sin internet (PWA)
-herramientas/validar.py  rehace la validación con Open-Meteo
-pruebas.mjs       15 pruebas (índice, riada 2025, tiempos, canal, PWA, CSV)
+index.html             aplicación principal (mapa, índice, alerta, pared)
+guardian.html          pantalla del teléfono del guardián
+js/datos.js            barrios, personas de ejemplo, índice de riesgo
+js/lluvia.js           Vigía: Open-Meteo (precipitación) y GloFAS (caudal)
+js/mapa.js             MapLibre y cuenta regresiva sobre el cauce
+js/cauce-pirai.js      cauce del Piraí (OpenStreetMap)
+js/oido.js             oído del río (micrófono)
+js/pared.js            simulación del agua sobre la pared (cámara)
+js/canal.js            ntfy.sh y BroadcastChannel
+js/registro.js         registro de personas, aprobación y CSV
+js/nube.js             conexión con el registro compartido (Supabase)
+js/historico.js        riada del 12–13/12/2025 (datos abiertos)
+supabase/esquema.sql   tablas y funciones del registro compartido
+sw.js                  funcionamiento sin conexión (PWA)
+herramientas/validar.py  reproduce la validación con Open-Meteo
+pruebas.mjs            pruebas automatizadas
 ```
 
-## 🚀 Correrlo
+## Ejecución local
+
 ```bash
-python3 -m http.server 8765    # http://localhost:8765/?jurado
-node pruebas.mjs               # 15 pruebas ok
-python3 herramientas/validar.py  # riada 2025 + 42 años de GloFAS
+python3 -m http.server 8765      # http://localhost:8765/?jurado
+node pruebas.mjs                 # pruebas automatizadas
+python3 herramientas/validar.py  # riada de 2025 y 42 años de GloFAS
 ```
-- La cámara y el micrófono necesitan HTTPS o localhost.
-- `?x=60` cambia la aceleración del tiempo (por defecto ×300 en `?jurado`).
 
-## 🗺️ Lo que sigue
+- La cámara y el micrófono requieren HTTPS o `localhost`.
+- El parámetro `?x=60` modifica la aceleración del tiempo (por defecto ×300 en `?jurado`).
+- Para otra comunidad o junta: parámetro `?c=<comunidad>` y una fila nueva en `rs_juntas`.
+
+## Próximos pasos
+
 - [ ] Calibrar tiempos y alturas con **SEARPI** y el **COED**.
-- [ ] Probar el canal ntfy con 2 celulares reales y un servidor ntfy propio.
-- [ ] Avisos en **video LSB** y audios en **quechua y guaraní** grabados por hablantes.
-- [x] Registro de personas y aprobación de la junta vecinal (en el navegador; falta base compartida).
-- [x] Funciona sin internet + SMS/llamada de respaldo.
-- [ ] Red de vigías río arriba con la junta (Bermejo, río Espejos) y prueba en temporada de lluvias.
-- [ ] Datos de lluvia satelital de alta resolución (GPM IMERG) para tormentas locales.
+- [x] Probar el canal de avisos con dos teléfonos reales (realizado el 21/11/2026).
+- [x] Registro compartido de la junta vecinal con base de datos (Supabase).
+- [x] Funcionamiento sin conexión con respaldo por SMS y llamada.
+- [ ] Instalar un servidor ntfy propio para el piloto.
+- [ ] Avisos en **video en Lengua de Señas Boliviana** y audios en **quechua y guaraní** grabados por hablantes.
+- [ ] Conformar la red de vigías río arriba con la junta (Bermejo, río Espejos) y probarla en temporada de lluvias.
+- [ ] Incorporar precipitación satelital de alta resolución (GPM IMERG) para tormentas locales.
 
-## 🧭 Honestidad
-- Las distancias, las velocidades y las alturas son **estimadas** hasta que se calibren con datos oficiales.
-- Con solo datos abiertos, El Río Suena **no habría avisado** la riada del 13/12/2025 (ver *Validación*). La ventaja de ~4 h con vigías es una estimación con una hora de reporte hipotética.
-- El sistema **complementa** a las estaciones oficiales; no las reemplaza. La detección acústica es un prototipo, aunque el monitoreo acústico de crecidas sí se estudia en investigación.
-- Las personas de la demo son ficticias. El tema público de ntfy sirve solo para la demo.
+## Limitaciones
 
-## 👥 Equipo Birria TECH
-Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración) · Rodrigo Camacho (tester) · Deron Zuñiga (programación)
+- Las distancias, velocidades y alturas son **estimaciones** hasta su calibración con datos oficiales.
+- Con datos abiertos únicamente, el sistema **no habría alertado** la riada del 13/12/2025 (ver *Validación*). La anticipación de aproximadamente 4 horas con vigías es una estimación basada en una hora de reporte hipotética.
+- El sistema **complementa** a las estaciones oficiales; no las reemplaza. La detección acústica es un prototipo, si bien el monitoreo acústico de crecidas es objeto de investigación.
+- Las personas de la demostración son ficticias. El tema público de ntfy y la clave `1312` se utilizan únicamente con fines de demostración.
+
+## Equipo Birria TECH
+
+Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración) · Rodrigo Camacho (pruebas) · Deron Zuñiga (programación)
 
 **Licencia:** [MIT](LICENSE) · **Datos:** Open-Meteo (pronóstico y Flood API/GloFAS) · © colaboradores de OpenStreetMap · OpenFreeMap.
 
 ---
 
-## 🇬🇧 English
-**When the river roars, it brings stones.** Early flood warning for the Piraí river (Santa Cruz, Bolivia), neighborhood by neighborhood, for people who can't evacuate alone. It needs no hardware.
+## English
+**When the river roars, it brings stones.** Early flood warning for the Piraí river (Santa Cruz, Bolivia), neighborhood by neighborhood, for people who cannot evacuate alone. No dedicated hardware is required.
 
 - **Piraí Watch:** every 10 min it reads open data: rain at 5 upper-basin points (Open-Meteo), GloFAS discharge at La Angostura and neighbor reports. With that it computes a **0–100 risk index**. Rain in the upper basin takes about **2 h 30 min** to reach La Angostura, and that is the head start for evacuating.
 - **Countdown per neighborhood**, measured along the real river channel: *"water reaches El Torno in 2 h 20 min"*.
@@ -249,7 +277,7 @@ Tracks: **Technology Aid** = **Communication** (neighborhood alerts, reports, gu
 
 Demo: open `?jurado` → **Iniciar simulacro**. Run locally: `python3 -m http.server 8765`, tests: `node pruebas.mjs`. Distances and heights are estimates until they are calibrated with SEARPI/COED. This complements official stations; it does not replace them.
 
-## 🇨🇳 中文
+## 中文
 **河水作响，必有石来。** 面向玻利维亚圣克鲁斯皮拉伊河沿岸的洪水预警系统：按社区倒计时，为无法独自撤离的人安排邻居守护者，无需任何硬件。
 
 - **皮拉伊河守望**：每 10 分钟读取开放数据，包括上游流域 5 个点的降雨量（Open-Meteo）、La Angostura 的 GloFAS 流量和邻居上报，计算 **0–100 风险指数**。上游降雨约 **2 小时 30 分钟** 后到达 La Angostura，这就是争取到的撤离时间。

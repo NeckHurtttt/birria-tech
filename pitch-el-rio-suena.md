@@ -1,4 +1,4 @@
-# 🎤 El Río Suena — Discurso del pitch
+# El Río Suena — Discurso del pitch
 
 > **Duración:** 3 min 30 s (la guía da 4 min + 3 de preguntas) · **En escena:** quien habla + quien opera la demo + el celular del guardián en la mano
 > *Las acotaciones en cursiva no se leen en voz alta.* Cada bloque dice qué criterio del jurado cubre.
@@ -100,7 +100,7 @@ Gracias.
 
 ---
 
-## 🛡️ Respuestas rápidas para el jurado (20 s cada una)
+## Respuestas rápidas para el jurado (20 s cada una)
 
 **«¿Sirve fuera de Santa Cruz?»**
 Sí. El río, los puntos de lluvia y los barrios son configuración. Open-Meteo y GloFAS cubren todo el país, y juntas vecinales y Unidades de Gestión de Riesgo hay en cada municipio. Cada río nuevo es un piloto de unos 1.500 Bs.
@@ -131,7 +131,7 @@ Para las familias es gratis, siempre. El piloto cuesta unos 1.500 Bs; después p
 
 ---
 
-## ✅ Antes de subir al escenario (pitch VIRTUAL)
+## Antes de subir al escenario (pitch VIRTUAL)
 
 - [ ] Compartir **la pestaña del navegador**, no toda la pantalla, y con el audio de la pestaña activado (para que se oiga la sirena)
 - [ ] Botón verde **«Sé guardián»**: mostrar el QR 10 s e invitar al jurado a escanearlo antes de lanzar el simulacro
