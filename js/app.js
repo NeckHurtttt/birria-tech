@@ -8,6 +8,10 @@ import { activas, todas, registrar, aprobar, quitar, aCSV, sincronizar, subirPen
 import { hayNube, claveJunta, comunidad } from './nube.js';
 import { RIADA_2025 } from './historico.js';
 import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
+import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
+
+// idioma de la interfaz (ES · EN · 中文): cambia sin recargar; ver js/idioma.js
+iniciarIdioma(document.querySelector('#idioma-sel'));
 
 const $ = s => document.querySelector(s);
 const params = new URLSearchParams(location.search);
@@ -298,7 +302,7 @@ $('#exito-cerrar').onclick = () => { $('#exito').hidden = true; mapa.general(); 
 
 // voz
 function hablar(t) {
-  try { const u = new SpeechSynthesisUtterance(t); u.lang = 'es-419'; u.rate = 1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
+  try { const u = new SpeechSynthesisUtterance(traducir(t)); u.lang = vozActual(); u.rate = 1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
 }
 
 // ---------- vigía: escaneo de datos abiertos + reportes ----------
@@ -459,7 +463,7 @@ const A11Y = 'rs-grande';
 const ponerGrande = on => { document.documentElement.classList.toggle('grande', on); $('#btn-grande').setAttribute('aria-pressed', on); try { localStorage.setItem(A11Y, on ? '1' : ''); } catch {} };
 try { if (localStorage.getItem(A11Y)) ponerGrande(true); } catch {}
 $('#btn-grande').onclick = () => ponerGrande(!document.documentElement.classList.contains('grande'));
-$('#btn-repetir').onclick = () => hablar($('#detalle-riesgo').textContent + ' ' + [...document.querySelectorAll('#lista-barrios li')].map(li => li.querySelector('.nombre').textContent + ': ' + li.querySelector('.tiempo').textContent.replace('h', 'horas').replace('min', 'minutos')).join('. '));
+$('#btn-repetir').onclick = () => hablar($('#detalle-riesgo').textContent + ' ' + [...document.querySelectorAll('#lista-barrios li')].map(li => li.querySelector('.nombre').textContent + ': ' + (idiomaActual() === 'es' ? li.querySelector('.tiempo').textContent.replace('h', 'horas').replace('min', 'minutos') : li.querySelector('.tiempo').textContent)).join('. '));
 
 // ---------- funciona sin internet (PWA) ----------
 if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
