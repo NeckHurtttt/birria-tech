@@ -45,7 +45,10 @@ export async function unaVez() {
   const cfg = { url: SUPABASE_URL, key: SUPABASE_KEY, recolector: env.RECOLECTOR, token: env.TOKEN };
   if (!cfg.recolector || !cfg.token) { log('falta RECOLECTOR o TOKEN en recolector/.env (ver .env.ejemplo)'); return; }
 
-  const l = await escanear();
+  let l = await escanear();
+  for (let i = 0; !l.vivo && i < 2; i++) { // Open-Meteo a veces tarda más de 6 s: reintentar antes de rendirse
+    log('Open-Meteo no respondió, reintento en 20 s'); await new Promise(r => setTimeout(r, 20_000)); l = await escanear();
+  }
   const idx = indiceRiesgo({ ll6: l.ll6, ll24: l.ll24, prox6: l.prox6, caudal: l.caudalPico });
   const fila = filaLectura(l, idx);
   log(`lectura: riesgo ${fila.indice} (${fila.estado}) · ll6 ${fila.ll6} mm · caudal ${fila.caudal_pico} m³/s · ${l.fuente}`);
