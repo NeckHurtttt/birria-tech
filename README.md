@@ -239,7 +239,11 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 - **Neighbor Guardian:** the guardian's phone rings and vibrates, and they confirm with one tap. If nobody confirms 30 min before the water arrives, the case goes to official rescue.
 - **Optional extra:** a phone that *listens* to the river's low rumble (20–300 Hz).
 
-**Validated against the real flood of 13 Dec 2025** (El Torno, at least 20 dead): no open model saw the local Amboró storm (≤ 26 mm, GloFAS flat), so open data alone would **not** have warned. Now **2 upstream watchers** trigger the alert alone, which would have given ~4 h of warning (hypothetical report time). Works **offline** (PWA) with SMS/call fallback, has a **neighborhood-board panel** (CSV/print), registration with approval, and a large-text/high-contrast mode.
+**Validated against the real flood of 13 Dec 2025** (El Torno: 26 dead, 1,300+ families affected in 18 communities): no open model saw the local Amboró storm (≤ 26 mm, GloFAS flat), so open data alone would **not** have warned. Now **2 upstream watchers** trigger the alert alone, which would have given ~4 h of warning (hypothetical report time). Works **offline** (PWA) with SMS/call fallback, has a **neighborhood-board panel** (CSV/print), registration with approval, and a large-text/high-contrast mode.
+
+- **Backend (Supabase):** a person registered from **any phone** shows up on the board's panel in **~1.3 s**. The board signs in with its key (demo: community `demo`, key `1312`), approves people, and gets a **guardian QR code** for each one. The tables cannot be read with the public key: everything goes through RPC functions that validate the data and require the board's key. Offline sign-ups are queued and sent later. Schema: `supabase/esquema.sql`.
+- **Tested on real phones (21 Nov 2026):** an Android and an iPhone got the alert with a siren and replied "safe". The central shows the real response time live ("safe · 0:03 after the alert"). Judges can join from the video call by scanning the **«Sé guardián»** QR code.
+- **Nationwide:** rain affected **186,000+ families in Bolivia** in the 2024-25 season. The river, basin points and neighborhoods are configuration, so the same app works for the Mamoré (Beni), the Rocha (Cochabamba) or the rivers of La Paz. Open-Meteo and GloFAS cover the whole country, and every municipality already has neighborhood boards. Each new river is a pilot of about Bs 1,500.
 
 Tracks: **Technology Aid** = **Communication** (neighborhood alerts, reports, guardians) + **Education** (painted gauge, water on your wall, plain-language risk index). Backup video: `capturas/demo-respaldo.mp4`. License: MIT.
 
@@ -253,7 +257,11 @@ Demo: open `?jurado` → **Iniciar simulacro**. Run locally: `python3 -m http.se
 - **墙上的水位**：用手机摄像头对准自家墙面，显示水会涨到多高。
 - **邻居守护者**：守护者的手机响铃并震动，一键确认；若洪水到达前 30 分钟仍无人确认，则转交官方救援。
 
-**已用 2025 年 12 月 13 日真实洪灾验证**（El Torno，至少 20 人遇难）：开放模型都没有捕捉到 Amboró 局地暴雨，仅靠开放数据**无法**预警；因此现在 **2 名上游观察员** 即可单独触发警报（约提前 4 小时，报告时间为假设）。支持**离线**（PWA）与短信/电话备份、社区委员会面板（CSV/打印）、登记审批及大字高对比模式。
+**已用 2025 年 12 月 13 日真实洪灾验证**（El Torno：26 人遇难，18 个社区逾 1,300 户受灾）：开放模型都没有捕捉到 Amboró 局地暴雨，仅靠开放数据**无法**预警；因此现在 **2 名上游观察员** 即可单独触发警报（约提前 4 小时，报告时间为假设）。支持**离线**（PWA）与短信/电话备份、社区委员会面板（CSV/打印）、登记审批及大字高对比模式。
+
+- **后端（Supabase）**：在**任意手机**上登记的人约 **1.3 秒** 后出现在社区委员会面板上。委员会用密钥登录（演示：社区 `demo`，密钥 `1312`），审批后为每个人生成**守护者二维码**。公开密钥无法直接读取数据表，所有操作都通过校验数据并要求委员会密钥的 RPC 函数完成；离线登记会排队，联网后自动上传。数据库结构：`supabase/esquema.sql`。
+- **真机测试（2026 年 11 月 21 日）**：一部安卓手机和一部 iPhone 收到带警报声的预警并回复「安全」；中心实时显示真实响应时间（「安全 · 预警后 0:03」）。评委在视频会议中扫描 **«Sé guardián»** 二维码即可加入。
+- **全国适用**：2024-25 雨季，玻利维亚有**超过 18.6 万户**家庭受灾。河道、流域观测点和社区都只是配置，同一套系统可用于 Mamoré（贝尼）、Rocha（科恰班巴）或拉巴斯的河流；Open-Meteo 与 GloFAS 覆盖全国，各市已有社区委员会。每条新河流的试点成本约 1,500 玻利维亚诺。
 
 赛道：**科技助力** = **沟通**（社区预警、邻居上报、守护者）+ **教育**（水尺读数、墙上水位、通俗风险指数）。备用视频：`capturas/demo-respaldo.mp4`。许可证：MIT。
 
