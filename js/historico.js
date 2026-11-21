@@ -1,4 +1,4 @@
-// Riada real del Piraí, 12–13/12/2025 (El Torno: al menos 20 fallecidos según los reportes de prensa).
+// Riada real del Piraí, 12–13/12/2025 (El Torno: 26 fallecidos y más de 1.300 familias damnificadas según el alcalde).
 // Lluvia horaria que los modelos abiertos veían en los 5 puntos de la cuenca alta (el peor punto cada hora),
 // tomada de Open-Meteo Historical Forecast API (best_match). Caudal diario GloFAS (Open-Meteo Flood API) en La Angostura.
 // Lo generó herramientas/riada-2025.py el 21/11/2026. Conclusión: los modelos globales NO vieron la tormenta del Amboró.

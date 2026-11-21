@@ -32,7 +32,7 @@ Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el tra
 - **Comunicación:** transforma la manera en que un barrio ribereño se informa, se conecta y se coordina, mediante la cuenta regresiva por barrio, los reportes de vecinos y la confirmación del vecino guardián.
 - **Educación:** enseña a interpretar el riesgo con la regla pintada (lectura en tres toques), la simulación del nivel del agua sobre la pared de la vivienda y un índice de 0 a 100 explicado en lenguaje sencillo.
 
-**Video de respaldo (sin conexión):** [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también disponible en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
+**Video de respaldo (sin conexión, 1 min 45 s, con subtítulos):** [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4). Muestra el código QR para guardianes, el registro compartido de la junta, el simulacro con las respuestas en tiempo real y la validación con la riada de 2025. También está también disponible en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
 
 ---
 
@@ -167,9 +167,11 @@ Antes de adoptar el índice, se evaluó su comportamiento con los datos de la no
 
 <details><summary>Capturas fijas</summary>
 
-| Alerta | Guardianes | Cierre del simulacro |
-|---|---|---|
-| ![](capturas/escritorio-alerta.png) | ![](capturas/escritorio-guardianes.png) | ![](capturas/escritorio-exito.png) |
+| Registro compartido de la junta | Alerta |
+|---|---|
+| ![](capturas/escritorio-junta.png) | ![](capturas/escritorio-alerta.png) |
+| **Respuestas de los guardianes** | **Cierre del simulacro** |
+| ![](capturas/escritorio-guardianes.png) | ![](capturas/escritorio-exito.png) |
 </details>
 
 ## Arquitectura
