@@ -1,9 +1,18 @@
+<p align="center"><img src="capturas/banner.svg" alt="El Río Suena" width="100%"></p>
+
 # 🌊 El Río Suena
 
 > **Cuando el río suena, piedras trae.**
 > Alerta de crecidas del río Piraí **por barrio** que usa datos abiertos, no necesita sensores y asigna un vecino guardián a cada persona que no puede evacuar sola.
 
-![Alerta en escritorio](capturas/escritorio-guardianes.png)
+<p align="center">
+  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/▶_Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
+  <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
+  <img src="https://img.shields.io/badge/sin_backend-GitHub_Pages-222?style=for-the-badge&logo=github" alt="Sin backend">
+  <img src="https://img.shields.io/badge/pruebas-8_ok-2ea043?style=for-the-badge" alt="8 pruebas ok">
+</p>
+
+![Simulacro completo: tormenta, alerta, cuenta regresiva y Todos a salvo](capturas/simulacro.gif)
 
 **▶ Demo en vivo:** https://neckhurtttt.github.io/el-rio-suena/?jurado. Tocar **Iniciar simulacro**: en `?jurado` el tiempo corre ×300.
 **📱 Celular del guardián:** botón «Celular del guardián» → escanear el QR (`guardian.html?t=<tema>&p=rosa`).
@@ -39,9 +48,16 @@ La lluvia que cae en la cuenca alta (Samaipata, Bermejo, Cuevas…) tarda unas *
 3. El celular del guardián (QR) suena → toca **«Ya la ayudé ✓»**.
 4. Cuando todos los guardianes confirman → pantalla **«Todos a salvo»**.
 
-| Alerta | Celular del guardián | Agua en la pared | Todos a salvo |
-|---|---|---|---|
-| ![](capturas/escritorio-alerta.png) | ![](capturas/celular.png) | ![](capturas/celular-pared.png) | ![](capturas/escritorio-exito.png) |
+| 📱 El celular del guardián suena | 🧱 El agua sube en tu pared |
+|:---:|:---:|
+| <img src="capturas/guardian.gif" width="280" alt="Guardián recibe la alerta y confirma"> | <img src="capturas/pared.gif" width="280" alt="El agua en tu pared"> |
+
+<details><summary>📸 Capturas fijas</summary>
+
+| Alerta | Guardianes | Todos a salvo |
+|---|---|---|
+| ![](capturas/escritorio-alerta.png) | ![](capturas/escritorio-guardianes.png) | ![](capturas/escritorio-exito.png) |
+</details>
 
 ## ⚙️ Cómo funciona
 

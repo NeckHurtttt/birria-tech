@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 200" width="900" height="200" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#06121c"/><stop offset="1" stop-color="#0b2233"/></linearGradient>
+    <linearGradient id="agua" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ee6f0" stop-opacity=".9"/><stop offset="1" stop-color="#0e6f8a" stop-opacity=".9"/></linearGradient>
+  </defs>
+  <rect width="900" height="200" rx="16" fill="url(#cielo)"/>
+  <!-- lluvia -->
+  <g stroke="#5ee6f0" stroke-opacity=".35" stroke-width="2" stroke-linecap="round">
+    <line x1="80" y1="-20" x2="74" y2="0"><animateTransform attributeName="transform" type="translate" from="0 0" to="-24 220" dur="1.1s" repeatCount="indefinite"/></line>
+    <line x1="230" y1="-60" x2="224" y2="-40"><animateTransform attributeName="transform" type="translate" from="0 0" to="-24 260" dur="1.4s" repeatCount="indefinite"/></line>
+    <line x1="420" y1="-30" x2="414" y2="-10"><animateTransform attributeName="transform" type="translate" from="0 0" to="-24 230" dur="1.2s" repeatCount="indefinite"/></line>
+    <line x1="610" y1="-70" x2="604" y2="-50"><animateTransform attributeName="transform" type="translate" from="0 0" to="-24 270" dur="1.5s" repeatCount="indefinite"/></line>
+    <line x1="780" y1="-40" x2="774" y2="-20"><animateTransform attributeName="transform" type="translate" from="0 0" to="-24 240" dur="1.3s" repeatCount="indefinite"/></line>
+    <line x1="860" y1="-10" x2="854" y2="10"><animateTransform attributeName="transform" type="translate" from="0 0" to="-24 210" dur="1s" repeatCount="indefinite"/></line>
+  </g>
+  <!-- texto -->
+  <text x="450" y="78" text-anchor="middle" font-size="46" font-weight="800" fill="#e8f7fb">El Río Suena</text>
+  <text x="450" y="112" text-anchor="middle" font-size="18" fill="#9fc7d3" font-style="italic">Cuando el río suena, piedras trae</text>
+  <!-- nivel del agua que sube y baja -->
+  <g>
+    <animateTransform attributeName="transform" type="translate" values="0 18;0 0;0 18" dur="6s" repeatCount="indefinite"/>
+    <path fill="url(#agua)" opacity=".55" d="M0 160 Q75 145 150 160 T300 160 T450 160 T600 160 T750 160 T900 160 T1050 160 T1200 160 V230 H0Z">
+      <animateTransform attributeName="transform" type="translate" from="0 0" to="-300 0" dur="5s" repeatCount="indefinite"/>
+    </path>
+    <path fill="url(#agua)" d="M0 172 Q75 160 150 172 T300 172 T450 172 T600 172 T750 172 T900 172 T1050 172 T1200 172 V230 H0Z">
+      <animateTransform attributeName="transform" type="translate" from="-300 0" to="0 0" dur="3.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  <!-- alerta que parpadea -->
+  <g transform="translate(770 30)">
+    <rect width="110" height="28" rx="14" fill="#e5484d"><animate attributeName="opacity" values="1;.35;1" dur="1.2s" repeatCount="indefinite"/></rect>
+    <text x="55" y="19" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">● ALERTA</text>
+  </g>
+</svg>
