@@ -48,3 +48,14 @@ t('teléfono y CSV de la junta', () => {
   assert.ok(csv.includes('"Rosa ""la abuela"""') && csv.includes('"a salvo"') && csv.includes(';'));
 });
 console.log('pwa y registro ok');
+import { t as tr } from './js/idioma.js';
+t('idioma: textos fijos, con números y compuestos', () => {
+  assert.equal(tr('Iniciar simulacro', 'en'), 'Start drill');
+  assert.equal(tr('Iniciar simulacro', 'zh'), '开始演练');
+  assert.equal(tr('Iniciar simulacro', 'es'), 'Iniciar simulacro');
+  assert.equal(tr('2 h 05 min', 'zh'), '2 小时 05 分');
+  assert.equal(tr('agua 1,2 m', 'en'), 'water 1.2 m');
+  assert.equal(tr('El Torno, Cuadra 4 · silla de ruedas', 'en'), 'El Torno, Block 4 · wheelchair user');
+  assert.equal(tr('texto que no está en el diccionario', 'en'), 'texto que no está en el diccionario');
+});
+console.log('idioma ok');
