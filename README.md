@@ -60,7 +60,15 @@ En esa misma jornada, el Servicio Departamental de Salud informó **más de 20 p
 
 El riesgo es recurrente: el **27 de marzo de 2026**, lluvias nocturnas volvieron a inundar El Torno; la corriente arrastró vehículos en la avenida principal y los vecinos *«expresaron su preocupación por la reiteración de estos eventos»* ([Los Tiempos/ABI](https://www.lostiempos.com/actualidad/pais/20260328/torno-sufre-nuevas-inundaciones-intensa-lluvia-santa-cruz)).
 
-No se identificaron encuestas públicas sobre percepción del riesgo o recepción de alertas específicas para la cuenca del Piraí. La referencia nacional más cercana es la encuesta comunitaria sobre alerta temprana realizada en 2025 por CLEAR Global y Practical Action en comunidades aymaras y tacanas ([documento](https://infohub.practicalaction.org/server/api/core/bitstreams/d2284e40-b687-4b1a-84a8-4f82e9d7a26d/content)), orientada a preferencias de idioma, canales de comunicación y preparación. Una encuesta en la ribera del Piraí forma parte del plan del piloto.
+**Contexto nacional.** Entre 2014 y 2024, las inundaciones representaron el **40 % de los eventos adversos registrados en Bolivia** (4.280 incidentes), afectaron a **627.812 familias** y destruyeron más de 12.000 viviendas. En la temporada de 2025, las crecidas afectaron a más de 948.000 familias en 305 municipios, según datos del Viceministerio de Defensa Civil citados por Practical Action ([Brief de impacto: Programa para la Resiliencia ante Inundaciones, Bolivia 2021-2024](https://infohub.practicalaction.org/), Practical Action, 2025; [Estudio de caso: SAT Asunción del Quiquibey](https://infohub.practicalaction.org/), Practical Action, 2025).
+
+**Respaldo al enfoque comunitario.** Los mismos estudios, realizados con más de 6.330 habitantes de 13 comunidades bolivianas en coordinación con el VIDECI y el SENAMHI, concluyen que:
+
+- El **capital social de las comunidades es sólido**, aunque el financiero sea limitado, y se requieren **sistemas de alerta temprana centrados en las personas**. El vecino guardián de El Río Suena se apoya precisamente en ese capital social.
+- En la comunidad de Asunción del Quiquibey (Beni), las alertas se recibieron **por WhatsApp** y se difundieron internamente por una red de altavoces, porque *«los procesos comunicacionales propios de la comunidad siguen siendo interpersonales»*. Durante las inundaciones de 2025, ese sistema permitió acciones preventivas.
+- Practical Action probó con éxito **tecnologías de código abierto y bajo costo que complementan el sistema de alerta oficial** del SENAMHI, el mismo principio que sigue este proyecto.
+
+No se identificaron encuestas públicas sobre percepción del riesgo o recepción de alertas específicas para la cuenca del Piraí; una encuesta en la ribera forma parte del plan del piloto.
 
 ## Público objetivo
 
