@@ -126,6 +126,8 @@ Antes de adoptar el índice, se evaluó su comportamiento con los datos de la no
 
 **El servicio es gratuito para las familias.** Los costos son estimaciones del equipo y no constituyen cotizaciones.
 
+**Gestiones institucionales:** el 21 de noviembre de 2026 se remitió una nota formal a la Gobernación de Santa Cruz (COED y Dirección de Gestión de Riesgos, con pedido de derivación al SEARPI) y al Gobierno Autónomo Municipal de El Torno, solicitando una reunión para calibrar el sistema y evaluar el piloto. Texto completo y estado: [`docs/carta-instituciones.md`](docs/carta-instituciones.md).
+
 ### Aplicabilidad nacional
 
 - **Ningún componente es exclusivo del Piraí:** el cauce, los cinco puntos de precipitación, los barrios y el tiempo de tránsito del agua son **datos de configuración** (`js/datos.js`). Para otro río basta con modificar esos datos; la aplicación, los guardianes y el panel se mantienen.
