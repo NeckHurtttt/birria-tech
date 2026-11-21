@@ -276,3 +276,7 @@ html.grande .barrios .tiempo { font-size: 26px; }
   .qr-jurado { order: 2; }
   .respuestas { top: 12px; }
 }
+.nube { font-size: 13px; color: var(--texto-2); margin: 0 0 8px; }
+.nube[data-e="ok"] { color: var(--exito); }
+.nube[data-e="mal"] { color: var(--aviso); }
+#junta-login input { margin-left: 6px; width: 140px; }

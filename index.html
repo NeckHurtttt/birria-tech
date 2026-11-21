@@ -112,7 +112,7 @@
 
 <dialog id="dlg-registro" class="dlg">
   <h3>Registrar a quien no puede salir solo</h3>
-  <p>La junta vecinal lo aprueba y desde ese momento su guardián recibe la alerta. Se guarda en este celular (prototipo).</p>
+  <p>Llega al registro compartido de la junta vecinal. Cuando la junta lo aprueba, su guardián recibe la alerta. Sin internet se guarda aquí y se envía después.</p>
   <form id="form-registro" class="formulario">
     <label>Nombre<input name="nombre" id="reg-nombre" required maxlength="60" placeholder="Doña Carmen Rojas"></label>
     <label>Edad<input name="edad" type="number" min="0" max="120" inputmode="numeric"></label>
@@ -129,6 +129,8 @@
 
 <dialog id="dlg-junta" class="dlg ancha">
   <h3>Panel de la junta vecinal y del COED</h3>
+  <p class="nube" id="junta-nube" role="status"></p>
+  <div class="fila" id="junta-login" hidden><label>Clave de la junta <input id="junta-clave" type="password" inputmode="numeric" autocomplete="off" maxlength="40" placeholder="demo: 1312"></label><button class="btn chico ok" id="junta-entrar">Entrar</button></div>
   <p id="junta-resumen"></p>
   <div class="tabla-env"><table class="junta"><thead><tr><th>Persona</th><th>Dónde</th><th>Necesita</th><th>Guardián</th><th>Estado</th><th></th></tr></thead><tbody id="junta-filas"></tbody></table></div>
   <div class="fila"><button class="btn chico" id="junta-csv">Exportar CSV</button><button class="btn chico" id="junta-imprimir">Imprimir lista</button><button class="btn chico" id="junta-cerrar">Cerrar</button></div>

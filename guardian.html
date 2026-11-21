@@ -35,7 +35,11 @@ import { PERSONAS, BARRIOS, formatoTiempo } from './js/datos.js';
 import { abrirCanal, limpiarTema } from './js/canal.js';
 // un enlace mal copiado (p= desconocido o t= con símbolos) no debe dejar la pantalla en blanco
 const q = new URLSearchParams(location.search), tema = limpiarTema(q.get('t'));
-const p = PERSONAS.find(x => x.id === q.get('p')) || PERSONAS[0];
+const deEnlace = () => q.get('n') && BARRIOS.some(x => x.id === q.get('b'))
+  ? { id: q.get('p'), nombre: q.get('n').slice(0, 60), necesidad: (q.get('nec') || '').slice(0, 80), barrio: q.get('b'), cuadra: (q.get('cu') || '').slice(0, 40), guardian: (q.get('g') || 'guardián').slice(0, 60) } : null;
+const p = PERSONAS.find(x => x.id === q.get('p')) || deEnlace() || PERSONAS[0];
+const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+for (const k of ['nombre', 'necesidad', 'cuadra', 'guardian']) p[k] = esc(p[k]);
 const b = BARRIOS.find(x => x.id === p.barrio), vista = document.getElementById('vista');
 let activo = false, sonido;
 function esperar() {

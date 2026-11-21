@@ -4,7 +4,8 @@ import { crearMapa } from './mapa.js';
 import { Pared } from './pared.js';
 import { escanear } from './lluvia.js';
 import { temaDemo, abrirCanal } from './canal.js';
-import { activas, todas, registrar, aprobar, quitar, aCSV } from './registro.js';
+import { activas, todas, registrar, aprobar, quitar, aCSV, sincronizar, subirPendientes } from './registro.js';
+import { hayNube, claveJunta, comunidad } from './nube.js';
 import { RIADA_2025 } from './historico.js';
 import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 
@@ -72,9 +73,14 @@ function respuestaEnVivo(id) {
 }
 
 // ---------- canal con guardianes ----------
-const canal = abrirCanal(tema, m => { if (m.tipo === 'ok' && m.id) confirmar(m.id, 'celular'); });
+const canal = abrirCanal(tema, m => {
+  if (m.tipo === 'ok' && m.id) confirmar(m.id, 'celular');
+  if (m.tipo === 'reg') traerJunta();
+});
 const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
-function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); u.search = `?t=${tema}&p=${id}`; return u.href; }
+function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id }), per = todas().find(x => x.id === id);
+  if (per && !per.demo) { s.set('n', per.nombre); s.set('b', per.barrio); s.set('cu', per.cuadra); s.set('nec', per.necesidad); s.set('g', per.guardian); }
+  u.search = '?' + s; return u.href; }
 function avisarGuardianes() {
   est.avisoT = Date.now(); est.resp = {};
   activas().forEach(p => {
@@ -226,13 +232,16 @@ $('#dlg-pared').addEventListener('close', () => pared.apagar()); // también con
 
 // QR del guardián
 $('#btn-qr-jurado').onclick = () => $('#btn-qr').click();
-$('#btn-qr').onclick = () => {
+$('#btn-qr').onclick = () => abrirQR('rosa');
+function abrirQR(id) {
   if ($('#dlg-qr').open) return;
-  const url = urlGuardian('rosa'), q = $('#qr'); q.innerHTML = '';
+  const per = todas().find(x => x.id === id);
+  $('#dlg-qr h3').textContent = `Sé guardián de ${per?.nombre || 'Doña Rosa'}`;
+  const url = urlGuardian(id), q = $('#qr'); q.innerHTML = '';
   try { new QRCode(q, { text: url, width: 300, height: 300, colorDark: '#071219', colorLight: '#ffffff' }); } catch { q.textContent = 'QR no disponible'; }
   $('#qr-link').textContent = url; $('#qr-tema').textContent = tema;
   $('#dlg-qr').showModal();
-};
+}
 $('#qr-cerrar').onclick = () => $('#dlg-qr').close();
 
 // regla pintada: tocar 0 m, tope (3 m) y la línea del agua
@@ -335,10 +344,37 @@ $('#reg-cerrar').onclick = () => $('#dlg-registro').close();
 $('#form-registro').onsubmit = e => {
   e.preventDefault();
   const d = Object.fromEntries(new FormData(e.target));
-  registrar(d);
-  $('#reg-msg').textContent = `${d.nombre} quedó en la lista. La junta vecinal lo aprueba en el panel y desde ahí recibe las alertas.`;
+  const { subida } = registrar(d), msg = $('#reg-msg');
+  msg.textContent = `${d.nombre} quedó guardado en este celular. Enviando a la junta…`;
+  subida.then(ok => {
+    msg.textContent = ok ? `✓ ${d.nombre} llegó al registro de la junta vecinal. Cuando lo aprueben, su guardián recibe las alertas.`
+      : `${d.nombre} quedó guardado en este celular; se envía a la junta apenas haya internet.`;
+    if (ok) canal.enviar({ tipo: 'reg' }); // la central actualiza su panel al instante
+  });
   e.target.reset(); pintarJunta();
 };
+addEventListener('online', () => subirPendientes());
+subirPendientes();
+
+// la junta ve la lista compartida solo con su clave (se guarda mientras dure la pestaña)
+let ultimaSinc = 0, sincronizando = false;
+async function traerJunta(clave = claveJunta.leer(), avisar = false) {
+  if (!hayNube() || !clave || sincronizando) return;
+  sincronizando = true;
+  try {
+    const n = await sincronizar(clave); claveJunta.poner(clave); ultimaSinc = Date.now();
+    todas().forEach(p => { if (p.aprobado && !est.personas[p.id]) est.personas[p.id] = 'tranquilo'; });
+    estadoNube(`Registro compartido · comunidad «${comunidad}» · ${n} registradas · al día`, 'ok');
+    pintarPersonas(); pintarJunta();
+  } catch (err) {
+    if (/clave/i.test(err.message)) { claveJunta.poner(''); estadoNube('Clave de la junta incorrecta.', 'mal'); }
+    else estadoNube(`Sin conexión con el registro compartido (${err.message}). Se muestra la última copia.`, 'mal');
+    if (avisar) $('#junta-clave').focus();
+  } finally { sincronizando = false; }
+}
+function estadoNube(t, e) { const n = $('#junta-nube'); if (n) { n.textContent = t; n.dataset.e = e || ''; } }
+$('#junta-entrar').onclick = () => traerJunta($('#junta-clave').value.trim(), true);
+$('#junta-clave').onkeydown = e => { if (e.key === 'Enter') $('#junta-entrar').click(); };
 function pintarJunta() {
   const tb = $('#junta-filas'); if (!tb) return; tb.innerHTML = '';
   const l = todas(), estados = { ...est.personas };
@@ -349,13 +385,25 @@ function pintarJunta() {
     tr.dataset.e = e;
     tr.innerHTML = `<td>${esc(p.nombre)}${p.demo ? ' <small>(demo)</small>' : ''}</td><td>${esc(nombreBarrio(p.barrio))}, ${esc(p.cuadra)}</td><td>${esc(p.necesidad)}</td><td>${esc(p.guardian)}${p.tel ? `<br><small>${esc(p.tel)}</small>` : ''}</td><td><span class="est">${{ tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'a salvo', rescate: 'al rescate', pendiente: 'pendiente' }[e]}</span></td><td class="acc"></td>`;
     const acc = tr.querySelector('.acc');
-    if (!p.aprobado) { const b = document.createElement('button'); b.className = 'btn chico ok'; b.textContent = 'Aprobar'; b.onclick = () => { aprobar(p.id); est.personas[p.id] = 'tranquilo'; pintarPersonas(); pintarJunta(); }; acc.append(b); }
-    if (!p.demo) { const b = document.createElement('button'); b.className = 'btn chico'; b.textContent = 'Quitar'; b.onclick = () => { quitar(p.id); delete est.personas[p.id]; pintarPersonas(); pintarJunta(); }; acc.append(b); }
+    if (!p.aprobado) { const b = document.createElement('button'); b.className = 'btn chico ok'; b.textContent = 'Aprobar'; b.onclick = () => accionJunta(b, () => aprobar(p.id, claveJunta.leer()), () => { est.personas[p.id] = 'tranquilo'; }); acc.append(b); }
+    if (p.aprobado && !p.demo) { const b = document.createElement('button'); b.className = 'btn chico'; b.textContent = 'QR guardián'; b.onclick = () => { $('#dlg-junta').close(); abrirQR(p.id); }; acc.append(b); }
+    if (!p.demo) { const b = document.createElement('button'); b.className = 'btn chico'; b.textContent = 'Quitar'; b.onclick = () => accionJunta(b, () => quitar(p.id, claveJunta.leer()), () => { delete est.personas[p.id]; }); acc.append(b); }
     tb.append(tr);
   });
 }
+async function accionJunta(btn, hacer, luego) {
+  btn.disabled = true;
+  try { await hacer(); luego(); } catch (err) { estadoNube(`No se pudo: ${err.message}`, 'mal'); }
+  pintarPersonas(); pintarJunta();
+}
 function esc(t) { return String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
-$('#btn-junta').onclick = () => { pintarJunta(); $('#dlg-junta').showModal(); };
+$('#btn-junta').onclick = () => {
+  pintarJunta(); $('#dlg-junta').showModal();
+  const con = !!claveJunta.leer();
+  $('#junta-login').hidden = !hayNube() || con;
+  if (!hayNube()) estadoNube('Registro solo en este celular (sin registro compartido configurado).');
+  else if (con) traerJunta(); else { estadoNube(`Comunidad «${comunidad}»: escribe la clave de la junta para ver el registro compartido.`); $('#junta-clave').focus(); }
+};
 $('#junta-cerrar').onclick = () => $('#dlg-junta').close();
 $('#junta-imprimir').onclick = () => window.print();
 $('#junta-csv').onclick = () => {
@@ -364,6 +412,9 @@ $('#junta-csv').onclick = () => {
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 };
 setInterval(() => { if ($('#dlg-junta').open) pintarJunta(); }, 1000);
+// respaldo por si se pierde el aviso de ntfy: refresca cada 30 s si la junta ya entró
+setInterval(() => { if (claveJunta.leer() && Date.now() - ultimaSinc > 30000) traerJunta(); }, 5000);
+if (claveJunta.leer()) traerJunta();
 
 // ---------- riada real del 13/12/2025 ----------
 const riada = repetirRiada(RIADA_2025);

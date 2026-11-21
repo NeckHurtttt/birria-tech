@@ -119,6 +119,13 @@ Antes de confiar en el índice, lo probamos con la noche de la tragedia ([`herra
 - **La red humana ya existe en todo el país:** juntas vecinales, OTB y Unidades de Gestión de Riesgo municipales. El Río Suena les da una herramienta, no crea una estructura nueva.
 - **Costo marginal casi cero:** cada río nuevo es una configuración + un piloto de ≈Bs 1.500; el servidor de avisos es el mismo.
 
+### 🗄️ Backend: registro compartido de la junta (Supabase)
+- Quien registra a una persona desde **cualquier celular** la manda al registro compartido de su comunidad; la central y la junta la ven **en ~2 s** (aviso por ntfy + refresco cada 30 s).
+- La junta entra al panel con su **clave** (demo: comunidad `demo`, clave `1312`), aprueba y desde ese momento la persona recibe alertas. Cada persona aprobada tiene su **QR de guardián**.
+- **Privacidad:** las tablas no se pueden leer con la clave pública (RLS sin políticas). Todo pasa por funciones (`rs_registrar`, `rs_listar`, `rs_aprobar`, `rs_quitar`) que validan los datos y exigen la clave de la junta para ver o aprobar. Clave guardada con bcrypt.
+- **Sin internet** se guarda en el celular y se envía solo al volver la conexión; la central conserva la última copia.
+- Esquema completo: [`supabase/esquema.sql`](supabase/esquema.sql). Probado de punta a punta: registro en celular → aparece en la central en 1,3 s → aprobación → QR del guardián → alerta → «a salvo» de vuelta en 0:03.
+
 ## 📈 Impacto y cómo lo medimos
 - **Tiempo de aviso:** ~4 h antes del desborde en la riada 2025 con vigías (hipotético); **2 h 30 min** con lluvia vista por los modelos.
 - **Nadie olvidado:** % de personas registradas confirmadas antes del agua (meta del piloto: **100 %**, el resto pasa al rescate a T−30 min).
