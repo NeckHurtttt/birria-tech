@@ -11,7 +11,7 @@
 
 El 13 de diciembre del año pasado, de madrugada, el Piraí se desbordó en El Torno.
 
-Al menos **veinte personas murieron**. Cerca de seiscientas familias lo perdieron todo.
+**Veintiséis personas murieron.** Más de mil trescientas familias lo perdieron todo.
 
 Fue la riada más grande en 42 años.
 
@@ -79,7 +79,9 @@ Es una web que **se instala sin tienda y funciona sin internet**. No necesita se
 
 El piloto: **El Torno, esta temporada de lluvias.** Diez vigías, cinco reglas pintadas, cincuenta personas registradas. Unos **mil quinientos bolivianos**. Para las familias, **siempre gratis**.
 
-Después, todo el Piraí. Después, el Río Grande y los ríos del Beni: solo cambia el mapa.
+Después, todo el Piraí. Y después, **todo el país**: el Mamoré en el Beni, el Rocha en Cochabamba, los ríos de La Paz. Los datos abiertos cubren toda Bolivia y las juntas vecinales ya existen en todas partes: **solo cambia el mapa.**
+
+*(Si hay tiempo:)* La temporada pasada, las lluvias afectaron a **más de ciento ochenta mil familias** en Bolivia.
 
 ---
 
@@ -99,6 +101,12 @@ Gracias.
 ---
 
 ## 🛡️ Respuestas rápidas para el jurado (20 s cada una)
+
+**«¿Sirve fuera de Santa Cruz?»**
+Sí. El río, los puntos de lluvia y los barrios son configuración. Open-Meteo y GloFAS cubren todo el país, y juntas vecinales y Unidades de Gestión de Riesgo hay en cada municipio. Cada río nuevo es un piloto de unos 1.500 Bs.
+
+**«¿Lo probaron en celulares de verdad?»**
+Sí, el 21 de noviembre: un Android y un iPhone recibieron la alerta con sirena y confirmaron «a salvo»; la central mostró el tiempo de respuesta. *(Y si quieren, escaneen el QR ahora.)*
 
 **«¿Cómo saben que funciona?»**
 Lo probamos con la riada real del 13/12/2025 y con 42 años de caudales. El script está en el repo (`herramientas/validar.py`). Lo honesto: con solo satélites **no** habría avisado; por eso sumamos vigías. La hora del reporte de los vigías es una estimación.
@@ -123,11 +131,16 @@ Para las familias es gratis, siempre. El piloto cuesta unos 1.500 Bs; después p
 
 ---
 
-## ✅ Antes de subir al escenario
+## ✅ Antes de subir al escenario (pitch VIRTUAL)
+
+- [ ] Compartir **la pestaña del navegador**, no toda la pantalla, y con el audio de la pestaña activado (para que se oiga la sirena)
+- [ ] Botón verde **«Sé guardián»**: mostrar el QR 10 s e invitar al jurado a escanearlo antes de lanzar el simulacro
+- [ ] Un celular propio ya con «Activar avisos», para que se vea sonar en cámara
+- [ ] Probar la videollamada 10 min antes (micrófono, cámara, compartir)
 
 - [ ] Volumen del parlante al máximo y probado
 - [ ] Celular del guardián con **Activar avisos** ya tocado
 - [ ] La página abierta con HTTPS (Pages), ya instalada como app por si falla el wifi
 - [ ] Video de respaldo listo: `capturas/demo-respaldo.mp4`
-- [ ] Ensayado con cronómetro: **menos de 3:30**
+- [ ] Ensayado con cronómetro: **menos de 3:45** (son 4 min + 3 de preguntas)
 - [ ] Tono respetuoso al hablar de las víctimas del 13/12/2025: no es un truco, es la razón del proyecto

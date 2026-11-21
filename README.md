@@ -35,7 +35,7 @@ Abstracthon 2026 · Equipo **Birria TECH** · Track **Ayuda Tecnológica**, que 
 ---
 
 ## 😟 Problema
-La madrugada del **13 de diciembre de 2025** el Piraí se desbordó en **El Torno**: al menos **20 fallecidos** y decenas de desaparecidos ([France 24/AFP](https://www.france24.com/es/minuto-a-minuto/20251215-al-menos-20-muertos-y-decenas-de-desaparecidos-por-el-desborde-de-un-r%C3%ADo-en-bolivia)), cerca de **600 familias afectadas** en 11 comunidades ([El País](https://elpais.bo/nacional/20251217_hay-cerca-de-600-familias-afectadas-en-el-torno.html)) y declaratoria de **desastre departamental**. Fue la riada más grande en 42 años, desde el turbión de 1983 ([El Deber](https://eldeber.com.bo/santa-cruz/declaran-desastre-riada-historica-pirai-deja-20-muertos_1765881778), [Wikipedia](https://es.wikipedia.org/wiki/Turbi%C3%B3n_del_r%C3%ADo_Pira%C3%AD_de_1983)). Con El Niño 2026-27 puede repetirse. Hoy:
+La madrugada del **13 de diciembre de 2025** el Piraí se desbordó en **El Torno**: al menos **20 fallecidos** y decenas de desaparecidos ([France 24/AFP](https://www.france24.com/es/minuto-a-minuto/20251215-al-menos-20-muertos-y-decenas-de-desaparecidos-por-el-desborde-de-un-r%C3%ADo-en-bolivia)), cerca de **600 familias afectadas** en 11 comunidades ([El País](https://elpais.bo/nacional/20251217_hay-cerca-de-600-familias-afectadas-en-el-torno.html)) y declaratoria de **desastre departamental**. Fue la riada más grande en 42 años, desde el turbión de 1983 ([El Deber](https://eldeber.com.bo/santa-cruz/declaran-desastre-riada-historica-pirai-deja-20-muertos_1765881778), [Wikipedia](https://es.wikipedia.org/wiki/Turbi%C3%B3n_del_r%C3%ADo_Pira%C3%AD_de_1983)). Días después, el alcalde de El Torno contaba **26 fallecidos oficiales y al menos 1.300 familias damnificadas en 18 comunidades** ([El Deber vía eju.tv](https://eju.tv/?p=4852511)). Y no es solo el Piraí: en la temporada 2024-25 las lluvias afectaron a **más de 186.000 familias en Bolivia** y dejaron 42 fallecidos ([El País](https://elpais.bo/nacional/20250313_registran-42-fallecidos-por-las-lluvias-en-bolivia.html)). Con El Niño 2026-27 puede repetirse. Hoy:
 
 - Las alertas se dan **por colores y para todo el departamento**. Ninguna le dice a una cuadra concreta **cuánto tiempo le queda**.
 - Muchas familias **no evacúan porque no creen** que el agua vaya a llegar a su casa.
@@ -109,9 +109,15 @@ Antes de confiar en el índice, lo probamos con la noche de la tragedia ([`herra
 | **0 · Hoy** | Prototipo funcionando, validado con la riada 2025 | Birria TECH | 0 |
 | **1 · Piloto** (temporada de lluvias dic–mar) | El Torno: 1 junta vecinal, **10 vigías** río arriba, **5 reglas pintadas** en puentes, ~50 personas registradas, servidor ntfy propio. Calibrar tiempos y alturas con SEARPI y COED | Junta vecinal + UGR El Torno + SEARPI | ≈ Bs 1.500 (pintura, VPS por 4 meses, capacitación) |
 | **2 · Todo el Piraí** | Porongo, Santa Cruz (ribera), Urubó, Portachuelo; panel del COED | Gobernación (COED) | suscripción por tramo de río |
-| **3 · Otros ríos** | Río Grande, ríos del Beni: solo se cambia el cauce, los puntos de la cuenca y los barrios | Municipios | igual |
+| **3 · Nivel nacional** | Río Grande, Mamoré (Beni), Rocha (Cochabamba), ríos de La Paz: solo se cambia el cauce, los puntos de la cuenca y los barrios | Municipios + Viceministerio de Defensa Civil | igual |
 
 **Siempre gratis para las familias.** Los costos son estimaciones del equipo y no cotizaciones.
+
+### 🇧🇴 ¿Por qué sirve para todo el país?
+- **Nada es propio del Piraí:** el cauce, los 5 puntos de lluvia de la cuenca alta, los barrios y el tiempo de viaje del agua son **datos de configuración** (`js/datos.js`). Para otro río se cambian esos datos; la app, los guardianes y el panel son los mismos.
+- **Los datos abiertos cubren toda Bolivia:** Open-Meteo (lluvia) y GloFAS (caudal) tienen cobertura mundial, sin convenios ni sensores.
+- **La red humana ya existe en todo el país:** juntas vecinales, OTB y Unidades de Gestión de Riesgo municipales. El Río Suena les da una herramienta, no crea una estructura nueva.
+- **Costo marginal casi cero:** cada río nuevo es una configuración + un piloto de ≈Bs 1.500; el servidor de avisos es el mismo.
 
 ## 📈 Impacto y cómo lo medimos
 - **Tiempo de aviso:** ~4 h antes del desborde en la riada 2025 con vigías (hipotético); **2 h 30 min** con lluvia vista por los modelos.
@@ -119,6 +125,8 @@ Antes de confiar en el índice, lo probamos con la noche de la tragedia ([`herra
 - **Margen:** minutos promedio entre la confirmación y la llegada del agua (la pantalla «Todos a salvo» lo calcula).
 - **Falsas alarmas:** alertas sin crecida por temporada (se cuentan en el piloto con SEARPI).
 - **Costo para la familia:** 0 Bs.
+- **Tiempo real de respuesta del guardián:** la central lo muestra en vivo («a salvo · 1:39 tras el aviso»). Prueba del 21/11/2026 con 2 celulares reales (Android + iPhone): ambos recibieron la alerta y confirmaron de vuelta.
+- **Escala:** El Torno sola tuvo ≥1.300 familias damnificadas en 2025; la meta del piloto es registrar a las personas que no pueden salir solas de 1 comunidad y luego extender a las 18.
 
 ## 🎬 Demo en 1 minuto (guion para el jurado)
 1. Abrir `?jurado` → **Iniciar simulacro**: cae una tormenta en la cuenca alta.
