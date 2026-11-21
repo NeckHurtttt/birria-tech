@@ -75,6 +75,8 @@ function sirena() {
 }
 function alerta(m) {
   document.body.className = 'alerta'; navigator.vibrate?.([600, 200, 600, 200, 600]); sirena();
+  // acuse silencioso: la central ve que el celular sonó, antes del «a salvo»
+  canal.enviar({ tipo: 'recibido', id: p.id }, { titulo: `${p.nombre}: aviso recibido`, texto: `Celular de ${p.guardian}`, prioridad: 1 });
   try { if ('Notification' in window && Notification.permission === 'granted') new Notification(`Crecida: ayuda a ${p.nombre}`, { body: `El agua llega en ${formatoTiempo(Number(m.min))}` }); } catch {}
   vista.innerHTML = `<h1>¡El río suena!</h1><p>Ayuda a <b>${p.nombre}</b> (${p.necesidad})<br>${b.nombre}, ${p.cuadra}</p>
     <div class="tarjeta"><p>El agua llega en</p><div class="grande">${formatoTiempo(Number(m.min))}</div><p>Punto seguro: la loma de la plaza principal</p></div>

@@ -19,7 +19,7 @@ const JURADO = params.has('jurado');
 const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simulados por minuto real
 const tema = temaDemo();
 
-const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {} };
+const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set() };
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -48,7 +48,7 @@ function pintarPersonas() {
     const li = document.createElement('li'); li.dataset.e = e;
     li.innerHTML = `<span class="av">${esc((p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0] || '?'))}</span>
       <div><div class="quien">${esc(p.nombre)} · ${b.nombre}, ${esc(p.cuadra)}</div><div class="que">${esc(p.necesidad)} · guardián: ${esc(p.guardian)}</div></div>
-      <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}</span>`;
+      <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
     if (e === 'avisado' || e === 'rescate') {
       const ok = document.createElement('button'); ok.className = 'btn chico ok';
       ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar desde aquí';
@@ -69,6 +69,30 @@ pintarPersonas();
 
 // ---------- respuestas en vivo (tiempo REAL, no simulado) ----------
 const reloj = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+function aviso(titulo, texto, clase = '') {
+  const t = document.createElement('div'); t.className = 'respuesta ' + clase;
+  t.innerHTML = `<b>${esc(titulo)}</b><span>${esc(texto)}</span>`;
+  $('#respuestas').append(t); setTimeout(() => t.remove(), 9000);
+}
+function recibido(id) {
+  const p = activas().find(x => x.id === id);
+  if (!p || est.fase !== 'alerta' || est.personas[id] !== 'avisado' || est.recib[id] != null) return;
+  est.recib[id] = Math.round((Date.now() - est.avisoT) / 1000);
+  pintarPersonas(); aviso(`${p.nombre}: aviso recibido`, `El celular de ${p.guardian} sonó · ${reloj(est.recib[id])} tras el aviso`, 'recib');
+}
+const PUESTOS = { bermejo: 'Bermejo', espejos: 'río Espejos', samaipata: 'Samaipata', angostura: 'La Angostura' };
+function vigiaCelular(m) {
+  const v = String(m.v || '').slice(0, 20); if (!v) return;
+  const lugar = PUESTOS[m.puesto] || 'río arriba';
+  if (!est.vigiasCel.has(v)) {
+    est.vigiasCel.add(v); est.vecinos.vigias++;
+    $('#v-vecinos').dataset.extra = `${est.vecinos.vigias} vigía${est.vecinos.vigias > 1 ? 's' : ''} río arriba: «el río creció» (último: ${lugar})`;
+    aviso(`Vigía en ${lugar}: «el río creció»`, est.vecinos.vigias >= 2 ? 'Segundo vigía: se lanza la alerta' : 'Falta un segundo vigía para lanzar la alerta', 'vigia');
+    evaluar();
+  }
+  // acuse al vigía: un vigía repetido no suma, pero sí recibe respuesta
+  canal.enviar({ tipo: 'vigia-ok', v, n: est.vecinos.vigias }, { titulo: 'Reporte recibido', texto: `Vigías activos: ${est.vecinos.vigias}`, prioridad: 1 });
+}
 function respuestaEnVivo(id) {
   const p = activas().find(x => x.id === id), r = est.resp[id], cel = r.desde === 'celular';
   const t = document.createElement('div'); t.className = 'respuesta' + (cel ? ' cel' : '');
@@ -79,6 +103,8 @@ function respuestaEnVivo(id) {
 // ---------- canal con guardianes ----------
 const canal = abrirCanal(tema, m => {
   if (m.tipo === 'ok' && m.id) confirmar(m.id, 'celular');
+  if (m.tipo === 'recibido' && m.id) recibido(m.id);
+  if (m.tipo === 'vigia') vigiaCelular(m);
   if (m.tipo === 'reg') traerJunta();
 });
 const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
@@ -86,7 +112,7 @@ function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.
   if (per && !per.demo) { s.set('n', per.nombre); s.set('b', per.barrio); s.set('cu', per.cuadra); s.set('nec', per.necesidad); s.set('g', per.guardian); }
   u.search = '?' + s; return u.href; }
 function avisarGuardianes() {
-  est.avisoT = Date.now(); est.resp = {};
+  est.avisoT = Date.now(); est.resp = {}; est.recib = {};
   activas().forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), min = minutosHasta(b, est.intensidad, est.lag) - est.simMin;
     est.personas[p.id] = 'avisado';
@@ -208,7 +234,7 @@ function reiniciar() {
   est.margen = {};
   clearInterval(rampa); cancelarTimers(); oido.detener();
   try { speechSynthesis.cancel(); } catch {}
-  est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.intensidad = 1; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0, vigias: 0 };
+  est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.intensidad = 1; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0, vigias: 0 }; est.vigiasCel = new Set();
   delete $('#v-vecinos').dataset.extra; evaluar();
   activas().forEach(p => est.personas[p.id] = 'tranquilo'); pintarPersonas();
   BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = 'sin crecida'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'sin alerta', 'tranquilo'); });
@@ -237,6 +263,15 @@ $('#dlg-pared').addEventListener('close', () => pared.apagar()); // también con
 // QR del guardián
 $('#btn-qr-jurado').onclick = () => $('#btn-qr').click();
 $('#btn-qr').onclick = () => abrirQR('rosa');
+function urlVigia() { const u = new URL('vigia.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); u.search = '?' + new URLSearchParams({ t: tema }); return u.href; }
+$('#btn-qr-vigia').onclick = () => {
+  if ($('#dlg-qr').open) return;
+  $('#dlg-qr h3').textContent = 'Sé vigía río arriba';
+  const url = urlVigia(), q = $('#qr'); q.innerHTML = '';
+  try { new QRCode(q, { text: url, width: 300, height: 300, colorDark: '#071219', colorLight: '#ffffff' }); } catch { q.textContent = 'QR no disponible'; }
+  $('#qr-link').textContent = url; $('#qr-tema').textContent = tema;
+  $('#dlg-qr').showModal();
+};
 function abrirQR(id) {
   if ($('#dlg-qr').open) return;
   const per = todas().find(x => x.id === id);

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vigía · El Río Suena</title>
+<meta name="theme-color" content="#071219">
+<link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="stylesheet" href="vendor/fuentes.css">
+<style>
+  :root { --fondo:#071219; --sup:#0c1f2b; --borde:rgba(91,231,240,.16); --texto:#e7f4f7; --texto-2:#9db6bf; --acento:#5be7f0; --alerta:#ff5a4a; --exito:#4fe39a; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100dvh; background: var(--fondo); color: var(--texto); font: 16px/1.5 "Space Grotesk", system-ui, sans-serif; display: grid; place-items: center; padding: 16px; transition: background .3s; }
+  body.alerta { background: #3a0c0a; animation: late 1s infinite; }
+  body.salvo { background: #06281b; animation: none; }
+  .caja { width: 100%; max-width: 420px; text-align: center; }
+  h1 { font-size: 28px; margin: 8px 0; } p { color: var(--texto-2); margin: 0 0 16px; }
+  .tarjeta { background: var(--sup); border: 1px solid var(--borde); border-radius: 16px; padding: 24px 16px; margin: 16px 0; }
+  .grande { font: 700 44px "JetBrains Mono", monospace; color: #fff; }
+  button { width: 100%; min-height: 64px; border: 0; border-radius: 14px; font: 700 20px "Space Grotesk", sans-serif; cursor: pointer; background: var(--acento); color: #04222a; }
+  button.ok { background: var(--exito); color: #03281a; }
+  button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  svg { width: 56px; height: 56px; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; }
+  input { width: 100%; min-height: 48px; margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--borde); background: #071219; color: var(--texto); font: 16px "Space Grotesk", sans-serif; }
+  label { color: var(--texto-2); font-size: 14px; }
+  a { color: var(--acento); }
+  @keyframes late { 50% { background: #5a1410; } }
+  @media (prefers-reduced-motion: reduce) { body.alerta { animation: none; } }
+  select { width: 100%; min-height: 48px; margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--borde); background: #071219; color: var(--texto); font: 16px "Space Grotesk", sans-serif; }
+  button.rojo { background: var(--alerta); color: #fff; min-height: 96px; font-size: 24px; }
+  button:disabled { opacity: .6; cursor: default; }
+  .estado { font-size: 14px; color: var(--texto-2); margin-top: 12px; }
+</style>
+</head>
+<body>
+<main class="caja">
+  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2M3 4l2 2M21 4l-2 2"/></svg>
+  <div id="vista"></div>
+</main>
+<script type="module">
+import { abrirCanal, limpiarTema } from './js/canal.js';
+const PUESTOS = { bermejo: 'Bermejo', espejos: 'río Espejos', samaipata: 'Samaipata', angostura: 'La Angostura' };
+const tema = limpiarTema(new URLSearchParams(location.search).get('t')), vista = document.getElementById('vista');
+// un id por celular: el mismo vigía tocando dos veces no cuenta como dos
+const yo = (() => { try { let v = localStorage.getItem('rs-vigia'); if (!v) { v = Math.random().toString(36).slice(2, 10); localStorage.setItem('rs-vigia', v); } return v; } catch { return Math.random().toString(36).slice(2, 10); } })();
+let puesto = (() => { try { return localStorage.getItem('rs-puesto') || 'bermejo'; } catch { return 'bermejo'; } })();
+let timer;
+function pintar() {
+  vista.innerHTML = `<h1>Vigía río arriba</h1><p>Si ves que el río creció de golpe, avisa. Con dos vigías la central alerta a todo el río abajo.</p>
+    <div class="tarjeta"><label for="puesto">¿Dónde estás?</label><select id="puesto">${Object.entries(PUESTOS).map(([k, v]) => `<option value="${k}"${k === puesto ? ' selected' : ''}>${v}</option>`).join('')}</select></div>
+    <button class="rojo" id="crecio">El río creció</button><p class="estado" id="estado" role="status"></p>`;
+  document.getElementById('puesto').onchange = e => { puesto = e.target.value; try { localStorage.setItem('rs-puesto', puesto); } catch {} };
+  document.getElementById('crecio').onclick = reportar;
+}
+function reportar() {
+  const btn = document.getElementById('crecio'), st = document.getElementById('estado');
+  btn.disabled = true; btn.textContent = 'Enviando…'; navigator.vibrate?.(200);
+  const m = canal.enviar({ tipo: 'vigia', v: yo, puesto }, { titulo: `Vigía en ${PUESTOS[puesto]}: el río creció`, texto: 'Reporte de vigía río arriba', prioridad: 4 });
+  m.red.then(ok => { if (!ok && btn.disabled) st.textContent = 'Sin internet: llama a la central o manda SMS.'; });
+  clearTimeout(timer); timer = setTimeout(() => { if (btn.disabled) { btn.disabled = false; btn.textContent = 'Reenviar'; st.textContent = 'La central no respondió todavía. Prueba de nuevo.'; } }, 20000);
+}
+const canal = !tema ? null : abrirCanal(tema, m => {
+  if (m.tipo !== 'vigia-ok' || m.v !== yo) return;
+  clearTimeout(timer); document.body.className = 'salvo'; navigator.vibrate?.([100, 80, 100]);
+  vista.innerHTML = `<h1>La central recibió tu aviso</h1><p>Vigías que reportaron: <b>${Number(m.n) || 1}</b>${Number(m.n) >= 2 ? ' · alerta lanzada río abajo' : ' · falta un segundo vigía'}</p>
+    <div class="tarjeta"><p>Aléjate de la orilla. Si el agua sigue subiendo, avisa de nuevo.</p></div><button id="otra">Volver</button>`;
+  document.getElementById('otra').onclick = () => { document.body.className = ''; pintar(); };
+});
+if (!tema) vista.innerHTML = '<h1>Falta el código</h1><p>Escanea el QR «Celular del vigía» que muestra la central.</p><p><a href="./">Abrir la central</a></p>';
+else pintar();
+</script>
+</body>
+</html>
