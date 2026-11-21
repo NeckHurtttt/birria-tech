@@ -21,6 +21,9 @@
   button.ok { background: var(--exito); color: #03281a; }
   button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
   svg { width: 56px; height: 56px; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; }
+  input { width: 100%; min-height: 48px; margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--borde); background: #071219; color: var(--texto); font: 16px "Space Grotesk", sans-serif; }
+  label { color: var(--texto-2); font-size: 14px; }
+  a { color: var(--acento); }
   @keyframes late { 50% { background: #5a1410; } }
   @media (prefers-reduced-motion: reduce) { body.alerta { animation: none; } }
 </style>
@@ -77,7 +80,19 @@ function alerta(m) {
   };
 }
 const canal = !tema ? null : abrirCanal(tema, m => { if (m.tipo === 'alerta' && m.id === p.id) alerta(m); if (m.tipo === 'ok' && m.id === p.id && document.body.className === 'alerta') { document.body.className = 'salvo'; vista.innerHTML = `<h1>${p.nombre} está a salvo</h1><p>Confirmado desde la central.</p>`; } });
-if (!tema) vista.innerHTML = '<h1>Falta el código</h1><p>Abre este enlace desde el QR de la central.</p>'; else esperar();
+function sinCodigo() {
+  vista.innerHTML = `<h1>Falta el código</h1><p>Escanee el código QR que muestra la central (botón «Sé guardián») o pegue aquí el enlace o el código recibido.</p>
+    <div class="tarjeta"><label for="codigo">Enlace o código de la central</label><input id="codigo" autocomplete="off" placeholder="rio-suena-xxxxxxxx"></div>
+    <button id="entrar">Continuar</button><p style="margin-top:16px"><a href="./">Abrir la central</a></p>`;
+  const ir = () => {
+    const v = document.getElementById('codigo').value.trim(); if (!v) return;
+    try { const u = new URL(v); if (u.searchParams.get('t')) { location.search = u.search; return; } } catch {}
+    const t = limpiarTema(v); if (t) location.search = `?t=${t}&p=${PERSONAS[0].id}`;
+  };
+  document.getElementById('entrar').onclick = ir;
+  document.getElementById('codigo').onkeydown = e => { if (e.key === 'Enter') ir(); };
+}
+if (!tema) sinCodigo(); else esperar();
 </script>
 </body>
 </html>

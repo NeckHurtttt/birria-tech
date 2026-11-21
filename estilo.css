@@ -272,7 +272,9 @@ html.grande .barrios .tiempo { font-size: 26px; }
 @keyframes entra { from { opacity: 0; transform: translateY(-10px); } }
 @media (prefers-reduced-motion: reduce) { .respuesta { animation: none; } }
 @media (max-width: 900px) {
-  .flotante { left: auto; right: 16px; bottom: 16px; padding: 10px 14px; font-size: 13px; }
+  /* en celular: solo el ícono, redondo, para no tapar los paneles */
+  .flotante { left: auto; right: 16px; bottom: 16px; width: 56px; height: 56px; min-height: 0; padding: 0; border-radius: 50%; font-size: 0; gap: 0; justify-content: center; border: 1px solid var(--acento); }
+  .flotante svg { width: 26px; height: 26px; margin: 0; }
   .qr-jurado { order: 2; }
   .respuestas { top: 12px; }
 }
