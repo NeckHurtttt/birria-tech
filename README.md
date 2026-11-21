@@ -46,6 +46,22 @@ En la actualidad:
 - Una parte de las familias **no evacúa porque no considera probable** que el agua alcance su vivienda.
 - Las personas adultas mayores, con discapacidad física o auditiva y los niños que permanecen solos dependen de que **alguien recuerde acudir por ellos**.
 
+### Evidencia del problema
+
+Los testimonios publicados tras la riada confirman que la población no contó con tiempo de aviso:
+
+> «El río nos sorprendió bastante, todo fue muy rápido. Tuvimos que subir como pudimos.»
+> «Primero entró el agua, no pensamos que iba a ser así.»
+> «Llegó el agua y nos subimos al techo.»
+>
+> — Vecinos y trabajadores de los distritos 6 y 7 de El Torno, 13/12/2025 ([El Deber vía eju.tv](https://eju.tv/?p=4841284))
+
+En esa misma jornada, el Servicio Departamental de Salud informó **más de 20 personas rescatadas de los techos y más de 100 evacuadas**, y el colapso de dos puentes dejó comunidades aisladas (misma fuente).
+
+El riesgo es recurrente: el **27 de marzo de 2026**, lluvias nocturnas volvieron a inundar El Torno; la corriente arrastró vehículos en la avenida principal y los vecinos *«expresaron su preocupación por la reiteración de estos eventos»* ([Los Tiempos/ABI](https://www.lostiempos.com/actualidad/pais/20260328/torno-sufre-nuevas-inundaciones-intensa-lluvia-santa-cruz)).
+
+No se identificaron encuestas públicas sobre percepción del riesgo o recepción de alertas específicas para la cuenca del Piraí. La referencia nacional más cercana es la encuesta comunitaria sobre alerta temprana realizada en 2025 por CLEAR Global y Practical Action en comunidades aymaras y tacanas ([documento](https://infohub.practicalaction.org/server/api/core/bitstreams/d2284e40-b687-4b1a-84a8-4f82e9d7a26d/content)), orientada a preferencias de idioma, canales de comunicación y preparación. Una encuesta en la ribera del Piraí forma parte del plan del piloto.
+
 ## Público objetivo
 
 | Destinatario | Beneficio |
