@@ -1,8 +1,8 @@
-# CONTEXTO — El Río Suena (Abstracthon 21–22/11/2026, track Ayuda Tecnológica)
+# CONTEXTO — El Río Suena (Abstracthon 21–22/11/2026, track Ayuda Tecnológica = Comunicación + Educación)
 
 ## Criterios (la web no publica criterios; los del track)
 - [x] Problema real de un grupo vulnerable concreto: ribera del Piraí, quien no puede evacuar solo
-- [x] Emergencias + accesibilidad/inclusión (aviso en señas, idiomas, guardián)
+- [x] Mezcla 2 tracks (obligatorio): Comunicación (barrio se informa/coordina: alertas, reportes, guardián) + Educación (regla pintada, pared, índice explicado)
 - [x] Demo en vivo: simulacro → detección → cuenta regresiva → guardián confirma → "Todos a salvo"
 - [ ] Validar el tiempo de viaje de la crecida y los barrios con SEARPI/COED
 - [ ] Preguntar a MLSA si se permite una base previa (si no: llevar solo idea/diseño)
@@ -14,7 +14,7 @@ Pendiente:
 - Probar micrófono con parlante real (rugido grabado de un río).
 - Audio real de crecida (grabación con licencia libre) en vez del sintetizado.
 - Aviso en video LSB (puente con Manos que hablan) y audios en quechua/guaraní grabados por hablantes.
-- Subir a GitHub Pages (HTTPS para cámara y micrófono), video de respaldo, slides.
+- ~~Pages, video de respaldo, slides~~ HECHO (Pages + capturas/demo-respaldo.mp4 + release v1.0-abstracthon + PPTX).
 
 ## Giro 19/11: datos abiertos, sin hardware
 La alerta principal ya no depende del micrófono: el **Vigía del Piraí** calcula un índice de riesgo 0–100 con
