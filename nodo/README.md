@@ -28,7 +28,24 @@ flowchart LR
 - Internet: para Telegram y para el túnel. La app de la central sigue funcionando sin internet (PWA + SMS); el bot no.
 - **Tarjeta NVIDIA (opcional).** Sin ella, Whisper *small* tarda unos segundos por audio y el modelo de 3B, de 5 a 15 s por reporte.
 
-## Instalación (unos 20 minutos)
+## Instalación rápida en Windows (un comando)
+
+Con **Docker Desktop** instalado y abierto, en PowerShell desde la carpeta del repositorio:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File nodo\instalar.ps1
+```
+
+El script pide el token del bot y la clave de la junta, y guarda la configuración en `nodo\.env`. Después levanta ntfy, el túnel, el bot y la IA local, y descarga Whisper y `qwen2.5:3b`. Al final **abre la central ya conectada al nodo**; la dirección queda en `nodo\datos\central.txt`. Se puede volver a correr cuando se quiera: si `.env` ya existe, no pregunta nada.
+
+**PC de referencia del equipo:** Intel Core i9-13900, 32 GB de RAM y gráfica integrada, sin NVIDIA; todo corre en el procesador. Tiempos estimados, a confirmar en la primera prueba:
+
+| Tarea | Modelo | Tiempo |
+|---|---|---|
+| Transcribir un audio de 10 s | Whisper *small* | 1 a 3 s |
+| Decidir si el reporte es una crecida | `qwen2.5:3b` | 2 a 5 s |
+
+## Instalación paso a paso (Windows o Linux)
 
 1. **Bot de Telegram.** En Telegram, hablar con **@BotFather** → `/newbot` → guardar el *token*.
 2. **Configuración.** En la carpeta `nodo/`, copiar `.env.ejemplo` a `.env` y completar:
