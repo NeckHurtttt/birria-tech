@@ -5,7 +5,7 @@ import { Pared } from './pared.js';
 import { escanear } from './lluvia.js';
 import { temaDemo, abrirCanal } from './canal.js';
 import { activas, todas, registrar, aprobar, quitar, aCSV, sincronizar, subirPendientes } from './registro.js';
-import { hayNube, claveJunta, comunidad } from './nube.js';
+import { hayNube, claveJunta, comunidad, vigiaCentral, deLectura } from './nube.js';
 import { RIADA_2025 } from './historico.js';
 import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
@@ -87,7 +87,9 @@ function vigiaCelular(m) {
   if (!est.vigiasCel.has(v)) {
     est.vigiasCel.add(v); est.vecinos.vigias++;
     $('#v-vecinos').dataset.extra = `${est.vecinos.vigias} vigía${est.vecinos.vigias > 1 ? 's' : ''} río arriba: «el río creció» (último: ${lugar})`;
-    aviso(`Vigía en ${lugar}: «el río creció»`, est.vecinos.vigias >= 2 ? 'Segundo vigía: se lanza la alerta' : 'Falta un segundo vigía para lanzar la alerta', 'vigia');
+    // por Telegram llega lo que dijo el vigía en su audio (transcrito en el nodo comunitario)
+    const dicho = m.via === 'telegram' && m.texto ? String(m.texto).replace(/^Telegram: /, '').slice(0, 160) + ' · ' : '';
+    aviso(`Vigía en ${lugar}: «el río creció»`, dicho + (est.vecinos.vigias >= 2 ? 'Segundo vigía: se lanza la alerta' : 'Falta un segundo vigía para lanzar la alerta'), 'vigia');
     evaluar();
   }
   // acuse al vigía: un vigía repetido no suma, pero sí recibe respuesta
@@ -366,7 +368,11 @@ function evaluar() {
     : 'La lluvia en Samaipata y Bermejo tarda unas 2 h 30 min en bajar hasta La Angostura: ese es el tiempo que ganamos.';
 }
 async function escaneo() {
-  const l = await escanear(); est.lluvia = l;
+  // primero la PC del equipo (vigía central); si no hay lectura fresca, el navegador escanea solo
+  let l = null;
+  if (hayNube()) { try { l = deLectura(await vigiaCentral.ultima()); } catch {} }
+  if (!l) l = await escanear();
+  est.lluvia = l;
   $('#chip-lluvia span').textContent = `Cuenca alta: ${l.ll24.toFixed(0)} mm (24 h) · ${l.prox24.toFixed(0)} mm próx.`;
   $('#chip-lluvia').title = `Fuente: ${l.fuente}` + (l.puntos.length ? ' · ' + l.puntos.map(p => `${p.nombre} ${p.ll24.toFixed(0)} mm`).join(', ') : '');
   evaluar(); mostrarConfianza();

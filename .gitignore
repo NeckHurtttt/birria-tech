@@ -1,1 +1,8 @@
 .playwright-mcp/
+recolector/.env
+recolector/pendientes.jsonl
+recolector/estado.json
+recolector/registro.log*
+nodo/.env
+nodo/datos/
+__pycache__/

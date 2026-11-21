@@ -59,3 +59,32 @@ t('idioma: textos fijos, con números y compuestos', () => {
   assert.equal(tr('texto que no está en el diccionario', 'en'), 'texto que no está en el diccionario');
 });
 console.log('idioma ok');
+import { filaLectura, deLectura, FRESCA_MIN } from './js/nube.js';
+t('vigía central: fila y lectura fresca', () => {
+  const l = { ll6: 3.14, ll24: 20.06, prox6: 1, prox24: 2, caudal: 7.6, caudalPico: 8.1, vivo: true, puntos: [{ nombre: 'Samaipata', ll24: 5.55, ll6: 1 }] };
+  const f = filaLectura(l, { r: 0.427, estado: 'normal' }, new Date('2026-11-21T12:00:00Z'));
+  assert.equal(f.indice, 43); assert.equal(f.ll6, 3.1); assert.equal(f.caudal_pico, 8.1);
+  assert.deepEqual(f.puntos, [{ nombre: 'Samaipata', ll24: 5.6 }]);
+  const ahora = Date.parse('2026-11-21T12:10:00Z');
+  const d = deLectura(f, ahora);
+  assert.equal(d.caudalPico, 8.1); assert.equal(d.mm24, f.ll24); assert.equal(d.central, true); assert.equal(d.minutos, 10);
+  assert.equal(deLectura({ ...f, medido_en: '2026-11-21T11:30:00Z' }, ahora), null, `más de ${FRESCA_MIN} min = vieja`);
+  assert.equal(deLectura(null, ahora), null);
+});
+const { leerEnv, debeAvisar } = await import('./recolector/recolector.mjs');
+t('recolector: .env y alerta una sola vez por evento', () => {
+  assert.deepEqual(leerEnv('# c\r\nRECOLECTOR=pc-rodrigo\r\nTOKEN="abc"\nNTFY_TEMA=\n'), { RECOLECTOR: 'pc-rodrigo', TOKEN: 'abc', NTFY_TEMA: '' });
+  assert.equal(debeAvisar('normal', 'alerta'), true);
+  assert.equal(debeAvisar('alerta', 'alerta'), false);
+  assert.equal(debeAvisar(undefined, 'vigilancia'), false);
+});
+console.log('vigía central ok');
+import { basesNtfy } from './js/canal.js';
+t('ntfy: servidor propio primero, ntfy.sh siempre de respaldo, solo https', () => {
+  assert.deepEqual(basesNtfy('', ''), ['https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('https://nodo.example.org', ''), ['https://nodo.example.org/', 'https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('', 'https://junta.example.org/'), ['https://junta.example.org/', 'https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('http://otro.example.org', ''), ['https://ntfy.sh/']); // http remoto no
+  assert.deepEqual(basesNtfy('http://localhost:8090', ''), ['http://localhost:8090/', 'https://ntfy.sh/']);
+});
+console.log('ntfy ok');

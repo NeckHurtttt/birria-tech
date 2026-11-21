@@ -80,3 +80,68 @@ end $$;
 
 revoke all on function rs_clave_ok(text, text) from public, anon, authenticated;
 grant execute on function rs_registrar(text, jsonb), rs_listar(text, text), rs_aprobar(text, text, uuid, boolean), rs_quitar(text, text, uuid) to anon, authenticated;
+
+-- ---------- Vigía central: una PC del equipo escanea la cuenca cada 10 min y sube la lectura ----------
+-- La PC NO usa la service_role: usa un token propio (solo sirve para subir lecturas). Se guarda su hash.
+-- Alta de una PC (correr aparte, con un token largo y secreto):
+--   insert into rs_recolectores (nombre, token_hash) values ('pc-rodrigo', crypt('<TOKEN>', gen_salt('bf')))
+--   on conflict (nombre) do update set token_hash = excluded.token_hash;
+create table if not exists rs_recolectores (
+  nombre text primary key check (nombre ~ '^[a-z0-9-]{3,40}$'),
+  token_hash text not null,
+  activo boolean not null default true,
+  alta timestamptz not null default now()
+);
+
+create table if not exists rs_lecturas (
+  id bigint generated always as identity primary key,
+  creado_en timestamptz not null default now(),
+  recolector text not null references rs_recolectores(nombre) on delete cascade,
+  medido_en timestamptz not null,
+  ll6 real not null check (ll6 between 0 and 1000),
+  ll24 real not null check (ll24 between 0 and 2000),
+  prox6 real not null check (prox6 between 0 and 1000),
+  prox24 real not null default 0 check (prox24 between 0 and 2000),
+  caudal real check (caudal between 0 and 100000),
+  caudal_pico real check (caudal_pico between 0 and 100000),
+  indice int not null check (indice between 0 and 100),
+  estado text not null check (estado in ('normal','vigilancia','alerta')),
+  puntos jsonb not null default '[]'::jsonb check (jsonb_typeof(puntos) = 'array' and length(puntos::text) <= 4000),
+  vivo boolean not null default true
+);
+create index if not exists rs_lecturas_medido on rs_lecturas (medido_en desc);
+
+alter table rs_recolectores enable row level security;
+alter table rs_lecturas enable row level security;
+revoke all on rs_recolectores, rs_lecturas from anon, authenticated;
+
+create or replace function rs_subir_lectura(p_recolector text, p_token text, p jsonb) returns bigint
+language plpgsql security definer set search_path = public, extensions as $$
+declare v_id bigint;
+begin
+  if not exists (select 1 from rs_recolectores where nombre = p_recolector and activo
+                 and token_hash = crypt(coalesce(p_token, ''), token_hash)) then
+    raise exception 'recolector o token incorrecto';
+  end if;
+  -- freno: como mucho 1 lectura por minuto por PC
+  if exists (select 1 from rs_lecturas where recolector = p_recolector and creado_en > now() - interval '1 minute') then
+    raise exception 'demasiado seguido';
+  end if;
+  insert into rs_lecturas (recolector, medido_en, ll6, ll24, prox6, prox24, caudal, caudal_pico, indice, estado, puntos, vivo)
+  values (p_recolector, coalesce((p->>'medido_en')::timestamptz, now()),
+          (p->>'ll6')::real, (p->>'ll24')::real, (p->>'prox6')::real, coalesce((p->>'prox24')::real, 0),
+          (p->>'caudal')::real, (p->>'caudal_pico')::real, (p->>'indice')::int, p->>'estado',
+          coalesce(p->'puntos', '[]'::jsonb), coalesce((p->>'vivo')::boolean, true))
+  returning id into v_id;
+  -- guardar solo 30 días
+  delete from rs_lecturas where creado_en < now() - interval '30 days';
+  return v_id;
+end $$;
+
+-- Lectura pública: la última de cualquier PC (la app decide si está fresca).
+create or replace function rs_ultima_lectura() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select to_jsonb(l) - 'id' from rs_lecturas l where medido_en <= now() + interval '5 minutes' order by medido_en desc limit 1;
+$$;
+
+grant execute on function rs_subir_lectura(text, text, jsonb), rs_ultima_lectura() to anon, authenticated;
