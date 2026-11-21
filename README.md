@@ -10,7 +10,7 @@
   <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
-  <img src="https://img.shields.io/badge/pruebas-16_aprobadas-2ea043?style=for-the-badge" alt="16 pruebas aprobadas">
+  <img src="https://img.shields.io/badge/pruebas-17_aprobadas-2ea043?style=for-the-badge" alt="17 pruebas aprobadas">
 </p>
 <p align="center">
   <img src="https://img.shields.io/badge/JavaScript-ES2022_modules-F7DF1E?logo=javascript&logoColor=000" alt="JavaScript">
@@ -20,11 +20,13 @@
   <img src="https://img.shields.io/badge/Open--Meteo-GloFAS-5be7f0" alt="Open-Meteo">
   <img src="https://img.shields.io/badge/PostgreSQL-Supabase-336791?logo=postgresql&logoColor=fff" alt="PostgreSQL">
 </p>
-<p align="center"><b>Español</b> · <a href="#english">English</a> · <a href="#中文">中文</a> · <a href="pitch-el-rio-suena.md">Guion del pitch</a> · <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
+<p align="center"><b>🇧🇴 Español</b> · <a href="#-english">🇬🇧 English</a> · <a href="#-中文">🇨🇳 中文</a> · <a href="#-guaraní">Guaraní</a> · <a href="#-runasimi-quechua">Runasimi (quechua)</a> · <a href="#-ayoreo">Ayoreo</a><br>
+<sub>Cada idioma se despliega aquí mismo, sin recargar · Each language opens right here, no reload · 各语言在本页展开，无需刷新</sub><br>
+🎤 <a href="pitch-el-rio-suena.md">Guion del pitch</a> · 📊 <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
 
 ![Simulacro completo: tormenta, alerta, cuenta regresiva y confirmación de todas las personas](capturas/simulacro.gif)
 
-**Demostración en vivo:** https://neckhurtttt.github.io/el-rio-suena/?jurado. Presione **Iniciar simulacro**; en el modo `?jurado` el tiempo transcurre 300 veces más rápido.
+**Demostración en vivo:** https://neckhurtttt.github.io/el-rio-suena/?jurado. Presione **Iniciar simulacro**; en el modo `?jurado` el tiempo transcurre 300 veces más rápido. Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar.
 **Teléfono del guardián:** el botón **Sé guardián** muestra un código QR que puede escanearse con cualquier celular, incluso desde una videollamada.
 
 Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el track **Ayuda Tecnológica**, que requiere combinar dos o más tracks:
@@ -225,7 +227,8 @@ flowchart LR
 - **Canal con los guardianes:** ntfy.sh (publicación y suscripción, compatible con la aplicación ntfy), con BroadcastChannel como respaldo local.
 - **Registro compartido:** `js/nube.js` y `js/registro.js` con Supabase; funciones RPC definidas en `supabase/esquema.sql`.
 - **Funcionamiento sin conexión:** `sw.js` almacena la aplicación, la última consulta de datos y el mapa visitado; los guardianes cuentan con SMS y llamada de respaldo.
-- **Accesibilidad:** botón **Aa** (letra grande y alto contraste) y lectura del aviso en voz alta.
+- **Idiomas:** `js/idioma.js` traduce la interfaz al inglés y al chino con los botones **ES · EN · 中文**, sin recargar; `?lang=en` y `?lang=zh` abren la interfaz en ese idioma. Los mensajes para los guardianes (SMS/ntfy) y el CSV permanecen en castellano, el idioma de la ribera.
+- **Accesibilidad:** botón **Aa** (letra grande y alto contraste) y lectura del aviso en voz alta, en el idioma elegido.
 
 ## Estructura del repositorio
 
@@ -242,10 +245,11 @@ js/canal.js            ntfy.sh y BroadcastChannel
 js/registro.js         registro de personas, aprobación y CSV
 js/nube.js             conexión con el registro compartido (Supabase)
 js/historico.js        riada del 12–13/12/2025 (datos abiertos)
+js/idioma.js           interfaz en castellano, inglés y chino
 supabase/esquema.sql   tablas y funciones del registro compartido
 sw.js                  funcionamiento sin conexión (PWA)
 herramientas/validar.py  reproduce la validación con Open-Meteo
-pruebas.mjs            pruebas automatizadas
+pruebas.mjs            17 pruebas automatizadas (índice, riada, tiempos, canal, PWA, CSV, idiomas)
 ```
 
 ## Ejecución local
@@ -257,7 +261,7 @@ python3 herramientas/validar.py  # riada de 2025 y 42 años de GloFAS
 ```
 
 - La cámara y el micrófono requieren HTTPS o `localhost`.
-- El parámetro `?x=60` modifica la aceleración del tiempo (por defecto ×300 en `?jurado`).
+- El parámetro `?x=60` modifica la aceleración del tiempo (por defecto ×300 en `?jurado`). Los parámetros `?lang=en` y `?lang=zh` abren la interfaz en inglés o chino.
 - Para otra comunidad o junta: parámetro `?c=<comunidad>` y una fila nueva en `rs_juntas`.
 
 ## Próximos pasos
@@ -267,6 +271,8 @@ python3 herramientas/validar.py  # riada de 2025 y 42 años de GloFAS
 - [x] Registro compartido de la junta vecinal con base de datos (Supabase).
 - [x] Funcionamiento sin conexión con respaldo por SMS y llamada.
 - [ ] Instalar un servidor ntfy propio para el piloto.
+- [x] Interfaz en castellano, inglés y chino; documentación también en guaraní y quechua (borradores para revisar con hablantes).
+- [ ] Documentación en **ayoreo** escrita con hablantes ayoreo.
 - [ ] Avisos en **video en Lengua de Señas Boliviana** y audios en **quechua y guaraní** grabados por hablantes.
 - [ ] Conformar la red de vigías río arriba con la junta (Bermejo, río Espejos) y probarla en temporada de lluvias.
 - [ ] Incorporar precipitación satelital de alta resolución (GPM IMERG) para tormentas locales.
@@ -286,40 +292,543 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 
 ---
 
-## English
-**When the river roars, it brings stones.** Early flood warning for the Piraí river (Santa Cruz, Bolivia), neighborhood by neighborhood, for people who cannot evacuate alone. No dedicated hardware is required.
+## 🇬🇧 English
 
-- **Piraí Watch:** every 10 min it reads open data: rain at 5 upper-basin points (Open-Meteo), GloFAS discharge at La Angostura and neighbor reports. With that it computes a **0–100 risk index**. Rain in the upper basin takes about **2 h 30 min** to reach La Angostura, and that is the head start for evacuating.
-- **Countdown per neighborhood**, measured along the real river channel: *"water reaches El Torno in 2 h 20 min"*.
-- **Water on your wall:** point the camera at your house and see how high the water would rise.
-- **Neighbor Guardian:** the guardian's phone rings and vibrates, and they confirm with one tap. If nobody confirms 30 min before the water arrives, the case goes to official rescue.
-- **Optional extra:** a phone that *listens* to the river's low rumble (20–300 Hz).
+<details>
+<summary><img src="capturas/en/banner.svg" alt="El Río Suena — When the river roars, it brings stones" width="100%"><br><b>▶ Open the full documentation in English</b> · opens right here, no page reload</summary>
 
-**Validated against the real flood of 13 Dec 2025** (El Torno: 26 dead, 1,300+ families affected in 18 communities): no open model saw the local Amboró storm (≤ 26 mm, GloFAS flat), so open data alone would **not** have warned. Now **2 upstream watchers** trigger the alert alone, which would have given ~4 h of warning (hypothetical report time). Works **offline** (PWA) with SMS/call fallback, has a **neighborhood-board panel** (CSV/print), registration with approval, and a large-text/high-contrast mode.
+> **When the river roars, it brings stones.**
+> **The idea:** no family on the banks of the Piraí should learn about a flood when the water is already at the door. El Río Suena tells **each neighborhood how many minutes it has left** and **each neighbor who they have to go and get**. It uses open data, upstream watchers and phones people already own, and **it works offline**.
 
-- **Backend (Supabase):** a person registered from **any phone** shows up on the board's panel in **~1.3 s**. The board signs in with its key (demo: community `demo`, key `1312`), approves people, and gets a **guardian QR code** for each one. The tables cannot be read with the public key: everything goes through RPC functions that validate the data and require the board's key. Offline sign-ups are queued and sent later. Schema: `supabase/esquema.sql`.
-- **Tested on real phones (21 Nov 2026):** an Android and an iPhone got the alert with a siren and replied "safe". The central shows the real response time live ("safe · 0:03 after the alert"). Judges can join from the video call by scanning the **«Sé guardián»** QR code.
-- **Nationwide:** rain affected **186,000+ families in Bolivia** in the 2024-25 season. The river, basin points and neighborhoods are configuration, so the same app works for the Mamoré (Beni), the Rocha (Cochabamba) or the rivers of La Paz. Open-Meteo and GloFAS cover the whole country, and every municipality already has neighborhood boards. Each new river is a pilot of about Bs 1,500.
+<p align="center">
+  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en"><img src="https://img.shields.io/badge/▶_Live_demo-judge_mode-5ee6f0?style=for-the-badge" alt="Live demo"></a>
+  <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
+  <img src="https://img.shields.io/badge/no_backend-GitHub_Pages-222?style=for-the-badge&logo=github" alt="No backend">
+  <img src="https://img.shields.io/badge/tests-17_ok-2ea043?style=for-the-badge" alt="17 tests ok">
+</p>
 
-Tracks: **Technology Aid** = **Communication** (neighborhood alerts, reports, guardians) + **Education** (painted gauge, water on your wall, plain-language risk index). Backup video: `capturas/demo-respaldo.mp4`. License: MIT.
+![Full drill: storm, alert, countdown and Everyone safe](capturas/en/simulacro.gif)
 
-Demo: open `?jurado` → **Iniciar simulacro**. Run locally: `python3 -m http.server 8765`, tests: `node pruebas.mjs`. Distances and heights are estimates until they are calibrated with SEARPI/COED. This complements official stations; it does not replace them.
+**▶ Live demo:** https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en. Press **Start drill**: in `?jurado` time runs ×300. The **ES · EN · 中文** buttons in the top bar switch the interface language without reloading.
+**📱 Guardian’s phone:** “Guardian’s phone” button → scan the QR code (`guardian.html?t=<topic>&p=rosa`).
 
-## 中文
-**河水作响，必有石来。** 面向玻利维亚圣克鲁斯皮拉伊河沿岸的洪水预警系统：按社区倒计时，为无法独自撤离的人安排邻居守护者，无需任何硬件。
+Abstracthon 2026 · Team **Birria TECH** · **Technology Aid** track, which requires combining two or more tracks. The project sits where these meet:
+- **Communication:** it changes how a riverside neighborhood gets informed, connects and coordinates. It has the countdown per neighborhood, neighbor reports and the Neighbor Guardian, who confirms with one tap.
+- **Education:** it teaches people to read risk with the painted gauge (read in 3 taps), the water on your wall and a 0–100 index explained in plain words.
 
-- **皮拉伊河守望**：每 10 分钟读取开放数据，包括上游流域 5 个点的降雨量（Open-Meteo）、La Angostura 的 GloFAS 流量和邻居上报，计算 **0–100 风险指数**。上游降雨约 **2 小时 30 分钟** 后到达 La Angostura，这就是争取到的撤离时间。
-- **按社区倒计时**：沿真实河道计算，例如「洪水 2 小时 20 分钟后到达 El Torno」。
-- **墙上的水位**：用手机摄像头对准自家墙面，显示水会涨到多高。
-- **邻居守护者**：守护者的手机响铃并震动，一键确认；若洪水到达前 30 分钟仍无人确认，则转交官方救援。
+🎥 **Backup video (offline):** [capturas/en/demo-respaldo.mp4](capturas/en/demo-respaldo.mp4) · also in the [v1.0-abstracthon release](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon) (Spanish).
 
-**已用 2025 年 12 月 13 日真实洪灾验证**（El Torno：26 人遇难，18 个社区逾 1,300 户受灾）：开放模型都没有捕捉到 Amboró 局地暴雨，仅靠开放数据**无法**预警；因此现在 **2 名上游观察员** 即可单独触发警报（约提前 4 小时，报告时间为假设）。支持**离线**（PWA）与短信/电话备份、社区委员会面板（CSV/打印）、登记审批及大字高对比模式。
+---
 
-- **后端（Supabase）**：在**任意手机**上登记的人约 **1.3 秒** 后出现在社区委员会面板上。委员会用密钥登录（演示：社区 `demo`，密钥 `1312`），审批后为每个人生成**守护者二维码**。公开密钥无法直接读取数据表，所有操作都通过校验数据并要求委员会密钥的 RPC 函数完成；离线登记会排队，联网后自动上传。数据库结构：`supabase/esquema.sql`。
-- **真机测试（2026 年 11 月 21 日）**：一部安卓手机和一部 iPhone 收到带警报声的预警并回复「安全」；中心实时显示真实响应时间（「安全 · 预警后 0:03」）。评委在视频会议中扫描 **«Sé guardián»** 二维码即可加入。
-- **全国适用**：2024-25 雨季，玻利维亚有**超过 18.6 万户**家庭受灾。河道、流域观测点和社区都只是配置，同一套系统可用于 Mamoré（贝尼）、Rocha（科恰班巴）或拉巴斯的河流；Open-Meteo 与 GloFAS 覆盖全国，各市已有社区委员会。每条新河流的试点成本约 1,500 玻利维亚诺。
+### 😟 Problem
+In the early hours of **13 December 2025** the Piraí overflowed in **El Torno**: at least **20 dead** and dozens missing ([France 24/AFP](https://www.france24.com/es/minuto-a-minuto/20251215-al-menos-20-muertos-y-decenas-de-desaparecidos-por-el-desborde-de-un-r%C3%ADo-en-bolivia)), about **600 families affected** in 11 communities ([El País](https://elpais.bo/nacional/20251217_hay-cerca-de-600-familias-afectadas-en-el-torno.html)) and a **departmental disaster** declaration. It was the largest flood in 42 years, since the 1983 *turbión* ([El Deber](https://eldeber.com.bo/santa-cruz/declaran-desastre-riada-historica-pirai-deja-20-muertos_1765881778), [Wikipedia](https://es.wikipedia.org/wiki/Turbi%C3%B3n_del_r%C3%ADo_Pira%C3%AD_de_1983)). Days later, the mayor of El Torno counted **26 official deaths and at least 1,300 families affected in 18 communities** ([El Deber via eju.tv](https://eju.tv/?p=4852511)). And it is not only the Piraí: in the 2024-25 season, rain affected **more than 186,000 families in Bolivia** and left 42 dead ([El País](https://elpais.bo/nacional/20250313_registran-42-fallecidos-por-las-lluvias-en-bolivia.html)). With El Niño 2026-27 it can happen again. Today:
 
-赛道：**科技助力** = **沟通**（社区预警、邻居上报、守护者）+ **教育**（水尺读数、墙上水位、通俗风险指数）。备用视频：`capturas/demo-respaldo.mp4`。许可证：MIT。
+- Alerts are issued **by color and for the whole department**. None of them tells a specific block **how much time it has left**.
+- Many families **don’t evacuate because they don’t believe** the water will reach their house.
+- Older people, wheelchair users, deaf people and children home alone depend on **someone remembering them**.
 
-演示：打开 `?jurado` → 点击 **Iniciar simulacro**。本地运行：`python3 -m http.server 8765`，测试：`node pruebas.mjs`。距离与水位均为估算，需要与 SEARPI/COED 校准；本系统是官方监测站的补充，不能替代它们。
+### 🎯 Who is it for?
+| Who | What they get |
+|---|---|
+| 🏠 **Riverside families** (El Torno, Jorochito, Porongo, Urubó, Portachuelo) | A countdown for **their** neighborhood, and the water shown **on their own wall** |
+| ♿ **People who can’t evacuate alone**: older people, wheelchair users, deaf people, children home alone, Quechua speakers | An assigned **neighbor guardian**; if nobody confirms, the case goes to official rescue |
+| 🙋 **Guardians** (neighbors) | An alert that rings with the screen off and is confirmed with **one tap** (or by SMS/call when there is no internet) |
+| 👀 **Upstream watchers** (Bermejo, Espejos river) | Two taps to report “the river rose”; they see what satellites can’t |
+| 🏛️ **Whoever adopts it**: neighborhood board, municipality (UGR), the Departmental Government’s COED, SEARPI | A **live panel** of who is still missing, exportable to CSV or printed |
 
+### 💡 The solution in 4 pieces
+
+| | Piece | What it does |
+|---|---|---|
+| 🛰️ | **Piraí Watch** | Every 10 min it checks the rain at 5 points of the upper basin (Open-Meteo), the GloFAS discharge at La Angostura and the reports from **upstream watchers**. With that it computes a **risk index from 0 to 100**. Any of the three sources can trigger the alert (2 watchers are enough). |
+| ⏱️ | **Countdown per neighborhood** | It measures the distance along the real river channel (OSM) and shows messages like “water reaches El Torno in **2 h 20 min**”. |
+| 📷 | **Water on your wall** | Point the camera at your house and the app draws how high the water would rise. Without a camera, it shows it on a drawn wall. |
+| 🤝 | **Neighbor Guardian** | Every vulnerable person has an assigned neighbor. When there is an alert, the guardian’s phone rings and vibrates, and the guardian confirms with one tap. **If nobody confirms 30 min before the water arrives, the case goes to official rescue.** |
+
+**Optional extra:** the *river ear*. A phone by the riverbank listens for the water’s low rumble (20–300 Hz).
+
+#### Why it works: the 2 h 30 min head start
+Rain that falls on the upper basin (Samaipata, Bermejo, Cuevas…) takes about **2 h 30 min** to reach La Angostura. Watching **where it rains**, not where the river has already risen, buys that time to evacuate.
+
+### 🔬 Validation against the real flood of 13 Dec 2025
+Before trusting the index, we tested it against the night of the tragedy ([`herramientas/validar.py`](herramientas/validar.py), and the **“Would it have warned of the real flood?”** button in the app):
+
+| Open source | What it saw in the upper Piraí basin, 12 Dec 06:00 → 13 Dec 07:00 |
+|---|---|
+| Open-Meteo best_match | 20 mm in total, max 3 mm/h |
+| ECMWF IFS | 26 mm, max 2 mm/h |
+| DWD ICON | 1 mm |
+| NOAA GFS | 18 mm, max 3 mm/h |
+| GloFAS discharge at La Angostura | **did not rise** (12 → 12 → 12 m³/s) |
+
+![13 Dec 2025 flood: rain seen by the models and risk with and without watchers](capturas/en/riada-2025.png)
+
+**No global model saw the Amboró storm.** With open data alone, the index never goes above **2/100**: El Río Suena **would not have warned**. We say it plainly because it changed the design:
+
+- Now **2 upstream watchers** (Bermejo, Espejos river) reporting “the river rose” **trigger the alert on their own**. With the app’s model (fast flood, conservative case), that would have given **~4 h of warning** before the overflow in El Torno. *The report time is hypothetical: we don’t know when a neighbor would have seen it.*
+- We also tuned the discharge threshold with **42 years of GloFAS** (1984–2026: median 11 m³/s, p95 35 m³/s). Before, we used 2024–2026 (p95 17), and that caused false alarms.
+- **Lesson:** global models work for large storms; local Amboró storms are seen by **people**. That’s why the system combines open data, watchers, painted gauges and the river ear.
+
+### 🆚 How is it different?
+| | Alert **per neighborhood, in minutes** | Sees **local** storms | Helps **those who can’t leave** | **Offline** | Cost for families |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Official color alert (departmental) | ❌ | depends on stations | ❌ | radio/TV | 0 |
+| Global flood forecasts (GloFAS, Google Flood Hub) | ❌ (per river reach) | ❌ (see above) | ❌ | ❌ | 0 |
+| Neighborhood WhatsApp groups | sometimes | if someone warns | if someone remembers | ❌ | 0 |
+| Sirens | ❌ | ❌ | ❌ (deaf people can’t hear them) | ✅ | high (installation) |
+| **El Río Suena** | ✅ | ✅ watchers + gauge + ear | ✅ guardian + rescue at T−30 | ✅ installed app + SMS | **0** |
+
+### 🧰 Why these technologies?
+| Technology | Why |
+|---|---|
+| **Static web + PWA** (GitHub Pages, service worker) | Opens from a link or QR code, installs without an app store and **works offline**. There is no server that can go down in the middle of a flood |
+| **Open-Meteo** (rain) and **GloFAS** (discharge) | Free, no key, with history for validation. They work for large storms |
+| **Watchers + painted gauge** | Cover what the models miss (2025 flood). They only need a basic phone and paint |
+| **ntfy** (open push) | Rings with the screen off and needs no accounts. It can run on the municipality’s own server |
+| **SMS / call** | Backup when the internet goes down; uses the phone plan |
+| **MapLibre + OpenStreetMap** | Open map with the real Piraí channel; tiles already seen stay saved |
+| **Web Audio / camera** | The river ear and the water on your wall run on the phone, without sending audio or video to anyone |
+
+### 🏗️ How it is rolled out
+| Phase | What | Who | Estimated cost |
+|---|---|---|---|
+| **0 · Today** | Working prototype, validated against the 2025 flood | Birria TECH | 0 |
+| **1 · Pilot** (rainy season Dec–Mar) | El Torno: 1 neighborhood board, **10 upstream watchers**, **5 painted gauges** on bridges, ~50 registered people, own ntfy server. Calibrate times and heights with SEARPI and COED | Neighborhood board + UGR El Torno + SEARPI | ≈ Bs 1,500 (paint, VPS for 4 months, training) |
+| **2 · The whole Piraí** | Porongo, Santa Cruz (riverside), Urubó, Portachuelo; COED panel | Departmental Government (COED) | subscription per river reach |
+| **3 · Nationwide** | Río Grande, Mamoré (Beni), Rocha (Cochabamba), rivers of La Paz: only the channel, the basin points and the neighborhoods change | Municipalities + Vice Ministry of Civil Defense | same |
+
+**Always free for families.** Costs are the team’s estimates, not quotes.
+
+#### 🇧🇴 Why it works for the whole country
+- **Nothing is specific to the Piraí:** the channel, the 5 rain points of the upper basin, the neighborhoods and the water’s travel time are **configuration data** (`js/datos.js`). For another river you change that data; the app, the guardians and the panel stay the same.
+- **Open data covers all of Bolivia:** Open-Meteo (rain) and GloFAS (discharge) have worldwide coverage, with no agreements or sensors.
+- **The human network already exists everywhere:** neighborhood boards, OTBs and municipal Risk Management Units. El Río Suena gives them a tool; it doesn’t create a new structure.
+- **Near-zero marginal cost:** each new river is a configuration + a pilot of ≈Bs 1,500; the alert server is the same.
+
+#### 🗄️ Backend: the board’s shared register (Supabase)
+- Whoever registers a person from **any phone** sends them to their community’s shared register; the control room and the board see them **in ~2 s** (ntfy notice + refresh every 30 s).
+- The board signs in to the panel with its **key** (demo: community `demo`, key `1312`), approves, and from then on the person receives alerts. Every approved person has a **guardian QR code**.
+- **Privacy:** the tables cannot be read with the public key (RLS with no policies). Everything goes through functions (`rs_registrar`, `rs_listar`, `rs_aprobar`, `rs_quitar`) that validate the data and require the board’s key to view or approve. The key is stored with bcrypt.
+- **Offline** it is saved on the phone and sent automatically when the connection comes back; the control room keeps the last copy.
+- Full schema: [`supabase/esquema.sql`](supabase/esquema.sql). Tested end to end: sign-up on a phone → shows up in the control room in 1.3 s → approval → guardian QR → alert → “safe” back in 0:03.
+
+### 📈 Impact and how we measure it
+- **Warning time:** ~4 h before the overflow in the 2025 flood with watchers (hypothetical); **2 h 30 min** with rain seen by the models.
+- **Nobody forgotten:** % of registered people confirmed before the water (pilot goal: **100 %**; the rest go to rescue at T−30 min).
+- **Margin:** average minutes between confirmation and the water’s arrival (the “Everyone safe” screen computes it).
+- **False alarms:** alerts without a flood per season (counted in the pilot with SEARPI).
+- **Cost for families:** Bs 0.
+- **Real guardian response time:** the control room shows it live (“safe · 1:39 after the alert”). Test on 21 Nov 2026 with 2 real phones (Android + iPhone): both got the alert and confirmed back.
+- **Scale:** El Torno alone had ≥1,300 affected families in 2025; the pilot goal is to register the people who can’t leave alone in 1 community, then extend to all 18.
+
+### 🎬 1-minute demo (script for the judges)
+1. Open `?jurado&lang=en` → **Start drill**: a storm falls on the upper basin.
+2. The index goes above 55 → **ALERT**, and every riverside neighborhood shows its countdown.
+3. The guardian’s phone (QR) rings → tap **“I helped her ✓”**.
+4. When every guardian has confirmed → **“Everyone safe”** screen with the people, the margin and the cost.
+5. **Would it have warned of the real flood of 13 Dec 2025?** → the chart of that night, hour by hour.
+6. **Board / COED panel** → who is missing; export CSV or print. **Register a person** → the board approves.
+7. Without wifi: the app still opens (already installed) and every person has a one-tap SMS or call to their guardian.
+
+| 📱 The guardian’s phone rings | 🧱 The water rises on your wall |
+|:---:|:---:|
+| <img src="capturas/en/guardian.gif" width="280" alt="Guardian receives the alert and confirms"> | <img src="capturas/en/pared.gif" width="280" alt="Water on your wall"> |
+
+<details><summary>📸 Still screenshots</summary>
+
+| Alert | Guardians | Everyone safe |
+|---|---|---|
+| ![Alert](capturas/en/escritorio-alerta.png) | ![Guardians](capturas/en/escritorio-guardianes.png) | ![Everyone safe](capturas/en/escritorio-exito.png) |
+</details>
+
+### ⚙️ How it works
+
+```mermaid
+flowchart LR
+  A[Upper-basin rain<br/>Open-Meteo ×5] --> I{Risk index<br/>0–100}
+  B[GloFAS discharge<br/>La Angostura] --> I
+  V[Upstream watchers<br/>2 reports] --> I
+  C[Riverside: reports<br/>+ painted gauge] --> I
+  D[River ear<br/>optional] -.-> I
+  I -- "≥ 55" --> E[Alert + countdown<br/>per neighborhood]
+  E --> F[Neighbor Guardian<br/>ntfy.sh]
+  F -. offline .-> S[SMS / call]
+  S --> G
+  F -- confirms --> G[Everyone safe]
+  F -- unconfirmed at T−30 min --> H[Official rescue]
+```
+
+- **Static web, no backend:** published on GitHub Pages and opens on any phone.
+- **Map:** MapLibre + OpenFreeMap, with the real Piraí channel taken from OpenStreetMap.
+- **Index:** `indiceRiesgo` in `js/datos.js`. Three sources can trigger the alert: rain, discharge and **2 upstream watchers**. Riverside reports alone do **not** trigger it; they only put the area on watch (this avoids false alarms).
+- **Audio:** Web Audio with a 4096-sample FFT. It compares the 20–300 Hz energy with the baseline and warns if the rise lasts 1.5 s in a row.
+- **Channel to the guardians:** ntfy.sh (pub/sub, also reaches the ntfy app), with BroadcastChannel as a backup.
+- **Offline (PWA):** `sw.js` stores the app, the last scan and the map already viewed; it installs from the browser. Guardians have SMS and call as a backup. **The demo doesn’t go down.**
+- **Registration and panel:** `js/registro.js`. New people stay pending until the board approves them; CSV with `;` for Spanish-language Excel.
+- **Languages:** `js/idioma.js` translates the interface into English and Chinese with the **ES · EN · 中文** buttons, without reloading. Messages to guardians (SMS/ntfy) and the CSV stay in Spanish, the language of the riverbank.
+- **Accessibility:** **Aa** button (large text and high contrast) and 🔊 button to read the alert aloud, in the chosen language.
+
+### 📁 Structure
+```
+index.html        main app (map, index, alert, wall)
+guardian.html     the guardian’s phone screen
+js/datos.js       neighborhoods, sample guardians, risk index
+js/lluvia.js      Watch: Open-Meteo (rain) + GloFAS (discharge)
+js/mapa.js        MapLibre + countdown along the channel
+js/cauce-pirai.js the Piraí channel (OSM)
+js/oido.js        river ear (microphone)
+js/pared.js       water on your wall (camera)
+js/canal.js       ntfy.sh + BroadcastChannel
+js/registro.js    people register, board approval, CSV
+js/historico.js   real flood of 12–13 Dec 2025 (open data)
+js/idioma.js      interface in Spanish, English and Chinese
+sw.js             works offline (PWA)
+herramientas/validar.py  redoes the validation with Open-Meteo
+pruebas.mjs       17 tests (index, 2025 flood, times, channel, PWA, CSV, languages)
+```
+
+### 🚀 Run it
+```bash
+python3 -m http.server 8765    # http://localhost:8765/?jurado&lang=en
+node pruebas.mjs               # 17 tests ok
+python3 herramientas/validar.py  # 2025 flood + 42 years of GloFAS
+```
+- Camera and microphone need HTTPS or localhost.
+- `?x=60` changes the time speed-up (×300 by default in `?jurado`). `?lang=en` or `?lang=zh` opens the interface in that language.
+
+### 🗺️ What’s next
+- [ ] Calibrate times and heights with **SEARPI** and **COED**.
+- [ ] Test the ntfy channel with 2 real phones and our own ntfy server.
+- [ ] Alerts in **LSB (Bolivian Sign Language) video** and audio in **Quechua and Guaraní** recorded by native speakers.
+- [x] Registration of people and approval by the neighborhood board.
+- [x] Works offline + SMS/call backup.
+- [x] Interface in Spanish, English and Chinese.
+- [ ] Network of upstream watchers with the board (Bermejo, Espejos river) and a test during the rainy season.
+- [ ] High-resolution satellite rain data (GPM IMERG) for local storms.
+
+### 🧭 Honesty
+- Distances, speeds and heights are **estimates** until they are calibrated with official data.
+- With open data alone, El Río Suena **would not have warned** of the 13 Dec 2025 flood (see *Validation*). The ~4 h head start with watchers is an estimate with a hypothetical report time.
+- The system **complements** official stations; it doesn’t replace them. Acoustic detection is a prototype, although acoustic flood monitoring is being studied in research.
+- The people in the demo are fictional. The public ntfy topic is only for the demo.
+
+### 👥 Team Birria TECH
+Sergio (development) · José Miguel Salinas (pitch, documentation and debugging) · Rodrigo Camacho (testing) · Deron Zuñiga (programming)
+
+**License:** [MIT](LICENSE) · **Data:** Open-Meteo (forecast and Flood API/GloFAS) · © OpenStreetMap contributors · OpenFreeMap.
+
+</details>
+
+## 🇨🇳 中文
+
+<details>
+<summary><img src="capturas/zh/banner.svg" alt="El Río Suena — 河水作响，必有石来" width="100%"><br><b>▶ 展开完整中文文档</b> · 在本页直接展开，无需刷新</summary>
+
+> **河水作响，必有石来。**
+> **我们的目标：** 不让皮拉伊河（Piraí）沿岸的任何一个家庭，等到洪水已经到了门口才知道。“河水作响”（El Río Suena）告诉**每个社区还剩多少分钟**，告诉**每位邻居该去接谁**。它使用开放数据、上游观察员和人们已有的手机，并且**可以离线运行**。
+
+<p align="center">
+  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh"><img src="https://img.shields.io/badge/▶_在线演示-评委模式-5ee6f0?style=for-the-badge" alt="在线演示"></a>
+  <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
+  <img src="https://img.shields.io/badge/无后端-GitHub_Pages-222?style=for-the-badge&logo=github" alt="无后端">
+  <img src="https://img.shields.io/badge/测试-17_通过-2ea043?style=for-the-badge" alt="17 项测试通过">
+</p>
+
+![完整演练：暴雨、警报、倒计时与全员安全](capturas/zh/simulacro.gif)
+
+**▶ 在线演示：** https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh。点击 **开始演练**：在 `?jurado` 模式下时间加速 300 倍。顶部的 **ES · EN · 中文** 按钮可直接切换界面语言，无需刷新。
+**📱 守护者手机：** 点击「守护者手机」→ 扫描二维码（`guardian.html?t=<主题>&p=rosa`）。
+
+Abstracthon 2026 · **Birria TECH** 团队 · **科技助力**赛道（要求融合两个或更多赛道）。本项目位于以下两者的交汇处：
+- **沟通：** 改变河岸社区获取信息、彼此联系和协同行动的方式。包括各社区倒计时、邻居报告，以及一键确认的「邻居守护者」。
+- **教育：** 教人们读懂风险：水尺读数（点击 3 次）、墙上的水位，以及用通俗语言解释的 0–100 风险指数。
+
+🎥 **备用视频（离线可看）：** [capturas/zh/demo-respaldo.mp4](capturas/zh/demo-respaldo.mp4) · 也可在 [v1.0-abstracthon 发布版](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon)中找到（西班牙语）。
+
+---
+
+### 😟 问题
+**2025 年 12 月 13 日**凌晨，皮拉伊河在 **El Torno** 决堤：至少 **20 人遇难**、数十人失踪（[France 24/AFP](https://www.france24.com/es/minuto-a-minuto/20251215-al-menos-20-muertos-y-decenas-de-desaparecidos-por-el-desborde-de-un-r%C3%ADo-en-bolivia)），11 个社区约 **600 户家庭受灾**（[El País](https://elpais.bo/nacional/20251217_hay-cerca-de-600-familias-afectadas-en-el-torno.html)），当地宣布进入**省级灾难状态**。这是自 1983 年那场山洪以来 42 年中最大的一次洪灾（[El Deber](https://eldeber.com.bo/santa-cruz/declaran-desastre-riada-historica-pirai-deja-20-muertos_1765881778)、[维基百科](https://es.wikipedia.org/wiki/Turbi%C3%B3n_del_r%C3%ADo_Pira%C3%AD_de_1983)）。几天后，El Torno 市长统计的官方数字为 **26 人遇难，18 个社区至少 1,300 户家庭受灾**（[El Deber，经 eju.tv](https://eju.tv/?p=4852511)）。而且不只是皮拉伊河：2024-25 雨季，降雨使**玻利维亚超过 18.6 万户家庭**受灾，42 人遇难（[El País](https://elpais.bo/nacional/20250313_registran-42-fallecidos-por-las-lluvias-en-bolivia.html)）。随着 2026-27 年厄尔尼诺到来，悲剧可能重演。目前：
+
+- 警报**按颜色等级发布，覆盖整个省**。没有任何一条警报告诉某个具体街区**还剩多少时间**。
+- 许多家庭**不撤离，是因为不相信**洪水会淹到自己家。
+- 老人、轮椅使用者、听障者和独自在家的孩子，只能指望**有人记得他们**。
+
+### 🎯 为谁设计？
+| 对象 | 获得什么 |
+|---|---|
+| 🏠 **河岸家庭**（El Torno、Jorochito、Porongo、Urubó、Portachuelo） | **自己社区**的倒计时，并能看到洪水**在自家墙上**会涨到多高 |
+| ♿ **无法独自撤离的人**：老人、轮椅使用者、听障者、独自在家的孩子、说克丘亚语的人 | 一位指定的**邻居守护者**；若无人确认，则转交官方救援 |
+| 🙋 **守护者**（邻居） | 锁屏时也会响铃的警报，**一键**确认（无网络时可用短信或电话） |
+| 👀 **上游观察员**（Bermejo、Espejos 河） | 点两下就能报告「河水涨了」；他们能看到卫星看不到的情况 |
+| 🏛️ **采用方**：社区委员会、市政府（风险管理单位 UGR）、省政府应急行动中心（COED）、SEARPI | 一个**实时面板**，显示还有谁未确认，可导出 CSV 或打印 |
+
+### 💡 解决方案：4 个部分
+
+| | 部分 | 作用 |
+|---|---|---|
+| 🛰️ | **皮拉伊河守望** | 每 10 分钟检查上游流域 5 个点的降雨（Open-Meteo）、La Angostura 的 GloFAS 流量，以及**上游观察员**的报告，据此计算 **0 到 100 的风险指数**。三个来源中任意一个都能触发警报（2 名观察员即可）。 |
+| ⏱️ | **各社区倒计时** | 沿真实河道（OSM）测量距离，显示例如「洪水 **2 小时 20 分钟**后到达 El Torno」这样的提示。 |
+| 📷 | **墙上的水位** | 用摄像头对准自家房子，应用会画出洪水会涨到多高。没有摄像头时，就画在一面示意墙上。 |
+| 🤝 | **邻居守护者** | 每位弱势人员都有一位指定邻居。出现警报时，守护者的手机会响铃并振动，守护者一键确认。**若在洪水到达前 30 分钟仍无人确认，则转交官方救援。** |
+
+**可选功能：** *河之耳*。放在河岸边的手机监听河水的低频轰鸣（20–300 Hz）。
+
+#### 为什么有效？2 小时 30 分钟的提前量
+落在上游流域（Samaipata、Bermejo、Cuevas……）的雨水，大约需要 **2 小时 30 分钟**才流到 La Angostura。只要盯住**下雨的地方**，而不是等河水已经涨起来，就能赢得这段撤离时间。
+
+### 🔬 用 2025 年 12 月 13 日的真实洪灾验证
+在信任这个指数之前，我们先用悲剧发生的那一夜来检验它（[`herramientas/validar.py`](herramientas/validar.py)，以及应用中的 **「能否预警真实洪灾？」** 按钮）：
+
+| 开放数据源 | 12 日 06:00 → 13 日 07:00 在皮拉伊河上游流域看到的情况 |
+|---|---|
+| Open-Meteo best_match | 共 20 毫米，最大 3 毫米/小时 |
+| ECMWF IFS | 26 毫米，最大 2 毫米/小时 |
+| DWD ICON | 1 毫米 |
+| NOAA GFS | 18 毫米，最大 3 毫米/小时 |
+| La Angostura 的 GloFAS 流量 | **没有上升**（12 → 12 → 12 m³/s） |
+
+![2025 年 12 月 13 日洪灾：模型看到的降雨，以及有无观察员时的风险](capturas/zh/riada-2025.png)
+
+**没有任何全球模型捕捉到 Amboró 的暴雨。** 仅靠开放数据，指数从未超过 **2/100**：“河水作响”**本来无法预警**。我们直说出来，因为它改变了设计：
+
+- 现在，**2 名上游观察员**（Bermejo、Espejos 河）报告「河水涨了」就能**单独触发警报**。按照应用的模型（快速洪水、保守情形），这本可以在 El Torno 决堤前提供**约 4 小时的预警**。*报告时间是假设的：我们不知道邻居会在什么时候看到。*
+- 我们还用 **42 年的 GloFAS 数据**（1984–2026：中位数 11 m³/s，p95 35 m³/s）调整了流量阈值。之前用的是 2024–2026 年的数据（p95 17），导致了误报。
+- **教训：** 全球模型适用于大范围暴雨；Amboró 的局地暴雨要靠**人**来发现。所以系统结合了开放数据、观察员、水尺和河之耳。
+
+### 🆚 有何不同？
+| | **按社区、以分钟**预警 | 能发现**局地**暴雨 | 帮助**无法撤离的人** | **离线** | 家庭费用 |
+|---|:---:|:---:|:---:|:---:|:---:|
+| 官方颜色警报（省级） | ❌ | 取决于监测站 | ❌ | 广播/电视 | 0 |
+| 全球洪水预报（GloFAS、Google Flood Hub） | ❌（按河段） | ❌（见上文） | ❌ | ❌ | 0 |
+| 社区 WhatsApp 群 | 有时 | 要看有没有人提醒 | 要看有没有人记得 | ❌ | 0 |
+| 警报器 | ❌ | ❌ | ❌（听障者听不到） | ✅ | 高（安装费） |
+| **El Río Suena** | ✅ | ✅ 观察员 + 水尺 + 河之耳 | ✅ 守护者 + T−30 转交救援 | ✅ 已安装应用 + 短信 | **0** |
+
+### 🧰 为什么选这些技术？
+| 技术 | 原因 |
+|---|---|
+| **静态网页 + PWA**（GitHub Pages、Service Worker） | 用链接或二维码即可打开，无需应用商店即可安装，并且**可离线运行**。不存在会在洪水中宕机的服务器 |
+| **Open-Meteo**（降雨）和 **GloFAS**（流量） | 免费、无需密钥，有历史数据可供验证。适用于大范围暴雨 |
+| **观察员 + 水尺** | 弥补模型看不到的情况（2025 年洪灾）。只需要一部普通手机和一点油漆 |
+| **ntfy**（开源推送） | 锁屏时也会响，无需注册账号。可以部署在市政府自己的服务器上 |
+| **短信 / 电话** | 网络中断时的备用手段，使用手机套餐 |
+| **MapLibre + OpenStreetMap** | 开放地图，带有皮拉伊河的真实河道；看过的瓦片会被保存 |
+| **Web Audio / 摄像头** | 河之耳和墙上水位都在手机本地运行，不向任何人发送音频或视频 |
+
+### 🏗️ 如何落地
+| 阶段 | 内容 | 负责方 | 估算成本 |
+|---|---|---|---|
+| **0 · 现在** | 可运行的原型，已用 2025 年洪灾验证 | Birria TECH | 0 |
+| **1 · 试点**（12 月–3 月雨季） | El Torno：1 个社区委员会、**10 名上游观察员**、桥上 **5 根水尺**、约 50 名登记人员、自建 ntfy 服务器。与 SEARPI 和 COED 校准时间与水深 | 社区委员会 + El Torno UGR + SEARPI | 约 1,500 玻利维亚诺（油漆、4 个月 VPS、培训） |
+| **2 · 整条皮拉伊河** | Porongo、圣克鲁斯（河岸）、Urubó、Portachuelo；COED 面板 | 省政府（COED） | 按河段订阅 |
+| **3 · 全国** | Río Grande、Mamoré（贝尼）、Rocha（科恰班巴）、拉巴斯的河流：只需更换河道、流域观测点和社区 | 各市政府 + 民防副部 | 同上 |
+
+**对家庭永远免费。** 成本为团队估算，并非报价。
+
+#### 🇧🇴 为什么适用于全国？
+- **没有任何部分是皮拉伊河专属的：** 河道、上游 5 个降雨点、社区以及洪水行进时间都是**配置数据**（`js/datos.js`）。换一条河只需更换这些数据；应用、守护者和面板保持不变。
+- **开放数据覆盖整个玻利维亚：** Open-Meteo（降雨）和 GloFAS（流量）覆盖全球，无需协议或传感器。
+- **人员网络早已遍布全国：** 社区委员会、基层组织（OTB）和市级风险管理单位。“河水作响”为他们提供工具，而不是新建一套组织。
+- **边际成本几乎为零：** 每条新河流只需一份配置和约 1,500 玻利维亚诺的试点；推送服务器可以共用。
+
+#### 🗄️ 后端：社区委员会共享名册（Supabase）
+- 在**任意手机**上登记的人员会进入其社区的共享名册；指挥中心和委员会**约 2 秒**即可看到（ntfy 通知 + 每 30 秒刷新）。
+- 委员会用**密钥**登录面板（演示：社区 `demo`，密钥 `1312`），审批后此人即开始接收警报。每位已审批人员都有一个**守护者二维码**。
+- **隐私：** 公开密钥无法读取数据表（RLS 不设任何策略）。所有操作都通过函数（`rs_registrar`、`rs_listar`、`rs_aprobar`、`rs_quitar`）完成，这些函数会校验数据，查看或审批都需要委员会密钥。密钥以 bcrypt 存储。
+- **离线时**先保存在手机上，网络恢复后自动发送；指挥中心保留最近一次副本。
+- 完整数据库结构：[`supabase/esquema.sql`](supabase/esquema.sql)。已端到端测试：手机登记 → 1.3 秒后出现在指挥中心 → 审批 → 守护者二维码 → 警报 → 0:03 后收到「安全」回复。
+
+### 📈 影响与衡量方式
+- **预警时间：** 有观察员时，在 2025 年洪灾中约比决堤早 4 小时（假设）；模型看到降雨时为 **2 小时 30 分钟**。
+- **不落下一个人：** 在洪水到达前得到确认的登记人员比例（试点目标：**100%**，其余在 T−30 分钟转交救援）。
+- **余量：** 从确认到洪水到达的平均分钟数（「全员安全」页面会计算）。
+- **误报：** 每个雨季无洪水的警报次数（试点中与 SEARPI 一起统计）。
+- **家庭费用：** 0 玻利维亚诺。
+- **守护者真实响应时间：** 指挥中心实时显示（「安全 · 预警后 1:39」）。2026 年 11 月 21 日用 2 部真机测试（安卓 + iPhone）：两部手机都收到警报并回传确认。
+- **规模：** 仅 El Torno 一地在 2025 年就有 ≥1,300 户受灾家庭；试点目标是先登记 1 个社区中无法独自撤离的人，再扩展到全部 18 个社区。
+
+### 🎬 1 分钟演示（评委脚本）
+1. 打开 `?jurado&lang=zh` → **开始演练**：暴雨降在上游流域。
+2. 指数超过 55 → **警报**，每个河岸社区显示各自的倒计时。
+3. 守护者手机（二维码）响起 → 点击 **「我已帮她撤离 ✓」**。
+4. 所有守护者确认后 → 出现 **「全员安全」** 页面，显示人数、余量和费用。
+5. **能否预警 2025 年 12 月 13 日的真实洪灾？** → 那一夜逐小时的图表。
+6. **社区委员会 / COED 面板** → 谁还未确认；导出 CSV 或打印。**登记人员** → 委员会审批。
+7. 没有 Wi-Fi 时：应用依然能打开（已安装），每个人旁边都能一键给守护者发短信或打电话。
+
+| 📱 守护者的手机响了 | 🧱 墙上的水位上涨 |
+|:---:|:---:|
+| <img src="capturas/zh/guardian.gif" width="280" alt="守护者收到警报并确认"> | <img src="capturas/zh/pared.gif" width="280" alt="墙上的水位"> |
+
+<details><summary>📸 静态截图</summary>
+
+| 警报 | 守护者 | 全员安全 |
+|---|---|---|
+| ![警报](capturas/zh/escritorio-alerta.png) | ![守护者](capturas/zh/escritorio-guardianes.png) | ![全员安全](capturas/zh/escritorio-exito.png) |
+</details>
+
+### ⚙️ 工作原理
+
+```mermaid
+flowchart LR
+  A[上游流域降雨<br/>Open-Meteo ×5] --> I{风险指数<br/>0–100}
+  B[GloFAS 流量<br/>La Angostura] --> I
+  V[上游观察员<br/>2 条报告] --> I
+  C[河岸：报告<br/>+ 水尺] --> I
+  D[河之耳<br/>可选] -.-> I
+  I -- "≥ 55" --> E[警报 + 各社区<br/>倒计时]
+  E --> F[邻居守护者<br/>ntfy.sh]
+  F -. 无网络 .-> S[短信 / 电话]
+  S --> G
+  F -- 确认 --> G[全员安全]
+  F -- T−30 分钟仍未确认 --> H[官方救援]
+```
+
+- **静态网页，无后端：** 发布在 GitHub Pages 上，任何手机都能打开。
+- **地图：** MapLibre + OpenFreeMap，皮拉伊河的真实河道取自 OpenStreetMap。
+- **指数：** `js/datos.js` 中的 `indiceRiesgo`。三个来源可以触发警报：降雨、流量和 **2 名上游观察员**。仅有河岸报告**不会**触发警报，只会让该区域进入关注状态（以避免误报）。
+- **音频：** Web Audio，FFT 为 4096 个样本。将 20–300 Hz 的能量与基线比较，若持续升高 1.5 秒即发出提醒。
+- **守护者通道：** ntfy.sh（发布/订阅，也会推送到 ntfy 应用），以 BroadcastChannel 作为备用。
+- **离线（PWA）：** `sw.js` 保存应用、最近一次扫描和看过的地图；可从浏览器安装。守护者有短信和电话作为备用。**演示不会中断。**
+- **登记与面板：** `js/registro.js`。新登记的人员需等委员会审批；CSV 使用 `;` 分隔，方便西班牙语版 Excel 打开。
+- **语言：** `js/idioma.js` 通过 **ES · EN · 中文** 按钮把界面翻译成英文和中文，无需刷新。发给守护者的消息（短信/ntfy）和 CSV 保持西班牙语，即河岸居民使用的语言。
+- **无障碍：** **Aa** 按钮（大字与高对比度）和 🔊 按钮（用所选语言朗读警报）。
+
+### 📁 目录结构
+```
+index.html        主应用（地图、指数、警报、墙面）
+guardian.html     守护者手机页面
+js/datos.js       社区、示例守护者、风险指数
+js/lluvia.js      守望：Open-Meteo（降雨）+ GloFAS（流量）
+js/mapa.js        MapLibre + 沿河道的倒计时
+js/cauce-pirai.js 皮拉伊河河道（OSM）
+js/oido.js        河之耳（麦克风）
+js/pared.js       墙上的水位（摄像头）
+js/canal.js       ntfy.sh + BroadcastChannel
+js/registro.js    人员登记、委员会审批、CSV
+js/historico.js   2025 年 12 月 12–13 日真实洪灾（开放数据）
+js/idioma.js      西班牙语、英语、中文界面
+sw.js             离线运行（PWA）
+herramientas/validar.py  用 Open-Meteo 重新验证
+pruebas.mjs       17 项测试（指数、2025 洪灾、时间、通道、PWA、CSV、语言）
+```
+
+### 🚀 运行
+```bash
+python3 -m http.server 8765    # http://localhost:8765/?jurado&lang=zh
+node pruebas.mjs               # 17 项测试通过
+python3 herramientas/validar.py  # 2025 年洪灾 + 42 年 GloFAS 数据
+```
+- 摄像头和麦克风需要 HTTPS 或 localhost。
+- `?x=60` 可改变时间加速倍数（`?jurado` 默认 ×300）。`?lang=en` 或 `?lang=zh` 以对应语言打开界面。
+
+### 🗺️ 下一步
+- [ ] 与 **SEARPI** 和 **COED** 校准时间与水深。
+- [ ] 用 2 部真机和自建 ntfy 服务器测试 ntfy 通道。
+- [ ] 提供**玻利维亚手语（LSB）视频**警报，以及由母语者录制的**克丘亚语和瓜拉尼语**音频。
+- [x] 人员登记与社区委员会审批。
+- [x] 离线运行 + 短信/电话备用。
+- [x] 西班牙语、英语、中文界面。
+- [ ] 与委员会共建上游观察员网络（Bermejo、Espejos 河），并在雨季测试。
+- [ ] 针对局地暴雨引入高分辨率卫星降雨数据（GPM IMERG）。
+
+### 🧭 坦诚说明
+- 距离、流速和水深在与官方数据校准之前都是**估算值**。
+- 仅靠开放数据，“河水作响”**本来无法预警** 2025 年 12 月 13 日的洪灾（见*验证*）。有观察员时约 4 小时的提前量是基于假设报告时间的估算。
+- 本系统**补充**官方监测站，而不是取代它们。声学检测是原型，不过洪水声学监测确实是正在研究的方向。
+- 演示中的人物均为虚构。公共 ntfy 主题仅用于演示。
+
+### 👥 Birria TECH 团队
+Sergio（开发）· José Miguel Salinas（路演、文档与调试）· Rodrigo Camacho（测试）· Deron Zuñiga（编程）
+
+**许可证：** [MIT](LICENSE) · **数据：** Open-Meteo（预报与 Flood API/GloFAS）· © OpenStreetMap 贡献者 · OpenFreeMap。
+
+</details>
+
+## 🇧🇴 Guaraní
+
+<details>
+<summary><img src="capturas/gn/banner.svg" alt="El Río Suena — Ysyry osapukái jave, ita ogueru" width="100%"><br><b>▶ Embojuruja ñe’ẽ guaraníme</b> · ojepe’a ko’ápe voi, ndoikotevẽi ojeguerujey</summary>
+
+> ⚠️ **Borrador para revisión.** Texto inicial escrito por el equipo con apoyo de herramientas, en un guaraní cercano al estándar. Antes de usarlo con la comunidad, debe revisarlo y adaptarlo un hablante de **guaraní boliviano** (ava, simba o isoseño). La interfaz de la app sigue en castellano.
+
+### Mba’épa kóva?
+**El Río Suena** (*Ysyry osapukái*) ha’e peteĩ tembiporu omomarandu hag̃ua umi tapicha oikóvape **Piraí ysyry rembe’ýpe**. He’i peteĩteĩ barrio-pe **mboy aravo’ípa hembýve** y og̃uahẽ mboyve, ha he’i peteĩteĩ vecino-pe **máva rehepa oho va’erã**. Omba’apo avei **internet’ỹre**.
+
+### Mba’ére?
+2025-pe, jasypakõi 13 pyharevépe, Piraí ysyry osẽ **El Torno**-pe: **26 tapicha omano** ha **1.300 rogaygua** ohasa asy 18 tekohápe. Ko’ág̃a umi ñemomarandu ou color-pe ha opa departamento-pe g̃uarã: avave ndohe’ái peteĩ barrio-pe mboy aravo oguerekópa.
+
+### Mba’épa ojapo?
+1. **Omaña ama oky hápe**, ysyry yvate gotyo: upe ama og̃uahẽ La Angostura-pe **2 aravo 30 aravo’i** rire. Upéva ha’e pe ára jajeguerekóva jasẽ hag̃ua.
+2. **Ombohasa peteĩteĩ barrio-pe** mboy aravo’ípa hembýve: «y og̃uahẽta El Torno-pe 2 aravo 20 aravo’ípe».
+3. **Ohechauka nde óga korapýpe** mamo pevépa y ojupíta.
+4. **Ñangarekoha vecino:** umi tapicha ndaikatúiva osẽ ijehegui oguereko peteĩ vecino ombohapéva. Ipumbyry osapukái, ha ojopy peteĩ jey «aipytyvõma». Avave ndohechaukáiramo 30 aravo’i y og̃uahẽ mboyve, ohasa **rescate oficial**-pe.
+
+### Mba’éichapa ojeporu (demo)
+1. Eipe’a https://neckhurtttt.github.io/el-rio-suena/?jurado ha ejopy **Iniciar simulacro**.
+2. Ehecha mboy aravo’ípa hembýve peteĩteĩ barrio-pe.
+3. Pumbyry ñangarekoha mba’e osapukái → ejopy **«Ya la ayudé ✓»**.
+4. Opavave oĩma porã rire → **«Todos a salvo»**.
+
+![Simulacro (interfaz en castellano)](capturas/simulacro.gif)
+
+### Añetegua
+Umi aravo ha y ijyvatekue ojekuaa’ỹmi gueteri; oñemohenda va’erã **SEARPI** ha **COED** ndive. Ko tembiporu oipytyvõ umi ñemomarandu oficial-pe, nombyekovia’i chupekuéra. Ñe’ẽ guaraníme oñembohasa va’erã guaraní ñe’ẽhára ndive.
+
+</details>
+
+## 🇧🇴 Runasimi (quechua)
+
+<details>
+<summary><img src="capturas/qu/banner.svg" alt="El Río Suena — Mayu qhapariqtinqa, rumita apamun" width="100%"><br><b>▶ Runasimipi qillqata kichay</b> · kaypi kichakun, mana watiqmanta kargakunchu</summary>
+
+> ⚠️ **Borrador para revisión.** Texto inicial escrito por el equipo con apoyo de herramientas. Antes de usarlo con la comunidad, debe revisarlo y adaptarlo un hablante de **quechua del sur de Bolivia** (qhichwa). La interfaz de la app sigue en castellano; los audios en quechua se grabarán con hablantes (ver *Lo que sigue*).
+
+### Imataq kay?
+**El Río Suena** (*Mayu qhaparin*) nisqaqa **Piraí mayu patapi** tiyaq runakunata willanapaq. Sapa barriota willan **hayk’a minutullaña** unu chayamunankama, sapa vecinotataq willan **pita pusamunanta**. **Internet mana kaqtinpas** llamk’an.
+
+### Imarayku?
+2025 watapi, diciembre killaq 13 p’unchawninpi, tutamanta, Piraí mayu **El Tornopi** lluqsirqa: **26 runakuna wañurqanku**, 18 llaqtakunapitaq **1.300 familiakuna** ñak’arirqanku. Kunanqa willakuykuna colorkunallawan, tukuy departamentopaq hamun: manan pipas sapa barriota willanchu hayk’a pachallaña kasqanta.
+
+### Imatataq ruwan?
+1. **Para urmasqanta qhawan** mayu wichaypi: chay paraqa La Angosturaman **2 hora 30 minutupi** chayan. Chay pachallataq ayqinapaq kanchik.
+2. **Sapa barriopaq minutukunata yupan:** «unuqa El Tornoman 2 hora 20 minutupi chayamunqa».
+3. **Wasiykiq perqanpi rikuchin** unu hayk’akama wicharinanta.
+4. **Amachaq vecino:** mana sapallan lluqsiyta atiq runaqa huk vecinoyuq. Celularnin waqan, huk ñit’iyllawan «yanapaniña» nin. Mana pipas willaqtinqa, unu chayamunanmanta 30 minutu ñawpaqta, **rescate oficialman** pasan.
+
+### Imaynata llamk’achina (demo)
+1. https://neckhurtttt.github.io/el-rio-suena/?jurado kichay, **Iniciar simulacro** ñit’iy.
+2. Sapa barriopaq minutukunata qhaway.
+3. Amachaqpa celularnin waqan → **«Ya la ayudé ✓»** ñit’iy.
+4. Llapanku allinña kaqtinku → **«Todos a salvo»**.
+
+![Simulacro (interfaz en castellano)](capturas/simulacro.gif)
+
+### Sut’inta
+Pachakuna, unuq hatun kayninpas yuyaychasqallaraq kanku; **SEARPI**, **COED**-wan allinchanayku tiyan. Kay llamk’anaqa oficial willakuykunata yanapan, manan paykunaq rantinchu. Runasimipi willakuykunataqa runasimi rimaqkunawan ruwasaqku.
+
+</details>
+
+## 🇧🇴 Ayoreo
+
+<details>
+<summary><b>▶ Ayoreo: sección en preparación con hablantes</b> · Ayoreo: section being prepared with native speakers</summary>
+
+> **¿Por qué esta sección no tiene todavía texto en ayoreo?** El ayoreo es una lengua de la familia zamuco que hablan unas pocas miles de personas en Bolivia y Paraguay. No hay herramientas ni materiales que permitan traducirlo con fiabilidad, y publicar un texto inventado sería engañoso e irrespetuoso con el pueblo ayoreo. Esta sección se completará **junto a hablantes ayoreo**, por ejemplo con apoyo de la Central Ayorea Nativa del Oriente Boliviano (CANOB), y se grabará también en audio.
+>
+> *Ayoreo is a Zamucoan language spoken by a few thousand people in Bolivia and Paraguay. There are no reliable tools to translate it, so instead of publishing an invented text, this section will be written together with Ayoreo speakers.*
+
+**Texto base para la persona que traduzca** (castellano en lectura fácil, frases cortas):
+
+1. El Río Suena avisa cuando el río Piraí va a crecer.
+2. Te dice cuántos minutos faltan para que el agua llegue a tu barrio.
+3. Muestra en la pared de tu casa hasta dónde subiría el agua.
+4. Cada persona que no puede salir sola tiene un vecino que la ayuda.
+5. El celular del vecino suena. El vecino la lleva al lugar seguro y toca «Ya la ayudé».
+6. Si nadie responde, va el rescate oficial.
+7. Funciona sin internet. Es gratis para las familias.
+
+**Cómo aportar la traducción:** abrir un *issue* o un *pull request* con el texto en ayoreo de los 7 puntos y el nombre de la persona o comunidad que tradujo, para darle el crédito.
+
+</details>
