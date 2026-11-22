@@ -111,7 +111,7 @@ No se identificaron encuestas públicas sobre percepción del riesgo o recepció
 | **Vigía del Piraí** | Cada diez minutos consulta la precipitación en cinco puntos de la cuenca alta (Open-Meteo), el caudal GloFAS en La Angostura y los reportes de **vigías río arriba**, y calcula un **índice de riesgo de 0 a 100**. Cualquiera de las tres fuentes puede activar la alerta; dos reportes de vigías son suficientes. Además lee cada día hábil el **boletín hidrológico oficial de SENAMHI** (`herramientas/senamhi.py`, GitHub Action): con amenaza amarilla o naranja la zona pasa a vigilancia y con roja a alerta, de modo que la aplicación nunca contradice el aviso oficial. |
 | **Cuenta regresiva por barrio** | Calcula la distancia sobre el cauce real del río (OpenStreetMap) y muestra avisos como «el agua llega a El Torno en **2 h 20 min**». |
 | **El agua en su pared** | Con la cámara del teléfono, dibuja sobre la vivienda la altura que alcanzaría el agua. Sin cámara, la muestra sobre una pared ilustrada. |
-| **Vecino guardián** | Cada persona vulnerable tiene un vecino asignado. Ante una alerta, el teléfono del guardián suena y vibra, y este confirma el traslado con un toque. **Si no hay confirmación 30 minutos antes de la llegada del agua, el caso se deriva al rescate oficial.** |
+| **Vecinos Ayudantes** | Cada persona vulnerable tiene un vecino asignado. Ante una alerta, el teléfono del ayudante suena y vibra; la central sigue cada caso por **chat** («en camino», «ya estamos a salvo») y confirma la evacuación. **Si no hay confirmación 30 minutos antes de la llegada del agua, el caso se deriva al rescate oficial** (el chat sigue abierto). |
 | **Aplicación para el celular** | `guardian.html` se instala como aplicación desde el navegador («Instalar como app», sin tienda), recuerda la comunidad de cada vecino, funciona sin internet y, con la aplicación gratuita ntfy, suena aunque el teléfono esté bloqueado. Quien no desea ser guardián puede entrar solo a mirar el río de su barrio. |
 | **Registro compartido** | La junta vecinal registra, aprueba y supervisa a las personas desde cualquier dispositivo, con acceso protegido por clave (ver *Backend*). |
 
@@ -206,11 +206,11 @@ Antes de adoptar el índice, se evaluó su comportamiento con los datos de la no
 
 1. Abrir `?jurado` y presionar **Iniciar simulacro**: se simula una tormenta en la cuenca alta.
 2. El índice supera 55, se emite la **alerta** y cada barrio muestra su cuenta regresiva.
-3. El teléfono del guardián (código QR **Sé guardián**) suena; el guardián presiona **«Listo, a salvo»** y la central muestra el tiempo de respuesta.
-4. Cuando todos los guardianes confirman, aparece la pantalla de cierre con las personas trasladadas, el margen y el costo.
+3. El teléfono del ayudante (código QR **Sé ayudante**) suena. En **Vecinos Ayudantes** se abre el chat de cada caso: el ayudante avisa que va en camino, la central le escribe y él confirma que ya están a salvo; entonces se presiona **Confirmar evacuación** (o el ayudante toca **«Listo, a salvo»** en su celular).
+4. Un caso sin confirmación a T−30 pasa a **«al rescate»** y se avisa al rescate oficial. Cuando todos están confirmados, aparece la pantalla de cierre con las personas trasladadas, el margen y el costo.
 5. **«¿Habría avisado la riada real del 13/12/2025?»** muestra la gráfica de esa noche, hora por hora.
 6. **Panel de la junta**: se ingresa la clave `1312`; las personas registradas desde otro teléfono aparecen en vivo y pueden aprobarse o exportarse a CSV.
-7. Sin conexión, la aplicación instalada sigue abriendo y desde cada persona se puede enviar un SMS o llamar al guardián.
+7. Sin conexión, la aplicación instalada sigue abriendo y desde el chat de cada persona se puede enviar un SMS o llamar al ayudante.
 
 | Teléfono del guardián | Nivel del agua sobre la vivienda |
 |:---:|:---:|

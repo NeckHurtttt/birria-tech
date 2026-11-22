@@ -497,6 +497,7 @@ const P = [
   [/^(.+): al rescate oficial$/, (l, m) => l === 'zh' ? `${m[1]}：转交官方救援` : `${m[1]}: handed to official rescue`],
   [/^Sin confirmación a 30 min del agua$/, (l) => l === 'zh' ? '距洪水到达 30 分钟仍未确认' : 'No confirmation 30 min before the water'],
   [/^(.+) pasa al rescate oficial\.$/, (l, m) => l === 'zh' ? `${m[1]} 转交官方救援。` : `${m[1]} is handed to official rescue.`],
+  [/^↓ (\d+) más$/, (l, m) => l === 'zh' ? `↓ 还有 ${m[1]} 个` : `↓ ${m[1]} more`],
   [/^Cuadra (\d+)$/, (l, m) => l === 'zh' ? `第 ${m[1]} 街区` : `Block ${m[1]}`],
 ];
 

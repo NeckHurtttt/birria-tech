@@ -1,6 +1,6 @@
 # El Río Suena — Discurso del pitch
 
-> **Duración:** 2 min 55 s (3 minutos de exposición; deja 5 s de margen) · **Modalidad:** virtual, con pantalla compartida · **Participan:** quien expone, quien opera la demostración y un teléfono de guardián visible en cámara.
+> **Duración:** 2 min 55 s (3 minutos de exposición; deja 5 s de margen) · **Modalidad:** virtual, con pantalla compartida · **Participan:** quien expone, quien opera la demostración y un teléfono de ayudante visible en cámara.
 > *Las indicaciones en cursiva no se leen en voz alta.* En el PPTX, las notas del orador siguen este guion; saltar las diapositivas 4, 5, 9, 12 y 14 (quedan de respaldo para las preguntas). Cada bloque indica el criterio de evaluación que atiende.
 
 ---
@@ -29,9 +29,9 @@ Pero río arriba, en Bermejo, **los vecinos sí veían crecer el río.** Con dos
 
 ## III. La solución · 0:40 – 1:55 · *funcionamiento, creatividad, propuesta*
 
-*(Presionar «Sé guardián» y mostrar el QR cinco segundos.)*
+*(Presionar «Sé ayudante» y mostrar el QR cinco segundos.)*
 
-Escaneen este código: ustedes serán los guardianes.
+Escaneen este código: ustedes serán los vecinos ayudantes.
 
 *(Presionar «Iniciar simulacro».)*
 
@@ -41,13 +41,13 @@ Y no dice «alerta roja»: dice **«el agua llega a El Torno en 3 horas»**, bar
 
 *(Señalar la cuenta regresiva.)*
 
-Lo más importante: **nadie queda olvidado.** Doña Rosa usa silla de ruedas y tiene un vecino guardián, Marcelo.
+Lo más importante: **nadie queda olvidado.** Quien no puede salir sola —una abuela en silla de ruedas, niños solos— tiene un vecino ayudante.
 
-*(Suena el celular del guardián. Levantarlo.)*
+*(Suena el celular del ayudante. Levantarlo. Los nombres de la demo se sortean: leer el que sale en pantalla.)*
 
-Su celular suena **aunque esté bloqueado**. La lleva al punto seguro y confirma con un toque. Si nadie confirma, el caso pasa al rescate oficial.
+Su celular suena **aunque esté bloqueado**. La central le escribe por chat y él confirma que ya están a salvo. Si 30 minutos antes del agua nadie confirmó, **el caso pasa solo al rescate oficial.**
 
-*(Presionar «Ya la ayudé». Aparece «Todos a salvo».)*
+*(Presionar «Listo, a salvo» en el celular o «Confirmar» en la central. Aparece «Todos a salvo».)*
 
 ¿Y si es una falsa alarma? **La junta la cancela con un botón** y todos los celulares lo saben al instante.
 
@@ -113,7 +113,7 @@ Esos sistemas pronostican por tramo de río o por departamento. El Río Suena av
 No: lo usamos. Cada día hábil el sistema lee solo el boletín hidrológico de Santa Cruz y toma la amenaza oficial del Piraí por tramo. Si SENAMHI marca amarilla o naranja, la aplicación pasa a vigilancia; si marca roja, alerta. Nunca dice «normal» cuando el aviso oficial dice otra cosa. Lo que SENAMHI no puede hacer es avisar casa por casa: eso lo hacen los vecinos.
 
 **«¿Hay una aplicación para el celular?»**
-Sí. Se instala desde el navegador («Instalar como app»), sin Play Store, recuerda la comunidad de cada vecino y, con la app gratuita ntfy, suena aunque la pantalla esté apagada. Quien no quiere ser guardián puede entrar solo a mirar el río de su barrio.
+Sí. Se instala desde el navegador («Instalar como app»), sin Play Store, recuerda la comunidad de cada vecino y, con la app gratuita ntfy, suena aunque la pantalla esté apagada. Quien no quiere ser ayudante puede entrar solo a mirar el río de su barrio.
 
 **«¿Y las falsas alarmas, cómo se corrigen?»**
 La junta pulsa «Falsa alarma»: a todos los celulares les llega «Alerta cancelada» en verde, la sirena se apaga y queda en el registro de alertas para ajustar los umbrales. Preferimos una falsa alarma cancelada en un minuto a una riada sin aviso.
@@ -126,7 +126,8 @@ Para las familias es gratuito. El piloto cuesta aproximadamente Bs 1.500; poster
 ## Lista de verificación previa (presentación virtual)
 
 - [ ] Compartir **la pestaña del navegador**, no toda la pantalla, y con el audio de la pestaña activado (para que se oiga la sirena)
-- [ ] Botón verde **«Sé guardián»**: mostrar el QR 10 s e invitar al jurado a escanearlo antes de lanzar el simulacro
+- [ ] Botón verde **«Sé ayudante»**: mostrar el QR 10 s e invitar al jurado a escanearlo antes de lanzar el simulacro
+- [ ] En ?jurado (×300) el primer caso sin confirmar pasa a **«al rescate»** cerca de 1 min después de la alerta: contestar rápido el chat de los casos que se quieran mostrar, o dejar uno sin responder para enseñar el rescate oficial
 - [ ] Un celular propio ya con «Activar avisos», para que se vea sonar en cámara
 - [ ] Probar la videollamada 10 min antes (micrófono, cámara, compartir)
 

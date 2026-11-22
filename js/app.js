@@ -320,7 +320,18 @@ function pintarPersonas() {
     }
     listaP.append(li);
   });
+  requestAnimationFrame(marcarMas);
 }
+// ¿quedan tarjetas debajo del borde? difumina la última y muestra «↓ N más» (tocarlo baja hasta el final)
+function marcarMas() {
+  const resto = listaP.scrollHeight - listaP.scrollTop - listaP.clientHeight, b = $('#mas-personas');
+  const ocultas = resto > 4 ? [...listaP.children].filter(li => li.offsetTop - listaP.offsetTop + li.offsetHeight / 2 > listaP.scrollTop + listaP.clientHeight).length : 0;
+  listaP.classList.toggle('hay-mas', ocultas > 0);
+  b.hidden = !ocultas; b.textContent = `↓ ${ocultas} más`;
+}
+listaP.addEventListener('scroll', marcarMas, { passive: true });
+addEventListener('resize', marcarMas);
+$('#mas-personas').onclick = () => listaP.scrollTo({ top: listaP.scrollHeight, behavior: 'smooth' });
 pintarPersonas();
 
 // ---------- respuestas en vivo (tiempo REAL, no simulado) ----------
