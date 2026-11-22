@@ -91,7 +91,7 @@ h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
 /* tarjeta compacta: [avatar] nombre · dónde [estado] / [necesidad] Ayudante: nombre */
 .personas { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .personas li { display: grid; grid-template-columns: 30px minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; padding: 8px; border-radius: var(--r-chico); background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.04); transition: background .3s; }
-.personas .av { grid-row: span 2; align-self: start; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: var(--acento-osc); color: var(--acento); font-weight: 700; font-size: 13px; }
+.personas .av { grid-row: span 2; align-self: start; width: 30px; height: 30px; }
 /* si nombre + cuadra no entran en una línea, la cuadra baja debajo del nombre (nunca se corta) */
 .personas .quien { min-width: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 8px; font-size: 13.5px; line-height: 1.3; }
 .personas .quien b { font-weight: 600; }
@@ -364,10 +364,11 @@ html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "M
 .msj .texto { font-weight: 600; font-size: 14px; line-height: 1.35; color: var(--texto); }
 .msj .hora { font: 400 11px var(--mono); color: var(--texto-2); }
 /* quién reporta: foto de perfil por defecto, silueta gris sin rostro (mujer / hombre) */
-.msj .av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: #3a434b; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
-.msj .av .silueta { width: 100%; height: 100%; stroke: none; }
-.msj .av .piel { fill: #a9b2ba; }
-.msj .av .pelo { fill: #7d8892; }
+.msj .av { width: 36px; height: 36px; }
+.msj .av, .personas .av { border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: #3a434b; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.msj .av .silueta, .personas .av .silueta { width: 100%; height: 100%; stroke: none; }
+.msj .av .piel, .personas .av .piel { fill: #a9b2ba; }
+.msj .av .pelo, .personas .av .pelo { fill: #7d8892; }
 .msj .av.sistema { background: var(--acento-osc); color: var(--acento); box-shadow: 0 0 0 2px rgba(91,231,240,.45); }
 .msj .av.sistema svg { width: 20px; height: 20px; }
 .msj .cuerpo { display: grid; gap: 3px; min-width: 0; }

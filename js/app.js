@@ -62,6 +62,14 @@ const NECESIDAD_CORTA = { 'silla de ruedas': 'Silla de ruedas', 'no oye: aviso e
 const necesidadCorta = n => NECESIDAD_CORTA[n] || (n ? n[0].toUpperCase() + n.slice(1) : '');
 // «Marcelo (vecino)» → «Marcelo»: en la tarjeta ya dice «Ayudante»
 const nombreAyudante = g => String(g || '').replace(/\s*\((vecin[oa])\)\s*$/i, '');
+// avatar: silueta gris sin rostro (como el perfil por defecto de una red social), la misma de los mensajes de emergencia,
+// distinta para mujer (pelo largo hasta los hombros) y hombre (pelo corto, hombros anchos)
+const SILUETA = {
+  m: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M11.6 13.4c-.2-4.6 2.7-7.4 6.4-7.4s6.6 2.8 6.4 7.4c-1.2-1.9-3.4-2.9-6.4-2.9s-5.2 1-6.4 2.9z"/><circle class="piel" cx="18" cy="14.2" r="6.1"/><path class="piel" d="M4 37c0-8 6.2-12.3 14-12.3S32 29 32 37z"/></svg>',
+  f: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M9.6 15.2c0-6 3.7-9.8 8.4-9.8s8.4 3.8 8.4 9.8c0 4.3.8 8 2.6 11.2-2.8 1.6-6.5 2.3-11 2.3s-8.2-.7-11-2.3c1.8-3.2 2.6-6.9 2.6-11.2z"/><path class="piel" d="M8 37c0-6.6 4.4-10.4 10-10.4s10 3.8 10 10.4z"/><circle class="piel" cx="18" cy="15" r="5.4"/><path class="pelo" d="M12.6 13.6c1.6-3.3 4-4.6 7.2-4.2 1.9.3 3.3 1.4 4.1 3.4-3.6.4-7.4-.1-11.3.8z"/></svg>',
+};
+// silueta según el nombre que se ve: «Doña …» mujer, «Don …» hombre; si no, la ficha (g); grupos («Niños …») y sin dato: hombre
+const generoPersona = p => /^Doña\s/i.test(p.nombre) ? 'f' : /^Don\s/i.test(p.nombre) ? 'm' : (p.g === 'f' ? 'f' : 'm');
 function pintarPersonas() {
   listaP.innerHTML = '';
   activas().forEach(p => {
@@ -69,7 +77,7 @@ function pintarPersonas() {
     // 'salvo' = el traslado ya se confirmó (desde la central o el celular del ayudante): en la tarjeta dice «evacuado»
     const txt = { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'evacuado', rescate: 'al rescate' }[e];
     const li = document.createElement('li'); li.dataset.e = e;
-    li.innerHTML = `<span class="av">${esc((p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0] || '?'))}</span>
+    li.innerHTML = `<span class="av" aria-hidden="true">${SILUETA[generoPersona(p)]}</span>
       <div class="quien"><b>${esc(p.nombre)}</b><span class="donde">${b.nombre}, ${esc(p.cuadra)}</span></div>
       <div class="que"><span class="tag" title="${esc(p.necesidad)}">${esc(necesidadCorta(p.necesidad))}</span><span class="ayu"><span>Ayudante</span><b>${esc(nombreAyudante(p.guardian))}</b></span></div>
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
@@ -254,13 +262,8 @@ const pilaMsj = $('#pila-msj'), estadoMsj = $('#estado-msj');
 const msjSalieron = new Set(), salidasMsj = new Set();
 let colaMsj = [], histMsj = [], verMsj = -1, rangoMsj = 0, listoMsj = 0, timerMsj = null, revisionMsj = null, encimaMsj = false;
 const PIN = '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
-// avatar de quien reporta: silueta gris sin rostro (como el perfil por defecto de una red social),
-// distinta para mujer (pelo largo hasta los hombros) y hombre (pelo corto, hombros anchos)
+// avatar de quien reporta: la misma silueta gris SILUETA de Vecinos Ayudantes (arriba); los avisos automáticos llevan una onda
 const ONDA = '<svg viewBox="0 0 24 24"><path d="M3 10c3-3 5 3 9 0s6 3 9 0M3 16c3-3 5 3 9 0s6 3 9 0"/></svg>';
-const SILUETA = {
-  m: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M11.6 13.4c-.2-4.6 2.7-7.4 6.4-7.4s6.6 2.8 6.4 7.4c-1.2-1.9-3.4-2.9-6.4-2.9s-5.2 1-6.4 2.9z"/><circle class="piel" cx="18" cy="14.2" r="6.1"/><path class="piel" d="M4 37c0-8 6.2-12.3 14-12.3S32 29 32 37z"/></svg>',
-  f: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M9.6 15.2c0-6 3.7-9.8 8.4-9.8s8.4 3.8 8.4 9.8c0 4.3.8 8 2.6 11.2-2.8 1.6-6.5 2.3-11 2.3s-8.2-.7-11-2.3c1.8-3.2 2.6-6.9 2.6-11.2z"/><path class="piel" d="M8 37c0-6.6 4.4-10.4 10-10.4s10 3.8 10 10.4z"/><circle class="piel" cx="18" cy="15" r="5.4"/><path class="pelo" d="M12.6 13.6c1.6-3.3 4-4.6 7.2-4.2 1.9.3 3.3 1.4 4.1 3.4-3.6.4-7.4-.1-11.3.8z"/></svg>',
-};
 function tarjetaMsj(m, i) {
   const n = NIVEL_MSJ[m.nivel], q = m.quien;
   const el = document.createElement('article'); el.className = 'tarjeta'; el.dataset.n = m.nivel; el.dataset.i = i;
