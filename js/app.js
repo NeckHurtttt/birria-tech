@@ -11,6 +11,20 @@ import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 import { mensajesNuevos } from './mensajes.js';
+import { PERSONAS, nombresAleatorios } from './datos.js';
+
+// Nombres de las personas de ejemplo: se sortean al abrir la central (no hay uno fijo). Se guardan en esta pestaña
+// para que al recargar sigan siendo los mismos que ya viajaron en el QR al celular del ayudante.
+{
+  const CLAVE = 'rs-nombres-demo', valido = n => typeof n === 'string' && /^(Doña|Don) \S.{0,30}$|^Niños \S.{0,30} \(\d+\)$/.test(n);
+  let nombres = null;
+  try { nombres = JSON.parse(sessionStorage.getItem(CLAVE)); } catch {}
+  if (!nombres || !PERSONAS.every(p => valido(nombres[p.id]))) {
+    nombres = nombresAleatorios(PERSONAS);
+    try { sessionStorage.setItem(CLAVE, JSON.stringify(nombres)); } catch {}
+  }
+  PERSONAS.forEach(p => { p.nombre = nombres[p.id]; });
+}
 
 // idioma de la interfaz (ES · EN · 中文): cambia sin recargar; ver js/idioma.js
 iniciarIdioma(document.querySelector('#idioma-sel'));
@@ -49,7 +63,7 @@ function pintarPersonas() {
     const txt = { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'a salvo', rescate: 'al rescate' }[e];
     const li = document.createElement('li'); li.dataset.e = e;
     li.innerHTML = `<span class="av">${esc((p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0] || '?'))}</span>
-      <div><div class="quien">${esc(p.nombre)} · ${b.nombre}, ${esc(p.cuadra)}</div><div class="que">${esc(p.necesidad)} · guardián: ${esc(p.guardian)}</div></div>
+      <div><div class="quien">${esc(p.nombre)} · ${b.nombre}, ${esc(p.cuadra)}</div><div class="que">${esc(p.necesidad)} · ayudante: ${esc(p.guardian)}</div></div>
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
     if (e === 'avisado' || e === 'rescate') {
       const ok = document.createElement('button'); ok.className = 'btn chico ok';
@@ -114,6 +128,7 @@ const canal = abrirCanal(tema, m => {
 const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
 function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id }), per = todas().find(x => x.id === id);
   if (per && !per.demo) { s.set('n', per.nombre); s.set('b', per.barrio); s.set('cu', per.cuadra); s.set('nec', per.necesidad); s.set('g', per.guardian); }
+  else if (per) s.set('n', per.nombre); // persona de ejemplo: el nombre sorteado viaja en el QR para que el celular muestre el mismo
   u.search = '?' + s; return u.href; }
 function avisarGuardianes() {
   est.avisoT = Date.now(); est.resp = {}; est.recib = {};
@@ -408,7 +423,7 @@ $('#btn-qr-vigia').onclick = () => {
 function abrirQR(id) {
   if ($('#dlg-qr').open) return;
   const per = todas().find(x => x.id === id);
-  $('#dlg-qr h3').textContent = `Sé guardián de ${per?.nombre || 'Doña Rosa'}`;
+  $('#dlg-qr h3').textContent = `Sé ayudante de ${per?.nombre || activas()[0]?.nombre || '…'}`;
   const url = urlGuardian(id), q = $('#qr'); q.innerHTML = '';
   try { new QRCode(q, { text: url, width: 300, height: 300, colorDark: '#071219', colorLight: '#ffffff' }); } catch { q.textContent = 'QR no disponible'; }
   $('#qr-link').textContent = url; $('#qr-tema').textContent = tema;
@@ -536,7 +551,7 @@ $('#form-registro').onsubmit = e => {
   const { subida } = registrar(d), msg = $('#reg-msg');
   msg.textContent = `${d.nombre} quedó guardado en este celular. Enviando a la junta…`;
   subida.then(ok => {
-    msg.textContent = ok ? `✓ ${d.nombre} llegó al registro de la junta vecinal. Cuando lo aprueben, su guardián recibe las alertas.`
+    msg.textContent = ok ? `✓ ${d.nombre} llegó al registro de la junta vecinal. Cuando lo aprueben, su ayudante recibe las alertas.`
       : `${d.nombre} quedó guardado en este celular; se envía a la junta apenas haya internet.`;
     if (ok) canal.enviar({ tipo: 'reg' }); // la central actualiza su panel al instante
   });
@@ -575,7 +590,7 @@ function pintarJunta() {
     tr.innerHTML = `<td>${esc(p.nombre)}${p.demo ? ' <small>(demo)</small>' : ''}</td><td>${esc(nombreBarrio(p.barrio))}, ${esc(p.cuadra)}</td><td>${esc(p.necesidad)}</td><td>${esc(p.guardian)}${p.tel ? `<br><small>${esc(p.tel)}</small>` : ''}</td><td><span class="est">${{ tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'a salvo', rescate: 'al rescate', pendiente: 'pendiente' }[e]}</span></td><td class="acc"></td>`;
     const acc = tr.querySelector('.acc');
     if (!p.aprobado) { const b = document.createElement('button'); b.className = 'btn chico ok'; b.textContent = 'Aprobar'; b.onclick = () => accionJunta(b, () => aprobar(p.id, claveJunta.leer()), () => { est.personas[p.id] = 'tranquilo'; }); acc.append(b); }
-    if (p.aprobado && !p.demo) { const b = document.createElement('button'); b.className = 'btn chico'; b.textContent = 'QR guardián'; b.onclick = () => { $('#dlg-junta').close(); abrirQR(p.id); }; acc.append(b); }
+    if (p.aprobado && !p.demo) { const b = document.createElement('button'); b.className = 'btn chico'; b.textContent = 'QR ayudante'; b.onclick = () => { $('#dlg-junta').close(); abrirQR(p.id); }; acc.append(b); }
     if (!p.demo) { const b = document.createElement('button'); b.className = 'btn chico'; b.textContent = 'Quitar'; b.onclick = () => accionJunta(b, () => quitar(p.id, claveJunta.leer()), () => { delete est.personas[p.id]; }); acc.append(b); }
     tb.append(tr);
   });

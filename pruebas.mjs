@@ -130,3 +130,17 @@ t('cada mensaje dice quién lo manda', () => {
   assert.ok(todos.find(m => m.clave === 'cuenca').quien.sistema, 'el aviso de lluvia es automático');
   assert.ok(!todos.find(m => m.clave === 'llego-eltorno').quien.sistema, 'el desborde lo reporta un vecino');
 });
+import { nombresAleatorios, NOMBRES_DEMO, PERSONAS } from './js/datos.js';
+t('nombres sorteados: sin repetir, con tratamiento y sin nombre fijo', () => {
+  const vistos = new Set();
+  for (let k = 0; k < 40; k++) {
+    const n = nombresAleatorios(PERSONAS);
+    assert.equal(new Set(Object.values(n)).size, PERSONAS.length, 'no repite dentro de una central');
+    assert.match(n.rosa, /^Doña \S/); assert.match(n.teo, /^Don \S/); assert.match(n.juana, /^Doña \S/);
+    assert.match(n.nina, /^Niños \S+ \(3\)$/);
+    vistos.add(n.rosa);
+  }
+  assert.ok(vistos.size > 5, 'cambia entre una central y otra');
+  const fijo = nombresAleatorios(PERSONAS, () => 0);
+  assert.equal(fijo.rosa, 'Doña ' + NOMBRES_DEMO.f[0]); assert.equal(fijo.juana, 'Doña ' + NOMBRES_DEMO.f[1]);
+});

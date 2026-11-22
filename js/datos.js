@@ -119,13 +119,34 @@ export function repetirRiada(R) {
   };
 }
 
-// Guardianes de ejemplo para el simulacro (?jurado). Datos ficticios.
+// Personas de ejemplo y sus vecinos ayudantes para el simulacro (?jurado). Datos ficticios: los nombres se sortean al abrir la central.
+// g: 'f' señora, 'm' señor, 'ninos' hermanos (solo elige de qué lista sale el nombre sorteado)
 export const PERSONAS = [
-  { id: 'rosa', nombre: 'Doña Rosa', edad: 82, necesidad: 'silla de ruedas', barrio: 'eltorno', cuadra: 'Cuadra 4', guardian: 'Marcelo (vecino)', idioma: 'castellano' },
-  { id: 'teo', nombre: 'Don Teodoro', edad: 75, necesidad: 'no oye: aviso en señas', barrio: 'eltorno', cuadra: 'Cuadra 6', guardian: 'Lucía (vecina)', idioma: 'LSB' },
-  { id: 'nina', nombre: 'Niños Gutiérrez (3)', edad: 9, necesidad: 'solos hasta las 19:00', barrio: 'jorochito', cuadra: 'Cuadra 2', guardian: 'Profe Ana', idioma: 'castellano' },
-  { id: 'juana', nombre: 'Doña Juana', edad: 68, necesidad: 'habla quechua', barrio: 'porongo', cuadra: 'Cuadra 1', guardian: 'Rubén (vecino)', idioma: 'quechua' },
+  { id: 'rosa', nombre: 'Doña Rosa', g: 'f', edad: 82, necesidad: 'silla de ruedas', barrio: 'eltorno', cuadra: 'Cuadra 4', guardian: 'Marcelo (vecino)', idioma: 'castellano' },
+  { id: 'teo', nombre: 'Don Teodoro', g: 'm', edad: 75, necesidad: 'no oye: aviso en señas', barrio: 'eltorno', cuadra: 'Cuadra 6', guardian: 'Lucía (vecina)', idioma: 'LSB' },
+  { id: 'nina', nombre: 'Niños Gutiérrez (3)', g: 'ninos', edad: 9, necesidad: 'solos hasta las 19:00', barrio: 'jorochito', cuadra: 'Cuadra 2', guardian: 'Profe Ana', idioma: 'castellano' },
+  { id: 'juana', nombre: 'Doña Juana', g: 'f', edad: 68, necesidad: 'habla quechua', barrio: 'porongo', cuadra: 'Cuadra 1', guardian: 'Rubén (vecino)', idioma: 'quechua' },
 ];
+
+// Nombres realistas de la ribera para sortear (no repiten los de los ayudantes ni los de los mensajes de emergencia)
+export const NOMBRES_DEMO = {
+  f: ['Rosa', 'Carmen', 'Juana', 'Teresa', 'Elvira', 'Filomena', 'Dora', 'Gladys', 'Hilda', 'Benita', 'Josefa', 'Encarnación', 'Sonia', 'Lidia', 'Nelly', 'Marina', 'Asunta', 'Felicidad', 'Eulalia', 'Gregoria'],
+  m: ['Teodoro', 'Ernesto', 'Julián', 'Hilarión', 'Mario', 'Fermín', 'Ramón', 'Efraín', 'Severino', 'Gregorio', 'Tomás', 'Isidoro', 'Celestino', 'Lorenzo', 'Aurelio', 'Faustino', 'Nicanor', 'Eusebio'],
+  apellidos: ['Gutiérrez', 'Vargas', 'Mamani', 'Choque', 'Quispe', 'Peña', 'Rivero', 'Montaño', 'Céspedes', 'Paniagua', 'Zeballos', 'Méndez', 'Ortúzar', 'Velasco'],
+};
+/**
+ * Sortea un nombre para cada persona de ejemplo, sin repetir: «Doña …», «Don …» o «Niños … (N)».
+ * @returns {Record<string, string>} id → nombre
+ */
+export function nombresAleatorios(personas = PERSONAS, azar = Math.random) {
+  const usados = new Set(), out = {};
+  const sacar = lista => { const libres = lista.filter(x => !usados.has(x)); const x = libres[Math.floor(azar() * libres.length) % libres.length]; usados.add(x); return x; };
+  for (const p of personas) {
+    if (p.g === 'ninos') out[p.id] = `Niños ${sacar(NOMBRES_DEMO.apellidos)} (${(String(p.nombre).match(/\((\d+)\)/) || [, 2])[1]})`;
+    else out[p.id] = `${p.g === 'm' ? 'Don' : 'Doña'} ${sacar(NOMBRES_DEMO[p.g === 'm' ? 'm' : 'f'])}`;
+  }
+  return out;
+}
 
 /** Minutos que tarda la crecida en llegar a un barrio. intensidad 1 = normal, >1 más rápida. */
 export const velocidad = (intensidad = 1, vel = VELOCIDAD_KMH) => vel * Math.min(1.6, Math.max(0.8, Math.sqrt(intensidad)));
