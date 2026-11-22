@@ -41,7 +41,7 @@ h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
 .sub, .nota { margin: 0 0 12px; color: var(--texto-2); font-size: 13px; }
 .nota { margin: 12px 0 0; font-size: 12px; }
 .oido { grid-column: 1; grid-row: 1; align-self: start; }
-.mensajes { grid-column: 1; grid-row: 2; align-self: stretch; max-height: 100%; display: flex; flex-direction: column; }
+.mensajes { grid-column: 1; grid-row: 2; align-self: start; max-height: 100%; display: flex; flex-direction: column; }
 .cuenta { grid-column: 3; grid-row: 1; align-self: start; max-height: 100%; }
 /* abajo a la derecha, debajo de la cuenta regresiva; deja libre la atribución del mapa (OpenStreetMap) */
 .guardianes { grid-column: 3; grid-row: 2; align-self: end; max-height: calc(100% - 36px); margin-bottom: 36px; padding: 12px; display: flex; flex-direction: column; overflow: hidden; }
@@ -522,3 +522,7 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 @media (min-width: 901px) { .oficial span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
 body.jurado #btn-pared { display: none; }
 @media (max-width: 900px) { .ajustes-menu { right: auto; left: 0; } }
+/* barra en una sola línea también en pantallas de 1280 px (proyector, video) */
+.barra .btn, .barra .chip { white-space: nowrap; }
+@media (min-width: 901px) and (max-width: 1500px) { .barra { gap: 10px; } .lema { display: none; } .barra .chip { font-size: 12px; padding: 5px 10px; } }
+.exito-datos:has(> :nth-child(4)) { grid-template-columns: repeat(2, 1fr); } /* con rescates: 2 × 2, sin una cifra sola abajo */

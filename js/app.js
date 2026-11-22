@@ -102,8 +102,8 @@ const listoParaConfirmar = id => (est.etapa[id] || 0) >= PASOS_AYUDANTE.length;
 // el ayudante puede seguir en el chat y la central confirma igual cuando el rescate oficial o el vecino lo logran)
 const estadoDe = id => est.personas[id] === 'avisado' && est.rescate[id] && !listoParaConfirmar(id) ? 'rescate' : est.personas[id];
 const T_RESCATE_MIN = 30;
-function decirChat(id, de, texto) {
-  (est.chat[id] ||= []).push({ de, texto, hora: horaChat() });
+function decirChat(id, de, texto, extra = {}) {
+  (est.chat[id] ||= []).push({ de, texto, hora: horaChat(), ...extra });
   if (CHAT.abierto === id) pintarChat(); else if (de === 'ayudante') CHAT.sinLeer.add(id);
 }
 /** El próximo mensaje del ayudante llega en ms (con «escribiendo…» justo antes). Reprogramar reemplaza al anterior. */
@@ -166,7 +166,7 @@ function enviarCentral(id, texto, tema) {
     // de qué trata lo que escribió (o la sugerencia que tocó): la respuesta del ayudante habla de eso; vale el último mensaje
     est.tema[id] = tema || temaDe(texto, activas().find(x => x.id === id));
   }
-  decirChat(id, 'central', texto);
+  decirChat(id, 'central', texto, { sug: !!tema }); // una sugerencia se traduce como el resto; lo escrito a mano queda tal cual
   if (!espera) return;
   if (yaPregunto && est.chatTimer[id]) return; // ya hay una respuesta en camino: no la reinicia
   // todavía no avisó que va en camino: ese aviso se adelanta y la confirmación llega después
@@ -219,7 +219,7 @@ function pintarChat() {
     else {
       if (m.de === 'ayudante') { const de = document.createElement('span'); de.className = 'de'; de.textContent = ayu; de.translate = false; li.append(de); }
       const bur = document.createElement('span'); bur.className = 'burbuja'; bur.textContent = m.texto;
-      if (m.de === 'central') bur.translate = false; // lo que escribe la central queda tal cual
+      if (m.de === 'central' && !m.sug) bur.translate = false; // lo que escribe la central a mano queda tal cual
       const hora = document.createElement('small'); hora.textContent = m.de === 'central' ? `${m.hora} · Central` : m.hora;
       li.append(bur, hora);
     }

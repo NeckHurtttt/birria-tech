@@ -371,7 +371,7 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 > [!TIP]
 > 1. Open the **[live demo](https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en)** and press **Start drill**. In `?jurado` mode, time runs 300 times faster.
 > 2. Press **Be a guardian** and scan the QR code with your phone (it even works over a video call). Tap **Turn on alerts**.
-> 3. When your phone rings, tap **“I helped her”**: the control room logs your response in real time.
+> 3. When your phone rings, tap **“Done, safe”**: the control room logs your response in real time.
 
 The **ES · EN · 中文** buttons in the top bar switch the interface language without reloading. **Backup video** (offline): [capturas/en/demo-respaldo.mp4](capturas/en/demo-respaldo.mp4).
 
@@ -404,7 +404,7 @@ In the early hours of **13 December 2025** the Piraí overflowed in **El Torno**
 | 🛰️ | **Piraí Watch** | Every 10 min it checks the rain at 5 points of the upper basin (Open-Meteo), the GloFAS discharge at La Angostura and the reports from **upstream watchers**. With that it computes a **risk index from 0 to 100**. Any of the three sources can trigger the alert (2 watchers are enough). It also reads the **official SENAMHI hydrological bulletin** every weekday: yellow or orange puts the area on watch, red triggers the alert, so the app never contradicts the official warning. |
 | ⏱️ | **Countdown per neighborhood** | It measures the distance along the real river channel (OSM) and shows messages like “water reaches El Torno in **2 h 20 min**”. |
 | 📷 | **Water on your wall** | Point the camera at your house and the app draws how high the water would rise. Without a camera, it shows it on a drawn wall. |
-| 🤝 | **Neighbor Guardian** | Every vulnerable person has an assigned neighbor. When there is an alert, the guardian’s phone rings and vibrates, and the guardian confirms with one tap. **If nobody confirms 30 min before the water arrives, the case goes to official rescue.** |
+| 🤝 | **Neighbor Helpers** | Every vulnerable person has an assigned neighbor. When there is an alert, the helper’s phone rings and vibrates; the control room follows each case by **chat** (“on my way”, “we’re safe”) and confirms the evacuation. **If nobody confirms 30 min before the water arrives, the case goes to official rescue** (the chat stays open). |
 | 📱 | **Phone app** | Installs from the browser («Install as app», no store), remembers each neighbor’s community, works offline and, with the free ntfy app, rings even when the phone is locked. Anyone can open it just to watch the river. |
 
 **Optional extra:** the *river ear*. A phone by the riverbank listens for the water’s low rumble (20–300 Hz).
@@ -486,8 +486,8 @@ Before trusting the index, we tested it against the night of the tragedy ([`herr
 ### 🎬 1-minute demo (script for the judges)
 1. Open `?jurado&lang=en` → **Start drill**: a storm falls on the upper basin.
 2. The index goes above 55 → **ALERT**, and every riverside neighborhood shows its countdown.
-3. The guardian’s phone (QR) rings → tap **“I helped her ✓”**.
-4. When every guardian has confirmed → **“Everyone safe”** screen with the people, the margin and the cost.
+3. The helper’s phone (QR **Be a helper**) rings. In **Neighbor Helpers**, open each case’s chat: the helper says they’re on the way, the control room writes back and the helper confirms they’re safe → **Confirm evacuation** (or the helper taps **“Done, safe ✓”** on the phone).
+4. A case with no confirmation at T−30 turns **“to rescue”** and official rescue is notified. When everyone is confirmed → **“Everyone safe”** screen with the people, the margin and the cost.
 5. **Would it have warned of the real flood of 13 Dec 2025?** → the chart of that night, hour by hour.
 6. **Board / COED panel** → who is missing; export CSV or print. **Register a person** → the board approves.
 7. Without wifi: the app still opens (already installed) and every person has a one-tap SMS or call to their guardian.
@@ -625,7 +625,7 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 > [!TIP]
 > 1. 打开 **[在线演示](https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh)**，点击 **开始演练**。在 `?jurado` 模式下时间加速 300 倍。
 > 2. 点击 **成为守护者**，用手机扫描二维码（视频通话中也可以扫）。点击 **开启提醒**。
-> 3. 手机响起后，点击 **「我已帮她撤离」**：指挥中心会实时记录你的响应。
+> 3. 手机响起后，点击 **「完成，已安全」**：指挥中心会实时记录你的响应。
 
 顶部的 **ES · EN · 中文** 按钮可直接切换界面语言，无需刷新。**备用视频**（离线可看）：[capturas/zh/demo-respaldo.mp4](capturas/zh/demo-respaldo.mp4)。
 
@@ -658,7 +658,7 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 | 🛰️ | **皮拉伊河守望** | 每 10 分钟检查上游流域 5 个点的降雨（Open-Meteo）、La Angostura 的 GloFAS 流量，以及**上游观察员**的报告，据此计算 **0 到 100 的风险指数**。三个来源中任意一个都能触发警报（2 名观察员即可）。 此外，每个工作日自动读取 **SENAMHI 官方水文公报**：黄色或橙色预警时进入警戒，红色时直接发出警报，应用永远不会与官方预警相矛盾。 |
 | ⏱️ | **各社区倒计时** | 沿真实河道（OSM）测量距离，显示例如「洪水 **2 小时 20 分钟**后到达 El Torno」这样的提示。 |
 | 📷 | **墙上的水位** | 用摄像头对准自家房子，应用会画出洪水会涨到多高。没有摄像头时，就画在一面示意墙上。 |
-| 🤝 | **邻居守护者** | 每位弱势人员都有一位指定邻居。出现警报时，守护者的手机会响铃并振动，守护者一键确认。**若在洪水到达前 30 分钟仍无人确认，则转交官方救援。** |
+| 🤝 | **邻居帮手** | 每位弱势人员都有一位指定邻居。出现警报时，帮手的手机会响铃并振动；指挥中心通过**聊天**跟进每个个案（“在路上”“我们已安全”）并确认撤离。**若在洪水到达前 30 分钟仍无人确认，则转交官方救援**（聊天保持开启）。 |
 | 📱 | **手机应用** | 可从浏览器直接安装（“安装为应用”，无需应用商店），记住每位邻居的社区，离线可用；配合免费的 ntfy 应用，锁屏时也会响铃。任何人都可以只打开它来查看河流。 |
 
 **可选功能：** *河之耳*。放在河岸边的手机监听河水的低频轰鸣（20–300 Hz）。
@@ -740,8 +740,8 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 ### 🎬 1 分钟演示（评委脚本）
 1. 打开 `?jurado&lang=zh` → **开始演练**：暴雨降在上游流域。
 2. 指数超过 55 → **警报**，每个河岸社区显示各自的倒计时。
-3. 守护者手机（二维码）响起 → 点击 **「我已帮她撤离 ✓」**。
-4. 所有守护者确认后 → 出现 **「全员安全」** 页面，显示人数、余量和费用。
+3. 帮手手机（二维码 **成为帮手**）响起。在**邻居帮手**中打开每个个案的聊天：帮手说已出发，指挥中心回复，帮手确认已安全 → **确认撤离**（或帮手在手机上点 **「完成，已安全 ✓」**）。
+4. T−30 仍未确认的个案变为 **「转交救援」** 并通知官方救援。全部确认后 → 出现 **「全员安全」** 页面，显示人数、余量和费用。
 5. **能否预警 2025 年 12 月 13 日的真实洪灾？** → 那一夜逐小时的图表。
 6. **社区委员会 / COED 面板** → 谁还未确认；导出 CSV 或打印。**登记人员** → 委员会审批。
 7. 没有 Wi-Fi 时：应用依然能打开（已安装），每个人旁边都能一键给守护者发短信或打电话。
