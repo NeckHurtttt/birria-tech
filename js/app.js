@@ -66,7 +66,8 @@ function pintarPersonas() {
   listaP.innerHTML = '';
   activas().forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), e = est.personas[p.id] || (est.personas[p.id] = 'tranquilo');
-    const txt = { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'a salvo', rescate: 'al rescate' }[e];
+    // 'salvo' = el traslado ya se confirmó (desde la central o el celular del ayudante): en la tarjeta dice «evacuado»
+    const txt = { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'evacuado', rescate: 'al rescate' }[e];
     const li = document.createElement('li'); li.dataset.e = e;
     li.innerHTML = `<span class="av">${esc((p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0] || '?'))}</span>
       <div class="quien"><b>${esc(p.nombre)}</b><span class="donde">${b.nombre}, ${esc(p.cuadra)}</span></div>
@@ -74,7 +75,7 @@ function pintarPersonas() {
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
     if (e === 'avisado' || e === 'rescate') {
       const ok = document.createElement('button'); ok.className = 'btn chico ok';
-      ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar desde aquí';
+      ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar evacuación';
       ok.onclick = () => confirmar(p.id, 'central');
       const acc = document.createElement('div'); acc.className = 'acciones'; acc.append(ok);
       // respaldo sin internet: SMS y llamada al guardián (sin número abre la app de SMS para elegir el contacto)
@@ -121,7 +122,7 @@ function vigiaCelular(m) {
 function respuestaEnVivo(id) {
   const p = activas().find(x => x.id === id), r = est.resp[id], cel = r.desde === 'celular';
   const t = document.createElement('div'); t.className = 'respuesta' + (cel ? ' cel' : '');
-  t.innerHTML = `<b>${esc(p.nombre)}: a salvo</b><span>${cel ? `${esc(p.guardian)} confirmó desde su celular` : 'confirmado en la central'} · ${reloj(r.seg)} tras el aviso</span>`;
+  t.innerHTML = `<b>${esc(p.nombre)}: evacuado</b><span>${cel ? `${esc(p.guardian)} confirmó desde su celular` : 'evacuación confirmada en la central'} · ${reloj(r.seg)} tras el aviso</span>`;
   $('#respuestas').append(t); setTimeout(() => t.remove(), 9000);
 }
 
@@ -166,7 +167,7 @@ function confirmar(id, desde) {
   { const pb = activas().find(x => x.id === id), bb = BARRIOS.find(x => x.id === pb.barrio); est.margen[id] = Math.round(minutosHasta(bb, est.intensidad, est.lag) - est.simMin); }
   const p = activas().find(x => x.id === id);
   hablar(`${p.nombre} está a salvo.`);
-  if (desde === 'central') canal.enviar({ tipo: 'ok', id }, { titulo: `${p.nombre}: a salvo`, texto: 'Confirmado desde la central' });
+  if (desde === 'central') canal.enviar({ tipo: 'ok', id }, { titulo: `${p.nombre}: evacuado`, texto: 'Evacuación confirmada desde la central' });
   if (activas().every(x => est.personas[x.id] === 'salvo')) despues(exito, 900);
 }
 
