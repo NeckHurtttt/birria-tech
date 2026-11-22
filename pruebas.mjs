@@ -233,3 +233,42 @@ t('chat: 2 sugerencias de temas distintos y la respuesta del ayudante habla de l
   const sinTraducir = [...textos].filter(x => traducirTexto(x, 'en') === x);
   assert.deepEqual(sinTraducir, [], 'sin traducir: ' + sinTraducir.join(' | '));
 });
+t('chat: la respuesta del ayudante contesta el tema preguntado en las dos zonas, respeta el ETA y usa el perfil', () => {
+  const g = { nombre: 'Doña Graciela', necesidad: 'silla de ruedas', g: 'f' }, n3 = { nombre: 'Niños Toledo (3)', necesidad: 'solos hasta las 19:00', g: 'ninos' };
+  const todas = (p, tema, zona) => Array.from({ length: 12 }, (_, i) => respuestaConfirmacion(p, tema, () => i / 12, zona));
+  // la primera oración contesta el tema (también cuando el caso cruzó de zona entre la pregunta y la respuesta)
+  const TEMA = { agua: /agua|calle|río|nivel|seco/i, alto: /alto|arriba|loma|escuela|punto de encuentro/i, paso: /puente|salida|ruta|calle de arriba|calles/i,
+    animo: /ánimo|ordenado|nervios|asustada|organizamos|organizaron/i, preparar: /documentos|medicinas|mochila|alistamos|llevar/i,
+    preventivo: /preventiva|adelantarnos|con calma|salir/i };
+  for (const zona of ['cerca', 'lejos']) for (const [tema, re] of Object.entries(TEMA))
+    todas(g, tema, zona).forEach(r => assert.match(r.split(/(?<=[.!?])\s+/)[0], re, `${zona}/${tema}: ${r}`));
+  // con 1 h o más de margen (zona lejos) nada de «justo a tiempo» ni de agua que ya inundó
+  const URGENTE = /justo a tiempo|rodilla|tobillos|tapó|es un río|se llevó|venía encima|asustad|nervios/i;
+  for (const tema of ['agua', 'alto', 'paso', 'animo', 'preparar', 'preventivo', 'general', 'persona'])
+    for (const p of [g, n3]) todas(p, tema, 'lejos').forEach(r => assert.doesNotMatch(r, URGENTE, `lejos/${tema}: ${r}`));
+  assert.equal(zonaPorMinutos(60), 'cerca'); assert.equal(zonaPorMinutos(61), 'lejos');
+  // perfil: la silla de ruedas y los niños aparecen cuando aportan; «¿Cómo está…?» no se contesta con «Sí»
+  todas(g, 'animo', 'lejos').forEach(r => assert.match(r, /silla de ruedas/));
+  assert.match(respuestaConfirmacion(g, 'persona', Math.random, 'lejos'), /^Doña Graciela está bien/);
+  todas(n3, 'general', 'lejos').forEach(r => assert.match(r, /chicos/));
+  assert.match(respuestaConfirmacion(n3, 'persona', Math.random, 'lejos'), /los 3 conmigo, tranquilos/);
+  // siempre termina confirmando que están bien / a salvo
+  for (const zona of ['cerca', 'lejos']) for (const tema of [...Object.keys(TEMA), 'general', 'persona'])
+    todas(g, tema, zona).forEach(r => assert.match(r, /a salvo|lugar seguro|zona alta|punto alto|escuela|en la loma/i, `${zona}/${tema}: ${r}`));
+});
+t('chat: palabras de la pregunta afinan la respuesta y el cierre no se repite', () => {
+  const p = { nombre: 'Doña Elvira', necesidad: 'habla quechua', g: 'f' };
+  assert.equal(temaDe('¿cómo está la gente?', p), 'animo'); assert.equal(temaDe('¿cómo están los vecinos?', p), 'animo');
+  assert.equal(temaDe('¿Cómo está Doña Elvira?', p), 'persona');
+  for (let i = 0; i < 12; i++) {
+    const r = respuestaConfirmacion(p, 'paso', () => i / 12, 'lejos', '¿el puente sigue habilitado?');
+    assert.match(r, /puente/, r);
+    for (const f of ['sin apuro', 'con calma']) assert.ok(r.split(f).length <= 2, 'no repite «' + f + '»: ' + r);
+  }
+  for (let i = 0; i < 12; i++) assert.match(respuestaConfirmacion(p, 'preparar', () => i / 12, 'lejos', '¿llevaron las medicinas?'), /medicinas/);
+  // el nombre no se repite en la misma respuesta
+  const sordo = { nombre: 'Don Lorenzo', necesidad: 'no oye: aviso en señas', g: 'm' };
+  for (const zona of ['cerca', 'lejos']) for (const tema of ['general', 'alto', 'animo', 'preventivo']) for (let i = 0; i < 12; i++) {
+    const r = respuestaConfirmacion(sordo, tema, () => i / 12, zona); assert.ok(r.split('Don Lorenzo').length <= 2, r);
+  }
+});

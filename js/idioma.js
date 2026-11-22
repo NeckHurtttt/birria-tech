@@ -122,6 +122,42 @@ const D = {
   '¡Todos a salvo! Gracias a cada vecino ayudante.': ['Everyone is safe! Thanks to every helper neighbor.', '全员安全！感谢每一位邻居帮手。'],
   'Nuevo': ['New', '新'],
   'Responde en el chat': ['Reply in the chat', '请在聊天中回复'],
+  // chat: respuestas del ayudante por partes (tema · detalle de la asistencia · cierre), js/chat-textos.js
+  'El río ya está casi a la altura de la calle; en minutos entra el agua.': ['The river is almost at street level; the water will come in within minutes.', '河水几乎与街道齐平了；几分钟内就会进水。'],
+  'El nivel sube rápido; el agua ya moja la orilla de la cuadra.': ['The level is rising fast; the water is already wetting the edge of the block.', '水位上涨很快；水已经漫到街区边缘。'],
+  'Sí, ya estamos arriba, en la loma, a salvo; abajo el agua sigue subiendo.': ['Yes, we’re up on the hill, safe; down below the water keeps rising.', '是的，我们已经在高坡上，安全了；下面的水还在涨。'],
+  'El puente de la esquina ya casi lo tapa el agua; salimos por la calle de arriba.': ['The water has almost covered the corner bridge; we went out by the upper street.', '街角的桥快被水淹了；我们从上面那条街出来了。'],
+  'La salida de abajo ya se estaba llenando; dimos la vuelta por la cancha.': ['The lower exit was already filling up; we went around by the sports field.', '下面的出口已经开始积水；我们绕过球场出来了。'],
+  'Hay nervios porque el agua subió rápido, pero nos organizamos entre vecinos.': ['People are nervous because the water rose fast, but the neighbors organized themselves.', '水涨得很快，大家都很紧张，但邻居们组织起来了。'],
+  'La gente está asustada, pero nadie se quedó atrás: cada uno ayudó a alguien.': ['People are scared, but nobody was left behind: everyone helped someone.', '大家都很害怕，但没有人被落下：每个人都帮助了别人。'],
+  'No hubo tiempo de llevar mucho: solo documentos y medicinas.': ['There was no time to take much: just documents and medicines.', '没时间带太多东西：只带了证件和药品。'],
+  'Ya no daba para salir con calma: el agua venía encima, pero alcanzamos a salir.': ['There was no time left to leave calmly: the water was coming, but we made it out.', '已经来不及从容撤离：水就要到了，但我们还是及时出来了。'],
+  'Llegamos a la plaza justo cuando el río empezaba a salirse.': ['We reached the square just as the river was starting to overflow.', '我们到达广场时，河水正开始漫出来。'],
+  'Por aquí el agua todavía no llega; el río se ve crecido a lo lejos.': ['The water hasn’t reached here yet; the river looks high in the distance.', '这里还没有进水；远处的河水看起来涨了。'],
+  'Sí, ya llegamos al punto de encuentro, en zona alta.': ['Yes, we reached the meeting point, on high ground.', '是的，我们已经到了高处的集合点。'],
+  'Las calles siguen libres; salimos sin problema por la ruta de evacuación.': ['The streets are still clear; we left easily by the evacuation route.', '街道仍然畅通；我们顺利沿撤离路线出来了。'],
+  'En la cuadra todavía está seco; se escucha el río, pero lejos.': ['The block is still dry; you can hear the river, but far away.', '街区还是干的；能听到河声，但还很远。'],
+  'El puente está bien y la ruta despejada; pasamos sin apuro.': ['The bridge is fine and the route is clear; we crossed without rushing.', '桥没问题，路线畅通；我们从容地过去了。'],
+  'El ánimo está bien: los vecinos se organizaron rápido y se ayudan entre todos.': ['Morale is good: the neighbors organized quickly and are all helping each other.', '大家情绪不错：邻居们很快组织起来，互相帮助。'],
+  'Todo ordenado por aquí: cada uno sabe a quién acompaña y la gente salió tranquila.': ['All in order here: everyone knows who they’re accompanying and people left calmly.', '这里一切有序：每个人都知道要陪谁，大家平静地撤离了。'],
+  'Sí, llevamos documentos, medicinas y una mochila con lo necesario.': ['Yes, we took documents, medicines and a backpack with the essentials.', '是的，我们带了证件、药品和装着必需品的背包。'],
+  'Alistamos lo importante sin apuro, con tiempo.': ['We got the important things ready calmly, with time to spare.', '我们不慌不忙地提前收拾好了重要物品。'],
+  'Sí, salimos de manera preventiva; todavía falta para que llegue el agua.': ['Yes, we left as a precaution; the water is still a while away.', '是的，我们预防性地撤离了；洪水还要一段时间才到。'],
+  'Preferimos adelantarnos y salir con tiempo.': ['We preferred to get ahead and leave early.', '我们宁愿提前出发。'],
+  'Todo en orden por esta zona; aquí todavía hay margen.': ['All in order in this area; there’s still time here.', '这片区域一切正常；这里还有时间。'],
+  'Ya estamos a salvo en lo alto.': ['We’re safe up high now.', '我们已经在高处安全了。'],
+  'Ya estamos fuera del agua, a salvo.': ['We’re out of the water now, safe.', '我们已经离开水，安全了。'],
+  'Ya estamos en lugar seguro, con calma.': ['We’re somewhere safe now, calmly.', '我们已经从容地到了安全的地方。'],
+  'Ya estamos a salvo, sin apuro.': ['We’re safe now, no rush.', '我们已经安全了，不着急。'],
+  'La silla de ruedas la llevamos entre dos vecinos.': ['Two neighbors carried the wheelchair.', '两个邻居一起抬着轮椅。'],
+  'Los chicos vienen de la mano, conmigo.': ['The kids are holding hands, with me.', '孩子们手拉着手，和我在一起。'],
+  'Ya estamos en zona alta, a salvo.': ['We’re on high ground now, safe.', '我们已经在高处，安全了。'],
+  'Los chicos vienen de la mano, tranquilos.': ['The kids are holding hands, calm.', '孩子们手拉着手，很平静。'],
+  'La familia vino junta.': ['The family came together.', '一家人一起来了。'],
+  'Tengo a toda la familia conmigo, todos tranquilos.': ['I have the whole family with me, all calm.', '全家人都和我在一起，大家都很平静。'],
+  'Tengo a toda la familia conmigo, asustados pero bien.': ['I have the whole family with me, scared but fine.', '全家人都和我在一起，受了惊吓但都还好。'],
+  'Los tengo a todos conmigo, asustados pero bien.': ['I have all of them with me, scared but fine.', '他们都和我在一起，受了惊吓但都还好。'],
+  'Los tengo a todos conmigo, tranquilos.': ['I have all of them with me, calm.', '他们都和我在一起，很平静。'],
   // chat: zona lejos (tono preventivo) y nuevas preguntas de zona cerca
   'Confirmar': ['Confirm', '确认'],
   '¿Ya lograron subir a zona alta?': ['Did you manage to get up to high ground?', '你们上到高处了吗？'],
@@ -431,6 +467,20 @@ const P = [
   [/^Confirmado: (.+) ya se (encuentra|encuentran) a salvo\. Todo bien por allá\.$/, (l, m) => l === 'zh' ? `已确认：${t(m[1], l)}已经安全了。那边一切都好。` : `Confirmed: ${t(m[1], l)} ${m[2] === 'encuentran' ? 'are' : 'is'} safe. All good over there.`],
   [/^Listo\. (.+) ya (está|están) fuera de peligro, y bien resguardad[oa]s?\.$/, (l, m) => l === 'zh' ? `好了。${t(m[1], l)}已经脱离危险，安置妥当。` : `Done. ${t(m[1], l)} ${m[2] === 'están' ? 'are' : 'is'} out of danger and well sheltered.`],
   [/^Buenas noticias: (.+) ya (está|están) a salvo, en un lugar seguro\.$/, (l, m) => l === 'zh' ? `好消息：${t(m[1], l)}已经安全，在安全的地方。` : `Good news: ${t(m[1], l)} ${m[2] === 'están' ? 'are' : 'is'} safe, somewhere secure.`],
+  // chat: oraciones de las respuestas con el nombre de la persona
+  [/^Sí, ya llegamos al punto alto con (.+)\.$/, (l, m) => l === 'zh' ? `是的，我们已经和 ${t(m[1], l)} 到了高处。` : `Yes, we reached high ground with ${t(m[1], l)}.`],
+  [/^Sacamos a (.+) justo a tiempo\.$/, (l, m) => l === 'zh' ? `我们及时把 ${t(m[1], l)} 救出来了。` : `We got ${t(m[1], l)} out just in time.`],
+  [/^(.+) ya está con nosotros en la escuela\.$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 已经和我们在学校了。` : `${t(m[1], l)} is with us at the school.`],
+  [/^Sí, ya estamos ubicados en la escuela con (.+), con tiempo de sobra\.$/, (l, m) => l === 'zh' ? `是的，我们已经和 ${t(m[1], l)} 在学校安顿好了，时间充裕。` : `Yes, we’re settled at the school with ${t(m[1], l)}, with time to spare.`],
+  [/^(.+) está bien, conmigo; subimos la silla de ruedas entre dos vecinos\.$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 很好，和我在一起；两个邻居一起把轮椅抬上来了。` : `${t(m[1], l)} is fine and with me; two neighbors carried the wheelchair up.`],
+  [/^(.+) está conmigo; le avisé con señas y entendió todo\.$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 和我在一起；我用手语告诉了对方，对方全都明白了。` : `${t(m[1], l)} is with me; I told them in sign language and they understood everything.`],
+  [/^Los tengo a los (\d+) conmigo, (asustados pero bien|tranquilos)\.$/, (l, m) => l === 'zh' ? `${m[1]} 个孩子都和我在一起，${m[2] === 'tranquilos' ? '很平静' : '受了惊吓但都还好'}。` : `I have all ${m[1]} with me, ${m[2] === 'tranquilos' ? 'calm' : 'scared but fine'}.`],
+  [/^(.+) está conmigo; le expliqué en (\S+) y entendió todo\.$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 和我在一起；我用${t(m[2], l)}解释了，对方全都明白了。` : `${t(m[1], l)} is with me; I explained it in ${t(m[2], l)} and they understood everything.`],
+  [/^(.+) está conmigo y está bien\.$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 和我在一起，一切都好。` : `${t(m[1], l)} is with me and doing fine.`],
+  [/^Le avisamos con señas y entendió todo\.$/, l => l === 'zh' ? '我们用手语告诉了对方，对方全都明白了。' : 'We told them in sign language and they understood everything.'],
+  [/^Le explicamos todo en (\S+)\.$/, (l, m) => l === 'zh' ? `我们用${t(m[1], l)}把一切都解释了。` : `We explained everything in ${t(m[1], l)}.`],
+  [/^A (.+) le avisamos con señas y entendió todo\.$/, (l, m) => l === 'zh' ? `我们用手语告诉了 ${t(m[1], l)}，对方全都明白了。` : `We told ${t(m[1], l)} in sign language and they understood everything.`],
+  [/^A (.+) le explicamos todo en (\S+)\.$/, (l, m) => l === 'zh' ? `我们用${t(m[2], l)}把一切都向 ${t(m[1], l)} 解释了。` : `We explained everything to ${t(m[1], l)} in ${t(m[2], l)}.`],
   // chat: zona lejos y tarjeta
   [/^¿Ya tienen a (.+) resguardad[oa]s?\?$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 已经安置好了吗？` : `Is ${t(m[1], l)} sheltered yet?`],
   [/^¿(.+) ya saben? que van a salir\?$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 知道要撤离了吗？` : `Does ${t(m[1], l)} know you’re leaving?`],
@@ -523,6 +573,11 @@ export function t(es, l = actual) {
   if (r == null) for (const [re, f] of P) { const m = es.match(re); if (m) { r = f(l, m); break; } }
   // frases unidas con « · »: se traduce cada parte
   if (r == null && es.includes(' · ')) { const partes = es.split(' · '); const tr = partes.map(p => t(p, l)); if (tr.some((x, k) => x !== partes[k])) r = tr.join(' · '); }
+  // varias oraciones (las respuestas del ayudante se arman por partes): se traduce cada una; solo si se conocen todas
+  if (r == null && /[.!?]\s+\S/.test(es)) {
+    const partes = es.split(/(?<=[.!?])\s+/), tr = partes.map(p => t(p, l));
+    if (partes.length > 1 && tr.every((x, k) => x !== partes[k])) r = tr.join(l === 'zh' ? '' : ' ');
+  }
   if (r == null) r = es;
   if (c.size > 3000) c.clear();
   c.set(es, r); return r;

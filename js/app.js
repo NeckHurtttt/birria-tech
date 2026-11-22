@@ -41,7 +41,7 @@ const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simul
 const tema = temaDemo();
 
 const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set(),
-  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, tema: {}, apuros: {}, apuroTimer: {}, sugeridas: {}, rescate: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
+  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, tema: {}, textoPregunta: {}, apuros: {}, apuroTimer: {}, sugeridas: {}, rescate: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -122,7 +122,7 @@ function pasoAyudante(id) {
   if (!p || !enAlerta(id) || n >= PASOS_AYUDANTE.length || (n === 1 && !est.pregunta[id])) { if (CHAT.abierto === id) pintarChat(); pintarPersonas(); return; }
   est.etapa[id] = n + 1;
   const zona = zonaDe(p);
-  decirChat(id, 'ayudante', n === 0 ? mensajeEnCamino(p, zona) : respuestaConfirmacion(p, est.tema[id] || 'general', Math.random, zona));
+  decirChat(id, 'ayudante', n === 0 ? mensajeEnCamino(p, zona) : respuestaConfirmacion(p, est.tema[id] || 'general', Math.random, zona, est.textoPregunta[id]));
   if (n === 0) {
     // ya va en camino: si la central escribió antes de este aviso, la confirmación sigue; si no, espera su mensaje
     if (est.pregunta[id]) programarPaso(id, 3500 + Math.random() * 2000); else programarApuro(id);
@@ -164,7 +164,7 @@ function enviarCentral(id, texto, tema) {
   if (espera) {
     est.pregunta[id] = true;
     // de qué trata lo que escribió (o la sugerencia que tocó): la respuesta del ayudante habla de eso; vale el último mensaje
-    est.tema[id] = tema || temaDe(texto, activas().find(x => x.id === id));
+    est.tema[id] = tema || temaDe(texto, activas().find(x => x.id === id)); est.textoPregunta[id] = texto;
   }
   decirChat(id, 'central', texto);
   if (!espera) return;
@@ -182,7 +182,7 @@ function sugerencias(id, p, n) {
   est.sugeridas[id] = { paso, zona, lista }; return lista;
 }
 function reiniciarEstadoChats() {
-  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.tema = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {}; est.rescate = {};
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.tema = {}; est.textoPregunta = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {}; est.rescate = {};
   CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
 }
 function iniciarChats() {

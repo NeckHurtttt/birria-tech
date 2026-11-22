@@ -37,7 +37,7 @@ export function temaDe(texto, p = {}) {
   if (/puente|\bpaso\b|libre|salida|cruzar|ruta|callej|despejad/.test(t)) return 'paso';
   if (/preventiv|adelant|con tiempo|antes de que/.test(t)) return 'preventivo';
   if (/\balist|\bcosas\b|mochila|document|medicin|prepar|\blistos\b/.test(t)) return 'preparar'; // \b: «saliste» no es «alistar»
-  if (/ánimo|animo|organiza|cómo están los vecinos|como estan los vecinos/.test(t)) return 'animo';
+  if (/ánimo|animo|organiza|cómo están los vecinos|como estan los vecinos|\bla gente\b|\blos vecinos\b/.test(t)) return 'animo'; // el grupo, no la persona
   if (/agua|nivel|calle|cuadra|crecida|corriente|\br[ií]o\b|inund|moj/.test(t)) return 'agua';
   if ((nombre && t.includes(nombre)) || /silla|ruedas|niñ|chic|abuel|señora|señor|doña|\bdon\b|con ustedes|contigo|consigo|entendi|señas|quechua|guaraní|aimara|cómo está|como esta/.test(t)) return 'persona';
   if (/alt[oa]|loma|zona|segur|resguard|refugio|escuela|plaza|arriba|subi|lleg|ubicad/.test(t)) return 'alto';
@@ -119,53 +119,88 @@ export function elegirSugerencias(p, paso, azar = Math.random, cuantas = 2, zona
   return out;
 }
 
-// ---------- respuesta del ayudante: confirma que están a salvo, hablando de lo que se le preguntó ----------
-const RESPUESTAS = {
+// ---------- respuesta del ayudante: contesta lo que se le preguntó y confirma que están a salvo ----------
+// Se arma con oraciones sueltas, en este orden:
+//   1. la respuesta directa al TEMA del mensaje de la central (agua, zona alta, salida, ánimo, alistar, preventivo, la persona…),
+//      con el tono del ETA real de ese momento (zona 'cerca' = agua llegando; 'lejos' = todavía hay margen: nada de «justo
+//      a tiempo» ni de agua tapando);
+//   2. si aporta naturalidad, un detalle de la asistencia de esa persona (silla de ruedas, señas, niños, idioma);
+//   3. el cierre que confirma que ya están a salvo, también según la zona.
+// Todos los temas tienen respuesta en las dos zonas: si un caso cruza de 'lejos' a 'cerca' entre la pregunta y la respuesta,
+// el ayudante igual contesta lo que se le preguntó (antes caía en una frase genérica).
+const TEMA_RESPUESTA = {
   cerca: {
-    agua: [p => `La calle ya es un río, el agua pasa la rodilla. Pero ya salimos con ${p.nombre} y estamos a salvo en lo alto.`,
-      () => 'El nivel subió como medio metro en minutos; alcanzamos a salir. Ya estamos fuera del agua.',
-      () => 'En la cuadra el agua corre fuerte y arrastra ramas. Nosotros ya estamos a salvo, lejos de la orilla.'],
-    alto: [p => `¡Sí! Ya llegamos al punto alto con ${p.nombre}. Desde aquí se ve cómo el río tapa la calle.`,
-      () => 'Ya estamos arriba, en la loma. Abajo el agua sigue subiendo, pero aquí estamos a salvo.',
-      () => 'Llegamos a la escuela, que es zona alta. Estamos resguardados, el agua no llega hasta acá.'],
-    paso: [() => 'El puente de la esquina ya está tapado; salimos por la calle de arriba. Ya estamos a salvo.',
-      p => `El paso de abajo se cortó, pero subimos por el callejón con ${p.nombre}. Ya estamos en lugar seguro.`,
-      () => 'La salida principal ya no sirve, el agua la tapó; dimos la vuelta por la cancha y ya estamos a salvo.'],
-    general: [() => '¡Listo! Ya estamos a salvo en la loma, el agua ya tapó la calle.',
-      p => `¡Ya está! Sacamos a ${p.nombre} justo a tiempo, estamos en punto alto.`,
-      () => '¡A salvo! Llegamos a la plaza; atrás el río ya se llevó la vereda.',
-      p => `¡Lo logramos! ${p.nombre} ya está con nosotros en la escuela, el agua sigue subiendo.`],
+    // menos de 1 h: el agua está por llegar (todavía no se dice que ya inundó la calle)
+    agua: [() => 'El río ya está casi a la altura de la calle; en minutos entra el agua.', () => 'El nivel sube rápido; el agua ya moja la orilla de la cuadra.'],
+    alto: [p => `Sí, ya llegamos al punto alto con ${p.nombre}.`, () => 'Sí, ya estamos arriba, en la loma, a salvo; abajo el agua sigue subiendo.'],
+    paso: [() => 'El puente de la esquina ya casi lo tapa el agua; salimos por la calle de arriba.', () => 'La salida de abajo ya se estaba llenando; dimos la vuelta por la cancha.'],
+    animo: [() => 'Hay nervios porque el agua subió rápido, pero nos organizamos entre vecinos.',
+      () => 'La gente está asustada, pero nadie se quedó atrás: cada uno ayudó a alguien.'],
+    preparar: [() => 'No hubo tiempo de llevar mucho: solo documentos y medicinas.'],
+    preventivo: [() => 'Ya no daba para salir con calma: el agua venía encima, pero alcanzamos a salir.'],
+    general: [p => `Sacamos a ${p.nombre} justo a tiempo.`, () => 'Llegamos a la plaza justo cuando el río empezaba a salirse.',
+      p => `${p.nombre} ya está con nosotros en la escuela.`],
   },
   lejos: {
-    preparar: [() => 'Sí, ya tenemos documentos, medicinas y una mochila con lo necesario. Salimos con calma y ya estamos en lugar seguro.',
-      () => 'Alistamos lo importante sin apuro y ya nos movimos; estamos ubicados en zona segura.'],
-    preventivo: [() => 'Sí, salimos de manera preventiva; todavía falta para que llegue el agua, pero ya estamos en zona segura.',
-      p => `Preferimos adelantarnos: ya estamos con ${p.nombre} en la escuela, con tiempo de sobra.`],
-    animo: [() => 'El ánimo está bien, los vecinos se organizaron rápido. Ya estamos todos ubicados en lugar seguro.',
-      () => 'Todo ordenado por aquí: la gente salió tranquila y ya estamos en el punto de encuentro, a salvo.'],
-    alto: [p => `Ya estamos ubicados en la escuela con ${p.nombre}, con tiempo de sobra; aquí todavía no llega el agua.`,
-      () => 'Ya llegamos al punto de encuentro, en zona alta. Todo tranquilo, quedamos atentos.'],
-    agua: [() => 'Por aquí el agua todavía no llega; el río se ve crecido a lo lejos. Ya estamos en zona segura por precaución.',
-      () => 'Todavía no sube por esta zona, pero no quisimos esperar: ya estamos a salvo en lo alto.'],
-    paso: [() => 'Las calles siguen libres; salimos sin problema por la ruta de evacuación y ya estamos a salvo.'],
-    general: [() => 'Listo, ya estamos en lugar seguro, con calma; aquí todavía hay margen.',
-      p => `Ya estamos con ${p.nombre} en la escuela, todo en orden; por aquí sigue tranquilo.`],
+    agua: [() => 'Por aquí el agua todavía no llega; el río se ve crecido a lo lejos.', () => 'En la cuadra todavía está seco; se escucha el río, pero lejos.'],
+    alto: [p => `Sí, ya estamos ubicados en la escuela con ${p.nombre}, con tiempo de sobra.`, () => 'Sí, ya llegamos al punto de encuentro, en zona alta.'],
+    paso: [() => 'Las calles siguen libres; salimos sin problema por la ruta de evacuación.', () => 'El puente está bien y la ruta despejada; pasamos sin apuro.'],
+    animo: [() => 'El ánimo está bien: los vecinos se organizaron rápido y se ayudan entre todos.',
+      () => 'Todo ordenado por aquí: cada uno sabe a quién acompaña y la gente salió tranquila.'],
+    preparar: [() => 'Sí, llevamos documentos, medicinas y una mochila con lo necesario.', () => 'Alistamos lo importante sin apuro, con tiempo.'],
+    preventivo: [() => 'Sí, salimos de manera preventiva; todavía falta para que llegue el agua.', () => 'Preferimos adelantarnos y salir con tiempo.'],
+    general: [() => 'Todo en orden por esta zona; aquí todavía hay margen.', p => `${p.nombre} ya está con nosotros en la escuela.`],
   },
 };
-const RESPUESTAS_PERSONA = {
-  silla: p => `Sí, tengo a ${p.nombre} conmigo. Subimos la silla de ruedas entre dos vecinos; ya estamos a salvo.`,
-  sordo: p => `${p.nombre} está conmigo; le avisé con señas y entendió todo. Ya estamos a salvo en lo alto.`,
-  grupo: p => /^Familia\s/i.test(p.nombre) ? 'Tengo a toda la familia conmigo, asustados pero bien. Ya estamos a salvo en la escuela.'
-    : cuantosDe(p) ? `Los tengo a los ${cuantosDe(p)} conmigo, asustados pero bien. Ya estamos a salvo en la escuela.`
-      : 'Los tengo a todos conmigo, asustados pero bien. Ya estamos a salvo en la escuela.',
-  idioma: p => `${p.nombre} está conmigo; le expliqué en ${idiomaDe(p)} y entendió todo. Ya estamos a salvo.`,
-  general: p => `${p.nombre} está conmigo y está bien. Ya estamos a salvo, fuera del agua.`,
+// respuesta cuando se pregunta por la persona asistida: habla de su asistencia concreta
+const SOBRE_PERSONA = {
+  silla: p => `${p.nombre} está bien, conmigo; subimos la silla de ruedas entre dos vecinos.`,
+  sordo: p => `${p.nombre} está conmigo; le avisé con señas y entendió todo.`,
+  grupo: (p, zona) => {
+    const animo = zona === 'cerca' ? 'asustados pero bien' : 'tranquilos';
+    if (/^Familia\s/i.test(p.nombre)) return zona === 'cerca' ? 'Tengo a toda la familia conmigo, asustados pero bien.' : 'Tengo a toda la familia conmigo, todos tranquilos.';
+    return cuantosDe(p) ? `Los tengo a los ${cuantosDe(p)} conmigo, ${animo}.` : `Los tengo a todos conmigo, ${animo}.`;
+  },
+  idioma: p => `${p.nombre} está conmigo; le expliqué en ${idiomaDe(p)} y entendió todo.`,
+  general: p => `${p.nombre} está conmigo y está bien.`,
 };
-/** La confirmación del ayudante (ya están a salvo), coherente con el tema preguntado y con la zona. */
-export function respuestaConfirmacion(p, tema = 'general', azar = Math.random, zona = 'cerca') {
-  if (tema === 'persona') return RESPUESTAS_PERSONA[tipoAsistencia(p)](p);
-  const z = RESPUESTAS[zona] || RESPUESTAS.cerca;
-  return elegir(z[tema] || z.general, azar)(p);
+// detalle de la asistencia que se suma cuando aporta (no en «general»: ahí no hay nada que contar)
+const DETALLE = {
+  silla: () => 'La silla de ruedas la llevamos entre dos vecinos.',
+  sordo: (p, z, yaNombrado) => yaNombrado ? 'Le avisamos con señas y entendió todo.' : `A ${p.nombre} le avisamos con señas y entendió todo.`,
+  // cerca hay nervios: los chicos vienen «conmigo» (decir «tranquilos» ahí se contradice)
+  grupo: (p, zona) => /^Familia\s/i.test(p.nombre) ? 'La familia vino junta.' : zona === 'cerca' ? 'Los chicos vienen de la mano, conmigo.' : 'Los chicos vienen de la mano, tranquilos.',
+  idioma: (p, z, yaNombrado) => yaNombrado ? `Le explicamos todo en ${idiomaDe(p)}.` : `A ${p.nombre} le explicamos todo en ${idiomaDe(p)}.`,
+  general: null,
+};
+// temas a los que el detalle les suma (en agua/paso/preparar la respuesta ya dice lo importante)
+const CON_DETALLE = new Set(['animo', 'alto', 'general', 'preventivo']);
+const CIERRE = {
+  cerca: ['Ya estamos a salvo en lo alto.', 'Ya estamos en zona alta, a salvo.'],
+  lejos: ['Ya estamos en lugar seguro, con calma.', 'Ya estamos a salvo, sin apuro.'],
+};
+// palabras que, si están en lo que escribió la central, hacen preferir la variante que también las menciona
+// (preguntó por el puente → la respuesta habla del puente, no solo de «las calles»)
+const PALABRAS_CLAVE = ['puente', 'calle', 'ruta', 'salida', 'documentos', 'medicinas', 'mochila', 'escuela', 'loma', 'plaza', 'nivel', 'río', 'vecinos', 'gente'];
+/**
+ * La confirmación del ayudante: responde al tema preguntado, con el tono del ETA (zona) y el perfil de la persona.
+ * `texto` (lo que escribió la central) afina la variante dentro del tema.
+ */
+export function respuestaConfirmacion(p, tema = 'general', azar = Math.random, zona = 'cerca', texto = '') {
+  const z = TEMA_RESPUESTA[zona] ? zona : 'cerca', tipo = tipoAsistencia(p);
+  let opciones = (TEMA_RESPUESTA[z][tema] || TEMA_RESPUESTA[z].general).map(f => f(p));
+  const claves = PALABRAS_CLAVE.filter(c => String(texto).toLowerCase().includes(c));
+  const afines = opciones.filter(o => claves.some(c => o.toLowerCase().includes(c)));
+  if (afines.length) opciones = afines;
+  const partes = tema === 'persona' ? [SOBRE_PERSONA[tipo](p, z)] : [elegir(opciones, azar)];
+  if (tema !== 'persona' && CON_DETALLE.has(tema) && DETALLE[tipo]) partes.push(DETALLE[tipo](p, z, partes[0].includes(p.nombre)));
+  // «zona alta» ya dice que están en un lugar seguro: no hace falta repetirlo
+  // el cierre no repite lo que ya se dijo («…pasamos sin apuro. Ya estamos a salvo, sin apuro.»)
+  if (tema !== 'alto') {
+    const dicho = partes.join(' ').toLowerCase(), cierres = CIERRE[z].filter(c => !['sin apuro', 'con calma', 'zona alta', 'en lo alto'].some(f => c.toLowerCase().includes(f) && dicho.includes(f)));
+    partes.push(elegir(cierres.length ? cierres : CIERRE[z], azar));
+  }
+  return partes.join(' ');
 }
 
 // ---------- apuro: el ayudante insiste si la central tarda en entrar a su chat ----------
