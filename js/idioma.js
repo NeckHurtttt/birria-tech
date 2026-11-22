@@ -79,6 +79,9 @@ const D = {
   'avisado': ['alerted', '已通知'],
   'a salvo': ['safe', '安全'],
   'al rescate': ['to rescue', '转交救援'],
+  'con apoyo del rescate oficial': ['with official rescue support', '由官方救援协助'],
+  'El rescate oficial ya fue avisado': ['Official rescue has been notified', '已通知官方救援'],
+  'Sigue ayudando si puedes: ellos van con la ubicación.': ['Keep helping if you can: they are on their way with the location.', '如果可以请继续帮忙：救援人员已带着位置出发。'],
   'Rescate oficial confirmó: evacuado.': ['Official rescue confirmed: evacuated.', '官方救援已确认：已撤离。'],
   'Vayan juntos a la loma de la plaza principal': ['Go together to the hill by the main square', '一起前往主广场旁的高地'],
   'Cuando estén a salvo, toca el botón verde': ['When you are safe, tap the green button', '确认安全后，点击绿色按钮'],
@@ -497,6 +500,7 @@ const P = [
   [/^(.+): al rescate oficial$/, (l, m) => l === 'zh' ? `${m[1]}：转交官方救援` : `${m[1]}: handed to official rescue`],
   [/^Sin confirmación a 30 min del agua$/, (l) => l === 'zh' ? '距洪水到达 30 分钟仍未确认' : 'No confirmation 30 min before the water'],
   [/^(.+) pasa al rescate oficial\.$/, (l, m) => l === 'zh' ? `${m[1]} 转交官方救援。` : `${m[1]} is handed to official rescue.`],
+  [/^(.+) pasan al rescate oficial\.$/, (l, m) => l === 'zh' ? `${m[1].replace(/ y /g, '、')} 转交官方救援。` : `${m[1].replace(/ y /g, ' and ')} are handed to official rescue.`],
   [/^↓ (\d+) más$/, (l, m) => l === 'zh' ? `↓ 还有 ${m[1]} 个` : `↓ ${m[1]} more`],
   [/^Cuadra (\d+)$/, (l, m) => l === 'zh' ? `第 ${m[1]} 街区` : `Block ${m[1]}`],
 ];

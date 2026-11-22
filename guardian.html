@@ -51,6 +51,7 @@
 
   /* persona */
   .persona { display: flex; gap: 14px; align-items: center; }
+  .tarjeta.rescate { border-color: var(--alerta); background: rgba(255,90,74,.14); } .tarjeta.rescate b { color: #ffb3aa; } .tarjeta.rescate p { margin: 4px 0 0; }
   .avatar { flex: none; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font: 700 22px var(--f); color: #04222a;
     background: #2a3d47; box-shadow: 0 0 0 4px rgba(91,231,240,.14); overflow: hidden; }
   .avatar .silueta { width: 100%; height: 100%; } .avatar .pelo { fill: #6f8791; } .avatar .piel { fill: #9fb3bb; }
@@ -355,17 +356,19 @@ function sirena(seg = 3) {
 // ---------- alerta: la crecida avanza en el mapa desde La Angostura ----------
 function avanzarCrecida() {
   if (!crecida || !mapa) return;
-  const min = (Date.now() - crecida.t0) / 6e4 + crecida.sim - crecida.lag; // minutos desde que el frente pasó La Angostura
+  const min = (Date.now() - crecida.t0) / 6e4 * crecida.x + crecida.sim - crecida.lag; // minutos (simulados) desde que el frente pasó La Angostura
   const km = Math.max(0, min / 60 * velocidad(crecida.i));
   mapa.crecida(km); mapa.sensor(min >= 0 ? 'crecida' : '');
   BARRIOS.forEach(x => {
-    const falta = Math.round(minutosHasta(x, crecida.i, crecida.lag) - crecida.sim - (Date.now() - crecida.t0) / 6e4);
+    const falta = Math.round(minutosHasta(x, crecida.i, crecida.lag) - crecida.sim - (Date.now() - crecida.t0) / 6e4 * crecida.x);
     mapa.barrio(x.id, falta <= 0 ? 'llegó el agua' : formatoTiempo(falta), falta <= 0 ? 'llego' : 'alerta');
   });
 }
-function alerta({ min, titulo, ayuda }) {
+function alerta({ min, titulo, ayuda, x = 1 }) {
   document.body.className = 'alerta'; navigator.vibrate?.([600, 200, 600, 200, 600]); sirena();
-  const total = Math.max(0, Number(min) || 0) * 60, fin = Date.now() + total * 1000, L = 2 * Math.PI * 87;
+  // x: aceleración del simulacro (la central la manda); en una alerta real es 1 y el reloj va en tiempo real
+  x = Math.max(1, Number(x) || 1);
+  const total = Math.max(0, Number(min) || 0) * 60 / x, fin = Date.now() + total * 1000, L = 2 * Math.PI * 87;
   vista.innerHTML = `<h1>${titulo}</h1>${ayuda}
     <div class="reloj" role="timer" aria-live="off"><svg viewBox="0 0 200 200"><circle class="pista" cx="100" cy="100" r="87"/><circle class="arco" id="arco" cx="100" cy="100" r="87" stroke-dasharray="${L}" stroke-dashoffset="0"/></svg>
       <div class="cifra"><strong id="cuenta">${formatoTiempo(Number(min))}</strong><span>El agua llega en</span></div></div>
@@ -377,7 +380,10 @@ function alerta({ min, titulo, ayuda }) {
   const tic = () => {
     const s = Math.max(0, Math.round((fin - Date.now()) / 1000)), c = $('#cuenta'), a = $('#arco');
     if (!c) return clearInterval(reloj);
-    c.textContent = s <= 0 ? formatoTiempo(0) : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    // con aceleración se muestra el tiempo simulado, igual que en la central; en tiempo real, minutos:segundos (h si pasa de 1 h)
+    const sim = s * x;
+    c.textContent = s <= 0 ? formatoTiempo(0) : x > 1 ? formatoTiempo(Math.ceil(sim / 60))
+      : sim >= 3600 ? `${Math.floor(sim / 3600)}:${String(Math.floor(sim / 60) % 60).padStart(2, '0')}:${String(sim % 60).padStart(2, '0')}` : `${Math.floor(sim / 60)}:${String(sim % 60).padStart(2, '0')}`;
     if (a && total) a.style.strokeDashoffset = String(L * (1 - s / total));
     avanzarCrecida();
     if (s <= 0 && !crecida) clearInterval(reloj);
@@ -396,13 +402,13 @@ function alertaGuardian(m) {
   canal.enviar({ tipo: 'recibido', id: p.id }, { titulo: `${p.nombre}: aviso recibido`, texto: `Celular de ${p.guardian}`, prioridad: 1 });
   try { if ('Notification' in window && Notification.permission === 'granted') new Notification(`Crecida: ayuda a ${p.nombre}`, { body: `El agua llega en ${formatoTiempo(Number(m.min))}` }); } catch {}
   // sin aviso general (central vieja): el frente se estima desde los minutos que faltan a su barrio
-  crecida ??= { i: 1, lag: 0, sim: Math.max(0, minutosHasta(b) - Number(m.min)), t0: Date.now() };
-  alerta({ min: m.min, titulo: '¡El río suena!', ayuda: `<p>Ayuda a <b>${p.nombre}</b> (${p.necesidad})<br>${b.nombre}, ${p.cuadra}</p>` });
+  crecida ??= { i: 1, lag: 0, sim: Math.max(0, minutosHasta(b) - Number(m.min)), t0: Date.now(), x: Math.max(1, Number(m.x) || 1) };
+  alerta({ min: m.min, x: crecida.x, titulo: '¡El río suena!', ayuda: `<p>Ayuda a <b>${p.nombre}</b> (${p.necesidad})<br>${b.nombre}, ${p.cuadra}</p>` });
 }
 function alertaVecino() {
   const min = Math.max(0, Math.round(minutosHasta(b, crecida.i, crecida.lag) - crecida.sim));
   try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Crecida del Piraí', { body: `El agua llega a ${b.nombre} en ${formatoTiempo(min)}` }); } catch {}
-  alerta({ min, titulo: '¡El río suena!', ayuda: `<p>El agua viene río abajo hacia <b>${b.nombre}</b></p>` });
+  alerta({ min, x: crecida.x, titulo: '¡El río suena!', ayuda: `<p>El agua viene río abajo hacia <b>${b.nombre}</b></p>` });
 }
 function salvo(texto, titulo = `${p.nombre} está a salvo`) {
   clearInterval(reloj); navigator.vibrate?.(0); document.body.className = 'salvo';
@@ -419,12 +425,18 @@ function cancelada() {
 const canal = !tema ? null : abrirCanal(tema, m => {
   if (m.tipo === 'cancelar') { if (document.body.classList.contains('alerta')) cancelada(); else crecida = null; return; }
   if (m.tipo === 'crecida') {
-    crecida = { i: Number(m.i) || 1, lag: Number(m.lag) || 0, sim: Number(m.sim) || 0, t0: Date.now() };
+    crecida = { i: Number(m.i) || 1, lag: Number(m.lag) || 0, sim: Number(m.sim) || 0, t0: Date.now(), x: Math.max(1, Number(m.x) || 1) };
     if (vecino && !document.body.classList.contains('alerta')) alertaVecino();
   }
   if (vecino) return;
   if (m.tipo === 'alerta' && m.id === p.id) alertaGuardian(m);
   if (m.tipo === 'ok' && m.id === p.id && document.body.classList.contains('alerta')) salvo('Confirmado desde la central.');
+  // a T−30 sin confirmar, la central deriva el caso al rescate oficial: el ayudante lo sabe, pero puede seguir ayudando
+  if (m.tipo === 'rescate' && m.id === p.id && document.body.classList.contains('alerta') && !$('#aviso-rescate')) {
+    const d = document.createElement('div'); d.className = 'tarjeta rescate'; d.id = 'aviso-rescate'; d.setAttribute('role', 'alert');
+    d.innerHTML = '<b>El rescate oficial ya fue avisado</b><p>Sigue ayudando si puedes: ellos van con la ubicación.</p>';
+    $('.reloj')?.after(d); navigator.vibrate?.([300, 100, 300]);
+  }
 });
 function sinCodigo() {
   vista.innerHTML = `<h1>Falta el código</h1><p>Escanee el código QR que muestra la central (botón «Sé ayudante») o pegue aquí el enlace o el código recibido.</p>

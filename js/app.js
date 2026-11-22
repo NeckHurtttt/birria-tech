@@ -388,12 +388,13 @@ function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.
 function avisarGuardianes() {
   est.avisoT = Date.now(); est.resp = {}; est.recib = {};
   // aviso general: cualquier vecino (no solo los guardianes) calcula cuándo llega el agua a su barrio
-  canal.enviar({ tipo: 'crecida', i: est.intensidad.toFixed(2), lag: Math.round(est.lag), sim: Math.round(est.simMin) },
+  // x: aceleración del simulacro, para que el reloj del celular vaya al mismo ritmo que el de la central
+  canal.enviar({ tipo: 'crecida', i: est.intensidad.toFixed(2), lag: Math.round(est.lag), sim: Math.round(est.simMin), x: ACELERA },
     { titulo: 'Crecida del Piraí', texto: 'El río viene crecido desde La Angostura. Abre la app para ver cuándo llega a tu barrio.', prioridad: 4 });
   activas().forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), min = minutosHasta(b, est.intensidad, est.lag) - est.simMin;
     est.personas[p.id] = 'avisado';
-    canal.enviar({ tipo: 'alerta', id: p.id, min: Math.round(min) }, {
+    canal.enviar({ tipo: 'alerta', id: p.id, min: Math.round(min), x: ACELERA }, {
       titulo: `Crecida del Piraí: ayuda a ${p.nombre}`,
       texto: `${p.nombre}, ${b.nombre} ${p.cuadra} (${p.necesidad}). El agua llega en ${formatoTiempo(Math.round(min))}. Vayan juntos al punto seguro.`,
       prioridad: 5,
@@ -476,6 +477,7 @@ setInterval(() => {
   if (est.fase !== 'alerta') return;
   const ahora = performance.now(); est.simMin += (ahora - est.ultimo) / 60000 * ACELERA; est.ultimo = ahora;
   let cambio = false;
+  const aRescate = [];
   const v = VELOCIDAD_KMH * Math.min(1.6, Math.max(0.8, Math.sqrt(est.intensidad)));
   const enRio = est.simMin - est.lag;
   if (enRio >= 0) mapa.sensor('crecida');
@@ -492,10 +494,12 @@ setInterval(() => {
     mapa.barrio(b.id, llego ? `agua ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m` : formatoTiempo(resta), llego ? 'llego' : 'alerta');
     // T−30 sin confirmación del ayudante: el caso se deriva al rescate oficial (sin cerrarlo: el chat sigue abierto)
     if (resta <= T_RESCATE_MIN) activas().forEach(p => {
-      if (p.barrio === b.id && est.personas[p.id] === 'avisado' && !est.rescate[p.id] && !listoParaConfirmar(p.id)) { derivarRescate(p, b); cambio = true; }
+      if (p.barrio === b.id && est.personas[p.id] === 'avisado' && !est.rescate[p.id] && !listoParaConfirmar(p.id)) { derivarRescate(p, b); aRescate.push(p.nombre); cambio = true; }
     });
   });
   if (cambio) pintarPersonas();
+  // una sola locución aunque varios casos pasen a la vez (si no, cada una cortaría a la anterior)
+  if (aRescate.length) hablar(`${aRescate.join(' y ')} ${aRescate.length > 1 ? 'pasan' : 'pasa'} al rescate oficial.`);
   // mensajes de emergencia: se encolan al cambiar el estado de cada tramo (con la hora en que pasó)
   // y salen de a uno, con tiempo para leerlos
   const nuevos = mensajesNuevos({ simMin: est.simMin, lag: est.lag, intensidad: est.intensidad }, msjSalieron);
@@ -512,7 +516,6 @@ function derivarRescate(p, b) {
   decirChat(p.id, 'sistema', 'Sin confirmación a T−30: pasa al rescate oficial.');
   aviso(`${p.nombre}: al rescate oficial`, `Sin confirmación a 30 min del agua · ${b.nombre}, ${p.cuadra}`, 'rescate');
   canal.enviar({ tipo: 'rescate', id: p.id }, { titulo: `Rescate oficial: ${p.nombre}`, texto: `${p.nombre} (${p.necesidad}), ${b.nombre} ${p.cuadra}. Sin confirmación del vecino ayudante a 30 min del agua.`, prioridad: 5 });
-  hablar(`${p.nombre} pasa al rescate oficial.`);
 }
 
 // ---------- mensajes de emergencia por tramo del río ----------
@@ -752,7 +755,8 @@ function exito() {
   const b = new Set(activas().map(p => BARRIOS.find(x => x.id === p.barrio).nombre));
   $('#exito-texto').textContent = `${activas().length} personas que no podían salir solas ya están en el punto seguro (${[...b].join(', ')}), antes de que llegue el agua.`;
   const m = Object.values(est.margen), prom = m.length ? Math.round(m.reduce((a, x) => a + x, 0) / m.length) : 0;
-  $('#exito-datos').innerHTML = `<div><b>${activas().length}</b><span>personas confirmadas</span></div><div><b>${formatoTiempo(prom).replace('ya llegó', '0 min')}</b><span>de margen promedio antes del agua</span></div><div><b>0 Bs</b><span>para las familias</span></div>`;
+  const conRescate = activas().filter(p => est.rescate[p.id]).length;
+  $('#exito-datos').innerHTML = `<div><b>${activas().length}</b><span>personas confirmadas</span></div><div><b>${formatoTiempo(prom).replace('ya llegó', '0 min')}</b><span>de margen promedio antes del agua</span></div><div><b>0 Bs</b><span>para las familias</span></div>` + (conRescate ? `<div><b>${conRescate}</b><span>con apoyo del rescate oficial</span></div>` : '');
   $('#respuestas').replaceChildren(); $('#exito').hidden = false; hablar('¡Todos a salvo! Gracias a cada vecino ayudante.'); oido.detener();
   est.fase = 'fin'; $('#exito-cerrar').focus();
 }
