@@ -1,7 +1,7 @@
 // Aviso oficial de SENAMHI (boletín hidrológico de Santa Cruz, cuenca del Piraí).
 // datos/senamhi.json lo genera herramientas/senamhi.py (GitHub Action cada día hábil).
 // El Río Suena no contradice al aviso oficial: la amenaza de SENAMHI pone un piso al índice.
-export const URL_SENAMHI = 'https://neckhurtttt.github.io/el-rio-suena/datos/senamhi.json';
+export const URL_SENAMHI = 'https://neckhurtttt.github.io/birria-tech/datos/senamhi.json';
 export const ORDEN = { sin: 0, amarilla: 1, naranja: 2, roja: 3 };
 export const NOMBRE = { sin: 'sin amenaza', amarilla: 'amarilla', naranja: 'naranja', roja: 'roja' };
 const VIGENCIA_DIAS = 5; // un boletín más viejo que esto ya no se usa

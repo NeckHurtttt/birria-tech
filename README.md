@@ -9,7 +9,7 @@
 <p align="center"><img src="capturas/cifras.svg" alt="26 fallecidos en la riada de El Torno · unas 4 h de aviso con 2 vigías río arriba (estimado) · 1 toque para que el guardián confirme · Bs 0 para las familias, funciona sin internet" width="100%"></p>
 
 <p align="center">
-  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado"><img src="https://img.shields.io/badge/Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
+  <a href="https://neckhurtttt.github.io/birria-tech/?jurado"><img src="https://img.shields.io/badge/Demo_en_vivo-modo_jurado-5ee6f0?style=for-the-badge" alt="Demo en vivo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
   <img src="https://img.shields.io/badge/pruebas-18_aprobadas-2ea043?style=for-the-badge" alt="18 pruebas aprobadas">
@@ -47,11 +47,11 @@
 ### Pruébelo en un minuto
 
 > [!TIP]
-> 1. Abra la **[demostración en vivo](https://neckhurtttt.github.io/el-rio-suena/?jurado)** y presione **Iniciar simulacro**. En el modo `?jurado` el tiempo corre 300 veces más rápido.
+> 1. Abra la **[demostración en vivo](https://neckhurtttt.github.io/birria-tech/?jurado)** y presione **Iniciar simulacro**. En el modo `?jurado` el tiempo corre 300 veces más rápido.
 > 2. Presione **Sé guardián** y escanee el código QR con su celular (funciona incluso desde una videollamada). Toque **Activar avisos**.
 > 3. Cuando su celular suene, toque **«Listo, a salvo»**: la central registra su respuesta en tiempo real.
 
-Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar. **Video de respaldo** (sin conexión, 1 min 45 s, con subtítulos): [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
+Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar. **Video de respaldo** (sin conexión, 1 min 45 s, con subtítulos): [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/birria-tech/releases/tag/v1.0-abstracthon).
 
 Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el track **Ayuda Tecnológica**, que combina:
 
@@ -342,7 +342,7 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 <p align="center"><img src="capturas/en/cifras.svg" alt="26 dead in the El Torno flood · about 4 h of warning with 2 upstream watchers (estimate) · 1 tap for the guardian to confirm · Bs 0 for families, works offline" width="100%"></p>
 
 <p align="center">
-  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en"><img src="https://img.shields.io/badge/▶_Live_demo-judge_mode-5ee6f0?style=for-the-badge" alt="Live demo"></a>
+  <a href="https://neckhurtttt.github.io/birria-tech/?jurado&lang=en"><img src="https://img.shields.io/badge/▶_Live_demo-judge_mode-5ee6f0?style=for-the-badge" alt="Live demo"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/backend-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
   <img src="https://img.shields.io/badge/tests-18_passed-2ea043?style=for-the-badge" alt="18 tests passed">
@@ -369,7 +369,7 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 #### Try it in one minute
 
 > [!TIP]
-> 1. Open the **[live demo](https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=en)** and press **Start drill**. In `?jurado` mode, time runs 300 times faster.
+> 1. Open the **[live demo](https://neckhurtttt.github.io/birria-tech/?jurado&lang=en)** and press **Start drill**. In `?jurado` mode, time runs 300 times faster.
 > 2. Press **Be a guardian** and scan the QR code with your phone (it even works over a video call). Tap **Turn on alerts**.
 > 3. When your phone rings, tap **“Done, safe”**: the control room logs your response in real time.
 
@@ -596,7 +596,7 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 <p align="center"><img src="capturas/zh/cifras.svg" alt="26 人在 El Torno 洪灾中遇难 · 2 名上游观察员约可提前 4 小时预警（估算）· 守护者一键确认 · 家庭零费用，可离线运行" width="100%"></p>
 
 <p align="center">
-  <a href="https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh"><img src="https://img.shields.io/badge/▶_在线演示-评委模式-5ee6f0?style=for-the-badge" alt="在线演示"></a>
+  <a href="https://neckhurtttt.github.io/birria-tech/?jurado&lang=zh"><img src="https://img.shields.io/badge/▶_在线演示-评委模式-5ee6f0?style=for-the-badge" alt="在线演示"></a>
   <img src="https://img.shields.io/badge/Abstracthon-2026-e5484d?style=for-the-badge" alt="Abstracthon 2026">
   <img src="https://img.shields.io/badge/后端-Supabase-3ecf8e?style=for-the-badge&logo=supabase&logoColor=fff" alt="Supabase">
   <img src="https://img.shields.io/badge/测试-18_通过-2ea043?style=for-the-badge" alt="18 项测试通过">
@@ -623,7 +623,7 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 #### 一分钟上手
 
 > [!TIP]
-> 1. 打开 **[在线演示](https://neckhurtttt.github.io/el-rio-suena/?jurado&lang=zh)**，点击 **开始演练**。在 `?jurado` 模式下时间加速 300 倍。
+> 1. 打开 **[在线演示](https://neckhurtttt.github.io/birria-tech/?jurado&lang=zh)**，点击 **开始演练**。在 `?jurado` 模式下时间加速 300 倍。
 > 2. 点击 **成为守护者**，用手机扫描二维码（视频通话中也可以扫）。点击 **开启提醒**。
 > 3. 手机响起后，点击 **「完成，已安全」**：指挥中心会实时记录你的响应。
 
@@ -858,7 +858,7 @@ Sergio（开发）· José Miguel Salinas（路演、文档与调试）· Rodrig
 4. **Ñangarekoha vecino:** umi tapicha ndaikatúiva osẽ ijehegui oguereko peteĩ vecino ombohapéva. Ipumbyry osapukái, ha ojopy peteĩ jey «aipytyvõma». Avave ndohechaukáiramo 30 aravo’i y og̃uahẽ mboyve, ohasa **rescate oficial**-pe.
 
 ### Mba’éichapa ojeporu (demo)
-1. Eipe’a https://neckhurtttt.github.io/el-rio-suena/?jurado ha ejopy **Iniciar simulacro**.
+1. Eipe’a https://neckhurtttt.github.io/birria-tech/?jurado ha ejopy **Iniciar simulacro**.
 2. Ehecha mboy aravo’ípa hembýve peteĩteĩ barrio-pe.
 3. Pumbyry ñangarekoha mba’e osapukái → ejopy **«Listo, a salvo ✓»**.
 4. Opavave oĩma porã rire → **«Todos a salvo»**.
@@ -890,7 +890,7 @@ Umi aravo ha y ijyvatekue ojekuaa’ỹmi gueteri; oñemohenda va’erã **SEARP
 4. **Amachaq vecino:** mana sapallan lluqsiyta atiq runaqa huk vecinoyuq. Celularnin waqan, huk ñit’iyllawan «yanapaniña» nin. Mana pipas willaqtinqa, unu chayamunanmanta 30 minutu ñawpaqta, **rescate oficialman** pasan.
 
 ### Imaynata llamk’achina (demo)
-1. https://neckhurtttt.github.io/el-rio-suena/?jurado kichay, **Iniciar simulacro** ñit’iy.
+1. https://neckhurtttt.github.io/birria-tech/?jurado kichay, **Iniciar simulacro** ñit’iy.
 2. Sapa barriopaq minutukunata qhaway.
 3. Amachaqpa celularnin waqan → **«Listo, a salvo ✓»** ñit’iy.
 4. Llapanku allinña kaqtinku → **«Todos a salvo»**.

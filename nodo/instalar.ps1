@@ -69,7 +69,7 @@ for ($i = 0; $i -lt 30 -and -not $url; $i++) {
 }
 if (-not $url -and $cfg['CLOUDFLARE_TOKEN']) { $url = Read-Host 'Túnel con dirección fija: escribe su URL https' }
 
-$central = "https://neckhurtttt.github.io/el-rio-suena/?jurado&t=$($cfg['TEMA'])"
+$central = "https://neckhurtttt.github.io/birria-tech/?jurado&t=$($cfg['TEMA'])"
 if ($url) { $central += "&ntfy=$url" } else { Write-Warning 'No apareció la URL del túnel: la central funciona igual por ntfy.sh. Mira: docker compose logs tunel' }
 New-Item -ItemType Directory -Force (Join-Path $PSScriptRoot 'datos') | Out-Null
 Set-Content -Path (Join-Path $PSScriptRoot 'datos\central.txt') -Value $central -Encoding UTF8

@@ -381,7 +381,7 @@ const canal = abrirCanal(tema, m => {
   if (m.tipo === 'vigia') vigiaCelular(m);
   if (m.tipo === 'reg') traerJunta();
 }, confiable);
-const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
+const PUBLICA = 'https://neckhurtttt.github.io/birria-tech/';
 // el servidor de ?ntfy= viaja en los enlaces de ayudantes y vigías, para que respondan por el mismo
 const conNtfy = () => { const n = new URLSearchParams(location.search).get('ntfy'); return n ? { ntfy: n } : {}; };
 function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id, ...conNtfy() }), per = todas().find(x => x.id === id);

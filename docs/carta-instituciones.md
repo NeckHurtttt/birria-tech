@@ -36,8 +36,8 @@ Por lo expuesto, solicitamos respetuosamente una **reunión breve (30 minutos), 
 
 El sistema no pretende reemplazar las alertas oficiales, sino complementarlas en el nivel barrial. El código es abierto y no tiene costo para las familias.
 
-- Demostración en línea: https://neckhurtttt.github.io/el-rio-suena/?jurado
-- Repositorio y documentación: https://github.com/NeckHurtttt/el-rio-suena
+- Demostración en línea: https://neckhurtttt.github.io/birria-tech/?jurado
+- Repositorio y documentación: https://github.com/NeckHurtttt/birria-tech
 
 Agradecemos de antemano su atención y quedamos a su disposición.
 
