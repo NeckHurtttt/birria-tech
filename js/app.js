@@ -10,6 +10,7 @@ import { RIADA_2025 } from './historico.js';
 import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
+import { mensajesNuevos } from './mensajes.js';
 
 // idioma de la interfaz (ES · EN · 中文): cambia sin recargar; ver js/idioma.js
 iniciarIdioma(document.querySelector('#idioma-sel'));
@@ -210,7 +211,48 @@ setInterval(() => {
     activas().filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; cambio = true; });
   });
   if (cambio) pintarPersonas();
+  // mensajes de emergencia: se encolan al cambiar el estado de cada tramo y salen escalonados
+  colaMsj.push(...mensajesNuevos({ simMin: est.simMin, lag: est.lag, intensidad: est.intensidad }, msjSalieron));
+  if (colaMsj.length && ahora - ultimoMsj >= MSJ_CADA_MS) { mostrarMsj(colaMsj.shift()); ultimoMsj = ahora; }
 }, 250);
+
+// ---------- mensajes de emergencia por tramo del río ----------
+const MSJ_CADA_MS = 1300, MSJ_MAX = 40;
+const NIVEL_MSJ = { aviso: { rango: 1, txt: 'aviso', e: 'vigilancia' }, alerta: { rango: 2, txt: 'alerta', e: 'alerta' }, desborde: { rango: 3, txt: 'desborde', e: 'crecida' } };
+const listaMsj = $('#lista-msj'), estadoMsj = $('#estado-msj');
+const msjSalieron = new Set(); let colaMsj = [], ultimoMsj = 0, rangoMsj = 0;
+const PIN = '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+// avatar de quien reporta: silueta gris sin rostro (como el perfil por defecto de una red social),
+// distinta para mujer (pelo largo hasta los hombros) y hombre (pelo corto, hombros anchos)
+const ONDA = '<svg viewBox="0 0 24 24"><path d="M3 10c3-3 5 3 9 0s6 3 9 0M3 16c3-3 5 3 9 0s6 3 9 0"/></svg>';
+const SILUETA = {
+  m: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M11.6 13.4c-.2-4.6 2.7-7.4 6.4-7.4s6.6 2.8 6.4 7.4c-1.2-1.9-3.4-2.9-6.4-2.9s-5.2 1-6.4 2.9z"/><circle class="piel" cx="18" cy="14.2" r="6.1"/><path class="piel" d="M4 37c0-8 6.2-12.3 14-12.3S32 29 32 37z"/></svg>',
+  f: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M9.6 15.2c0-6 3.7-9.8 8.4-9.8s8.4 3.8 8.4 9.8c0 4.3.8 8 2.6 11.2-2.8 1.6-6.5 2.3-11 2.3s-8.2-.7-11-2.3c1.8-3.2 2.6-6.9 2.6-11.2z"/><path class="piel" d="M8 37c0-6.6 4.4-10.4 10-10.4s10 3.8 10 10.4z"/><circle class="piel" cx="18" cy="15" r="5.4"/><path class="pelo" d="M12.6 13.6c1.6-3.3 4-4.6 7.2-4.2 1.9.3 3.3 1.4 4.1 3.4-3.6.4-7.4-.1-11.3.8z"/></svg>',
+};
+function mostrarMsj(m) {
+  const n = NIVEL_MSJ[m.nivel], hora = new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
+  const li = document.createElement('li'); li.dataset.n = m.nivel; li.tabIndex = 0; li.className = 'nuevo';
+  const q = m.quien;
+  li.innerHTML = `<span class="av${q.sistema ? ' sistema' : ''}" aria-hidden="true">${q.sistema ? ONDA : SILUETA[q.g] || SILUETA.m}</span>
+    <div class="cuerpo">
+      <div class="cab"><span class="quien"><b>${esc(q.nombre)}</b><small>${esc(q.rol)}</small></span><span class="nivel">${n.txt}</span></div>
+      <span class="lugar">${PIN}${esc(m.zona.nombre)}${m.zona.km != null ? ` · km ${String(m.zona.km).replace('.', ',')}` : ''}</span>
+      <span class="texto">${esc(m.texto)}</span>
+      <span class="hora">${est.escenario ? 'Simulacro' : 'Alerta real'} · +${formatoTiempo(Math.floor(est.simMin)).replace('ya llegó', '0 min')} · ${hora}</span>
+    </div>`;
+  li.onclick = () => mapa.volar(m.zona);
+  li.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); mapa.volar(m.zona); } };
+  listaMsj.querySelectorAll('li.nuevo').forEach(x => x.classList.remove('nuevo'));
+  listaMsj.prepend(li); listaMsj.scrollTop = 0;
+  while (listaMsj.children.length > MSJ_MAX) listaMsj.lastElementChild.remove();
+  $('#msj-vacio').hidden = true;
+  if (n.rango > rangoMsj) { rangoMsj = n.rango; estadoMsj.dataset.e = n.e; estadoMsj.textContent = n.txt; }
+}
+function limpiarMsj() {
+  msjSalieron.clear(); colaMsj = []; ultimoMsj = 0; rangoMsj = 0;
+  listaMsj.innerHTML = ''; $('#msj-vacio').hidden = false;
+  estadoMsj.dataset.e = 'normal'; estadoMsj.textContent = 'sin reportes';
+}
 
 // ---------- botones ----------
 // Simulacro: la tormenta de una noche de riada crece en la cuenca alta en ~7 s y el índice cruza el umbral.
@@ -248,6 +290,7 @@ function reiniciar() {
   BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = 'sin crecida'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'sin alerta', 'tranquilo'); });
   mapa.crecida(0); mapa.sensor(''); mapa.general();
   $('#confianza').hidden = true; $('#chip-reloj').hidden = true; $('#exito').hidden = true; $('#btn-falsa').hidden = true;
+  limpiarMsj();
 }
 // ---------- falsa alarma: la junta verificó el río y no hay crecida ----------
 // se cancela en todos los celulares (sirena apagada, pantalla verde con el motivo) y queda en el registro de alertas

@@ -69,6 +69,13 @@
     </details>
   </section>
 
+  <section class="panel mensajes" aria-labelledby="t-msj">
+    <header><h2 id="t-msj">Mensajes de emergencia</h2><span class="estado" id="estado-msj" data-e="normal">sin reportes</span></header>
+    <p class="sub">Reportes de vecinos por tramo del río, en orden de llegada. Toca uno para verlo en el mapa.</p>
+    <ol id="lista-msj" class="msj" role="log" aria-live="polite" aria-relevant="additions"></ol>
+    <p class="msj-vacio" id="msj-vacio">Sin mensajes. Al iniciar el simulacro, aquí aparecen los avisos de cada tramo del río a medida que baja la crecida.</p>
+  </section>
+
   <section class="panel cuenta" aria-labelledby="t-cuenta">
     <header><h2 id="t-cuenta">Cuenta regresiva por barrio</h2></header>
     <ol id="lista-barrios" class="barrios"></ol>

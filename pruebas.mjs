@@ -105,3 +105,28 @@ t('SENAMHI: amenaza oficial pone piso al índice y se lee del boletín', () => {
   assert.equal(Object.values(real.tramos).every(d => d.length === 14 && d.every(x => x.amenaza)), true);
 });
 console.log('senamhi ok');
+import { mensajesNuevos } from './js/mensajes.js';
+t('mensajes de emergencia: progresivos río abajo, sin repetir', () => {
+  const s = new Set(), cero = () => 0, lag = 150, i = 2;
+  const ini = mensajesNuevos({ simMin: 0, lag, intensidad: i }, s, cero);
+  assert.deepEqual(ini.map(m => m.clave), ['cuenca']);
+  assert.equal(mensajesNuevos({ simMin: 0, lag, intensidad: i }, s, cero).length, 0);
+  const paso = mensajesNuevos({ simMin: lag, lag, intensidad: i }, s, cero).map(m => m.clave);
+  assert.ok(paso.includes('vigia') && paso.includes('paso-angostura'));
+  const torno = BARRIOS.find(b => b.id === 'eltorno'), llega = minutosHasta(torno, i, lag);
+  const antes = mensajesNuevos({ simMin: llega - 1, lag, intensidad: i }, s, cero);
+  assert.ok(antes.some(m => m.clave === 'evacuar-eltorno' && m.nivel === 'alerta'));
+  assert.ok(!antes.some(m => m.clave === 'llego-eltorno'));
+  const ya = mensajesNuevos({ simMin: llega, lag, intensidad: i }, s, cero).find(m => m.clave === 'llego-eltorno');
+  assert.equal(ya.nivel, 'desborde'); assert.match(ya.texto, /El Torno/);
+  const fin = mensajesNuevos({ simMin: 1e4, lag, intensidad: i }, s, cero);
+  assert.ok(!fin.some(m => m.clave === 'paso-portachuelo'), 'el último tramo no "pasa hacia" nada');
+  assert.ok(fin.every(m => !/\{\w+\}/.test(m.texto)), 'sin marcadores sin rellenar');
+});
+console.log('mensajes ok');
+t('cada mensaje dice quién lo manda', () => {
+  const todos = mensajesNuevos({ simMin: 1e4, lag: 150, intensidad: 2 }, new Set(), () => 0);
+  assert.ok(todos.every(m => m.quien && m.quien.nombre && m.quien.rol && (m.quien.sistema || ['f', 'm'].includes(m.quien.g))));
+  assert.ok(todos.find(m => m.clave === 'cuenca').quien.sistema, 'el aviso de lluvia es automático');
+  assert.ok(!todos.find(m => m.clave === 'llego-eltorno').quien.sistema, 'el desborde lo reporta un vecino');
+});

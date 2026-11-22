@@ -41,8 +41,10 @@ h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
 .sub, .nota { margin: 0 0 12px; color: var(--texto-2); font-size: 13px; }
 .nota { margin: 12px 0 0; font-size: 12px; }
 .oido { grid-column: 1; grid-row: 1; }
-.guardianes { grid-column: 1; grid-row: 2; align-self: start; max-height: 100%; }
-.cuenta { grid-column: 3; grid-row: 1 / span 2; align-self: start; max-height: 100%; }
+.mensajes { grid-column: 1; grid-row: 2; align-self: stretch; max-height: 100%; display: flex; flex-direction: column; }
+.cuenta { grid-column: 3; grid-row: 1; align-self: start; max-height: 100%; }
+/* abajo a la derecha, debajo de la cuenta regresiva; deja libre la atribución del mapa (OpenStreetMap) */
+.guardianes { grid-column: 3; grid-row: 2; align-self: end; max-height: calc(100% - 24px); margin-bottom: 24px; }
 
 #espectro { width: 100%; height: 120px; border-radius: var(--r-chico); background: #06121b; display: block; }
 .medidor { height: 8px; border-radius: 99px; background: rgba(255,255,255,.07); margin: 12px 0 8px; overflow: hidden; }
@@ -143,7 +145,8 @@ select { min-height: 36px; border-radius: var(--r-chico); background: var(--supe
   .barra .btn.primario { padding: 8px 12px; }
   .tablero { height: auto; display: flex; flex-direction: column; padding: 0 16px 96px; gap: 16px; pointer-events: auto; }
   .mapa { position: relative; height: 52vh; margin: 0 -16px; inset: auto; }
-  .cuenta { order: 2; } .oido { order: 1; } .guardianes { order: 3; }
+  .cuenta { order: 2; } .oido { order: 1; } .mensajes { order: 3; } .guardianes { order: 4; margin-bottom: 0; }
+  .mensajes .msj { max-height: 50vh; }
   .panel { max-height: none; overflow: visible; }
   .marca { padding: 3px 7px; font-size: 10px; border-radius: 8px; }
   .marca .cr { font-size: 10px; }
@@ -258,7 +261,7 @@ html.grande .barrios .tiempo { font-size: 26px; }
 }
 @media (min-width: 901px) {
   .tablero { grid-template-rows: auto minmax(230px, 1fr); }
-  .oido { max-height: calc(100vh - 65px - 32px - 16px - 230px); }
+  .oido, .cuenta { max-height: calc(100vh - 65px - 32px - 16px - 230px); }
   .oido .fila { flex-wrap: nowrap; }
   .oido .fila .btn.chico { padding: 6px 8px; gap: 6px; }
 }
@@ -300,3 +303,42 @@ html.grande .barrios .tiempo { font-size: 26px; }
 /* chino: las fuentes de la app no tienen caracteres CJK */
 html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", system-ui, sans-serif; --mono: "JetBrains Mono", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", ui-monospace, monospace; }
 #btn-falsa { white-space: nowrap; border-color: var(--alerta); color: var(--alerta); }
+
+/* mensajes de emergencia por tramo del río (abajo a la izquierda) */
+.mensajes .sub { margin-bottom: 8px; }
+#estado-msj { white-space: nowrap; flex: none; }
+.msj { list-style: none; margin: 0; padding: 0 2px 0 0; display: grid; gap: 8px; align-content: start; flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+.msj li { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: var(--r-chico); border-left: 3px solid var(--aviso); background: rgba(255,179,71,.07); cursor: pointer; animation: msj-entra .45s ease-out both; transition: background .18s; }
+.msj li:hover { background: rgba(255,179,71,.13); }
+.msj li:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.msj .lugar { display: flex; align-items: center; gap: 6px; font: 600 12px var(--mono); color: var(--aviso); text-transform: uppercase; letter-spacing: .04em; min-width: 0; }
+.msj .lugar svg { width: 14px; height: 14px; }
+.msj .nivel { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 99px; background: var(--aviso); color: #2a1a00; align-self: start; white-space: nowrap; }
+.msj .texto { font-weight: 600; font-size: 14px; line-height: 1.35; color: var(--texto); }
+.msj .hora { font: 400 11px var(--mono); color: var(--texto-2); }
+/* quién reporta: foto de perfil por defecto, silueta gris sin rostro (mujer / hombre) */
+.msj .av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: #3a434b; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.msj .av .silueta { width: 100%; height: 100%; stroke: none; }
+.msj .av .piel { fill: #a9b2ba; }
+.msj .av .pelo { fill: #7d8892; }
+.msj .av.sistema { background: var(--acento-osc); color: var(--acento); box-shadow: 0 0 0 2px rgba(91,231,240,.45); }
+.msj .av.sistema svg { width: 20px; height: 20px; }
+.msj .cuerpo { display: grid; gap: 3px; min-width: 0; }
+.msj .cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.msj .quien { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; min-width: 0; }
+.msj .quien b { font-size: 14px; color: var(--texto); }
+.msj .quien small { font-size: 12px; color: var(--texto-2); }
+.msj li[data-n="alerta"] { border-left-color: var(--alerta); background: rgba(255,90,74,.09); }
+.msj li[data-n="alerta"]:hover { background: rgba(255,90,74,.15); }
+.msj li[data-n="alerta"] .lugar { color: #ff8a7e; }
+.msj li[data-n="alerta"] .nivel { background: var(--alerta); color: #fff; }
+.msj li[data-n="desborde"] { border-left-color: var(--alerta); background: rgba(255,90,74,.16); box-shadow: inset 0 0 0 1px rgba(255,90,74,.45); }
+.msj li[data-n="desborde"] .lugar { color: #ffb3aa; }
+.msj li[data-n="desborde"] .nivel { background: #fff; color: #9a1408; animation: late 1s infinite; }
+.msj li.nuevo .texto { animation: msj-brilla 1.6s ease-out; }
+.msj-vacio { margin: 4px 0 0; padding: 12px; border-radius: var(--r-chico); border: 1px dashed var(--borde); color: var(--texto-2); font-size: 13px; }
+@keyframes msj-entra { from { opacity: 0; transform: translateX(-12px); } }
+@keyframes msj-brilla { 0% { color: #fff; text-shadow: 0 0 12px rgba(255,90,74,.8); } }
+html.grande .msj .texto { font-size: 17px; }
+html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
+@media (max-width: 900px) { .mensajes { display: block; } }
