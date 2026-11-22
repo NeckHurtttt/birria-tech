@@ -67,7 +67,7 @@ El script pide el token del bot y la clave de la junta, y guarda la configuraci�
    ```bash
    docker compose logs tunel | grep trycloudflare
    ```
-   Aparece algo como `https://palabras-al-azar.trycloudflare.com`. Esa URL cambia cada vez que se reinicia el túnel; para una fija, ver *Túnel con dirección fija*.
+   Aparece algo como `https://palabras-al-azar.trycloudflare.com`. Esa URL cambia cada vez que se reinicia el túnel, pero **no hay que tocar nada**: si en la misma PC corre el recolector (`recolector/`), cada 10 min lee la URL del túnel (`http://127.0.0.1:2000/quicktunnel`), comprueba que responda y la anuncia en Supabase; la app la toma sola al abrir. Para una dirección fija, ver *Túnel con dirección fija*.
 5. **Abrir la central** con el mismo tema y el ntfy propio:
    ```
    https://neckhurtttt.github.io/el-rio-suena/?jurado&t=rio-suena-eltorno&ntfy=https://palabras-al-azar.trycloudflare.com

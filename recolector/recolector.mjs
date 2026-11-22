@@ -41,10 +41,27 @@ async function avisarNtfy(tema, fila) {
   }) });
 }
 
+/** Si en esta PC corre el nodo (nodo/), lee la URL actual del túnel y la anuncia en Supabase. Nunca falla. */
+export async function anunciarNodo(cfg, metricas, f = fetch) {
+  try {
+    const host = (await (await f(metricas, { signal: AbortSignal.timeout(3000) })).json())?.hostname;
+    if (!/^[a-z0-9.-]+$/.test(host || '')) return null;
+    const url = `https://${host}`;
+    const ok = (await f(`${url}/v1/health`, { signal: AbortSignal.timeout(8000) })).ok; // que de verdad responda desde internet
+    if (!ok) { log(`túnel ${url} no responde todavía: no se anuncia`); return null; }
+    await vigiaCentral.anunciar(cfg, url); log(`nodo anunciado: ${url}`); return url;
+  } catch (e) {
+    if (/Could not find the function|schema cache/.test(e?.message)) log('Supabase aún no tiene rs_anunciar_nodo: falta correr supabase/esquema.sql');
+    return null; // sin nodo en esta PC o sin red: el recolector sigue igual
+  }
+}
+
 export async function unaVez() {
   const env = existsSync(RUTA('.env')) ? leerEnv(readFileSync(RUTA('.env'), 'utf8')) : {};
   const cfg = { url: SUPABASE_URL, key: SUPABASE_KEY, recolector: env.RECOLECTOR, token: env.TOKEN };
   if (!cfg.recolector || !cfg.token) { log('falta RECOLECTOR o TOKEN en recolector/.env (ver .env.ejemplo)'); return; }
+
+  await anunciarNodo(cfg, env.NODO_METRICAS || 'http://127.0.0.1:2000/quicktunnel');
 
   let l = await escanear();
   for (let i = 0; !l.vivo && i < 2; i++) { // Open-Meteo a veces tarda más de 6 s: reintentar antes de rendirse

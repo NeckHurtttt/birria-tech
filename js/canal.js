@@ -3,15 +3,30 @@
 // Se escucha y se publica en todos a la vez: si el servidor de la comunidad se cae, los avisos siguen por ntfy.sh,
 // y los duplicados se descartan por uid. Un tema público no es privado: en producción va solo el servidor propio.
 import { NTFY_PROPIO } from './config.js';
+import { vigiaCentral } from './nube.js';
 export const PUBLICO = 'https://ntfy.sh/';
 const conBarra = u => u.replace(/\/*$/, '/');
-/** Servidores ntfy en orden: el propio (de ?ntfy= o de config.js) y después ntfy.sh. Solo https, o http en localhost. */
-export function basesNtfy(param = '', propio = NTFY_PROPIO) {
+/** Servidores ntfy en orden: el propio (de ?ntfy=, el anunciado por la PC del nodo o el de config.js) y después ntfy.sh.
+ *  Solo https, o http en localhost. Se usa el primero válido como propio. */
+export function basesNtfy(param = '', propio = NTFY_PROPIO, anunciado = '') {
   const ok = u => { try { const x = new URL(u); return x.protocol === 'https:' || (x.protocol === 'http:' && /^(localhost|127\.)/.test(x.hostname)); } catch { return false; } };
-  const l = [param, propio].filter(Boolean).filter(ok).map(conBarra);
-  return [...new Set([...l, PUBLICO])];
+  const uno = [param, anunciado, propio].filter(Boolean).filter(ok).map(conBarra)[0];
+  return uno && uno !== PUBLICO ? [uno, PUBLICO] : [PUBLICO];
 }
-const BASES = basesNtfy(typeof location === 'object' ? new URLSearchParams(location.search).get('ntfy') || '' : '');
+// La PC del nodo anuncia en Supabase la URL de su túnel (cambia en cada reinicio). Se espera como mucho 2,5 s;
+// si no llega, se usa la última conocida (si es de las últimas 12 h) o la de config.js.
+const NODO_CACHE = 'rio-suena-nodo';
+async function nodoAnunciado() {
+  if (typeof location !== 'object') return '';
+  let viejo = '';
+  try { const c = JSON.parse(localStorage.getItem(NODO_CACHE) || 'null'); if (c && Date.now() - c.t < 12 * 3600e3) viejo = c.url; } catch {}
+  try {
+    const url = await Promise.race([vigiaCentral.nodoUrl(), new Promise((_, no) => setTimeout(() => no(Error('lento')), 2500))]);
+    try { url ? localStorage.setItem(NODO_CACHE, JSON.stringify({ url, t: Date.now() })) : localStorage.removeItem(NODO_CACHE); } catch {}
+    return url || '';
+  } catch { return viejo; }
+}
+const BASES = basesNtfy(typeof location === 'object' ? new URLSearchParams(location.search).get('ntfy') || '' : '', NTFY_PROPIO, await nodoAnunciado());
 /** Hay servidor ntfy de la comunidad: va primero y es el único confiable para lo que cambia el estado. */
 export const hayPropio = BASES.length > 1;
 /** Servidor al que apuntan los botones de la notificación (el propio si hay). */

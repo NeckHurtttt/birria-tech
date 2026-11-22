@@ -70,4 +70,8 @@ export const vigiaCentral = {
   ultima: () => rpc('rs_ultima_lectura', {}),
   /** Para el recolector (Node): url/key públicas + nombre y token de la PC. */
   subir: ({ url, key, recolector, token }, fila) => rpc('rs_subir_lectura', { p_recolector: recolector, p_token: token, p: fila }, url, key),
+  /** La PC anuncia la URL actual de su túnel (cambia en cada reinicio). */
+  anunciar: ({ url, key, recolector, token }, ntfy) => rpc('rs_anunciar_nodo', { p_recolector: recolector, p_token: token, p_url: ntfy }, url, key),
+  /** URL del ntfy de la comunidad vista hace menos de 30 min, o null. */
+  nodoUrl: () => rpc('rs_nodo_url', {}),
 };

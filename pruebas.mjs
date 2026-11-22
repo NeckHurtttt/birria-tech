@@ -86,7 +86,20 @@ t('ntfy: servidor propio primero, ntfy.sh siempre de respaldo, solo https', () =
   assert.deepEqual(basesNtfy('', 'https://junta.example.org/'), ['https://junta.example.org/', 'https://ntfy.sh/']);
   assert.deepEqual(basesNtfy('http://otro.example.org', ''), ['https://ntfy.sh/']); // http remoto no
   assert.deepEqual(basesNtfy('http://localhost:8090', ''), ['http://localhost:8090/', 'https://ntfy.sh/']);
+  // la URL que anuncia la PC del nodo le gana a la de config.js (que puede estar vieja); ?ntfy= le gana a todo
+  assert.deepEqual(basesNtfy('', 'https://vieja.trycloudflare.com', 'https://nueva.trycloudflare.com'), ['https://nueva.trycloudflare.com/', 'https://ntfy.sh/']);
+  assert.deepEqual(basesNtfy('https://a-mano.example.org', '', 'https://nueva.trycloudflare.com'), ['https://a-mano.example.org/', 'https://ntfy.sh/']);
 });
+import { anunciarNodo } from './recolector/recolector.mjs';
+await (async () => {
+  const resp = (j, ok = true) => Promise.resolve({ ok, json: async () => j });
+  const llamadas = [];
+  const f = u => { llamadas.push(u); return /quicktunnel/.test(u) ? resp({ hostname: 'x-y.trycloudflare.com' }) : resp({}, false); };
+  assert.equal(await anunciarNodo({}, 'http://127.0.0.1:2000/quicktunnel', f), null); // el túnel no responde: no se anuncia
+  assert.deepEqual(llamadas, ['http://127.0.0.1:2000/quicktunnel', 'https://x-y.trycloudflare.com/v1/health']);
+  assert.equal(await anunciarNodo({}, 'x', () => Promise.reject(Error('sin nodo'))), null); // PC sin nodo: sigue igual
+  assert.equal(await anunciarNodo({}, 'x', () => resp({ hostname: 'malo/../x' })), null);
+})(); t('nodo: el recolector anuncia la URL del túnel solo si responde desde internet', () => {});
 console.log('ntfy ok');
 import { amenazaHoy, textoOficial } from './js/senamhi.js';
 import { readFileSync as leerS } from 'node:fs';

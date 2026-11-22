@@ -145,3 +145,26 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 grant execute on function rs_subir_lectura(text, text, jsonb), rs_ultima_lectura() to anon, authenticated;
+
+-- ---------- URL del servidor ntfy de la comunidad ----------
+-- El túnel rápido de Cloudflare cambia de dirección en cada reinicio: la PC la anuncia aquí (con su token)
+-- y la app la lee al abrir. Así no hay que tocar js/config.js cada vez.
+alter table rs_recolectores add column if not exists ntfy_url text check (ntfy_url ~ '^https://[a-z0-9.-]{4,120}/?$');
+alter table rs_recolectores add column if not exists ntfy_visto timestamptz;
+
+create or replace function rs_anunciar_nodo(p_recolector text, p_token text, p_url text) returns void
+language plpgsql security definer set search_path = public, extensions as $$
+begin
+  update rs_recolectores set ntfy_url = p_url, ntfy_visto = now()
+   where nombre = p_recolector and activo and token_hash = crypt(coalesce(p_token, ''), token_hash);
+  if not found then raise exception 'recolector o token incorrecto'; end if;
+end $$;
+
+-- Lectura pública: la URL anunciada más reciente, solo si se vio en los últimos 30 min (si no, la PC está apagada).
+create or replace function rs_nodo_url() returns text
+language sql stable security definer set search_path = public as $$
+  select ntfy_url from rs_recolectores where activo and ntfy_url is not null and ntfy_visto > now() - interval '30 minutes'
+   order by ntfy_visto desc limit 1;
+$$;
+
+grant execute on function rs_anunciar_nodo(text, text, text), rs_nodo_url() to anon, authenticated;
