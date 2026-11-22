@@ -211,16 +211,25 @@ setInterval(() => {
     activas().filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; cambio = true; });
   });
   if (cambio) pintarPersonas();
-  // mensajes de emergencia: se encolan al cambiar el estado de cada tramo y salen escalonados
-  colaMsj.push(...mensajesNuevos({ simMin: est.simMin, lag: est.lag, intensidad: est.intensidad }, msjSalieron));
-  if (colaMsj.length && ahora - ultimoMsj >= MSJ_CADA_MS) { mostrarMsj(colaMsj.shift()); ultimoMsj = ahora; }
+  // mensajes de emergencia: se encolan al cambiar el estado de cada tramo (con la hora en que pasó)
+  // y salen de a uno, con tiempo para leerlos
+  const nuevos = mensajesNuevos({ simMin: est.simMin, lag: est.lag, intensidad: est.intensidad }, msjSalieron);
+  if (nuevos.length) {
+    const sello = { hora: new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' }), sim: Math.floor(est.simMin), modo: est.escenario ? 'Simulacro' : 'Alerta real' };
+    nuevos.forEach(m => colaMsj.push({ ...m, ...sello }));
+    programarMsj();
+  }
 }, 250);
 
 // ---------- mensajes de emergencia por tramo del río ----------
-const MSJ_CADA_MS = 1300, MSJ_MAX = 40;
+// Sin scroll: una pila de tarjetas. La activa queda quieta su tiempo de lectura y la nueva entra desde
+// arriba, encima; las 2 anteriores asoman detrás (tocarlas las trae al frente para releerlas).
+const MSJ_LECTURA = { aviso: 6000, alerta: 6000, desborde: 7000 }, MSJ_APURO_MS = 5000; // con cola larga, 5 s
+const MSJ_HIST = 60, MSJ_PILA = 3, MSJ_SALIDA_MS = 400, MSJ_REVISION_MS = 8000;
 const NIVEL_MSJ = { aviso: { rango: 1, txt: 'aviso', e: 'vigilancia' }, alerta: { rango: 2, txt: 'alerta', e: 'alerta' }, desborde: { rango: 3, txt: 'desborde', e: 'crecida' } };
-const listaMsj = $('#lista-msj'), estadoMsj = $('#estado-msj');
-const msjSalieron = new Set(); let colaMsj = [], ultimoMsj = 0, rangoMsj = 0;
+const pilaMsj = $('#pila-msj'), estadoMsj = $('#estado-msj');
+const msjSalieron = new Set(), salidasMsj = new Set();
+let colaMsj = [], histMsj = [], verMsj = -1, rangoMsj = 0, listoMsj = 0, timerMsj = null, revisionMsj = null, encimaMsj = false;
 const PIN = '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
 // avatar de quien reporta: silueta gris sin rostro (como el perfil por defecto de una red social),
 // distinta para mujer (pelo largo hasta los hombros) y hombre (pelo corto, hombros anchos)
@@ -229,28 +238,85 @@ const SILUETA = {
   m: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M11.6 13.4c-.2-4.6 2.7-7.4 6.4-7.4s6.6 2.8 6.4 7.4c-1.2-1.9-3.4-2.9-6.4-2.9s-5.2 1-6.4 2.9z"/><circle class="piel" cx="18" cy="14.2" r="6.1"/><path class="piel" d="M4 37c0-8 6.2-12.3 14-12.3S32 29 32 37z"/></svg>',
   f: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M9.6 15.2c0-6 3.7-9.8 8.4-9.8s8.4 3.8 8.4 9.8c0 4.3.8 8 2.6 11.2-2.8 1.6-6.5 2.3-11 2.3s-8.2-.7-11-2.3c1.8-3.2 2.6-6.9 2.6-11.2z"/><path class="piel" d="M8 37c0-6.6 4.4-10.4 10-10.4s10 3.8 10 10.4z"/><circle class="piel" cx="18" cy="15" r="5.4"/><path class="pelo" d="M12.6 13.6c1.6-3.3 4-4.6 7.2-4.2 1.9.3 3.3 1.4 4.1 3.4-3.6.4-7.4-.1-11.3.8z"/></svg>',
 };
-function mostrarMsj(m) {
-  const n = NIVEL_MSJ[m.nivel], hora = new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit' });
-  const li = document.createElement('li'); li.dataset.n = m.nivel; li.tabIndex = 0; li.className = 'nuevo';
-  const q = m.quien;
-  li.innerHTML = `<span class="av${q.sistema ? ' sistema' : ''}" aria-hidden="true">${q.sistema ? ONDA : SILUETA[q.g] || SILUETA.m}</span>
+function tarjetaMsj(m, i) {
+  const n = NIVEL_MSJ[m.nivel], q = m.quien;
+  const el = document.createElement('article'); el.className = 'tarjeta'; el.dataset.n = m.nivel; el.dataset.i = i;
+  el.innerHTML = `<span class="av${q.sistema ? ' sistema' : ''}" aria-hidden="true">${q.sistema ? ONDA : SILUETA[q.g] || SILUETA.m}</span>
     <div class="cuerpo">
       <div class="cab"><span class="quien"><b>${esc(q.nombre)}</b><small>${esc(q.rol)}</small></span><span class="nivel">${n.txt}</span></div>
       <span class="lugar">${PIN}${esc(m.zona.nombre)}${m.zona.km != null ? ` · km ${String(m.zona.km).replace('.', ',')}` : ''}</span>
       <span class="texto">${esc(m.texto)}</span>
-      <span class="hora">${est.escenario ? 'Simulacro' : 'Alerta real'} · +${formatoTiempo(Math.floor(est.simMin)).replace('ya llegó', '0 min')} · ${hora}</span>
+      <span class="hora">${m.modo} · +${formatoTiempo(m.sim).replace('ya llegó', '0 min')} · ${m.hora}</span>
     </div>`;
-  li.onclick = () => mapa.volar(m.zona);
-  li.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); mapa.volar(m.zona); } };
-  listaMsj.querySelectorAll('li.nuevo').forEach(x => x.classList.remove('nuevo'));
-  listaMsj.prepend(li); listaMsj.scrollTop = 0;
-  while (listaMsj.children.length > MSJ_MAX) listaMsj.lastElementChild.remove();
-  $('#msj-vacio').hidden = true;
-  if (n.rango > rangoMsj) { rangoMsj = n.rango; estadoMsj.dataset.e = n.e; estadoMsj.textContent = n.txt; }
+  // la activa lleva al mapa; una que asoma detrás pasa al frente para releerla
+  el.onclick = () => { const k = Number(el.dataset.i); if (k === verMsj) mapa.volar(m.zona); else irMsj(k); };
+  el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.onclick(); } };
+  return el;
 }
+/** Dibuja la pila terminando en el mensaje verMsj. Reutiliza las tarjetas que ya están para que se deslicen. */
+function pintarPila() {
+  const quiero = [];
+  for (let k = verMsj; k >= 0 && quiero.length < MSJ_PILA; k--) quiero.push(k);
+  const hay = new Map([...pilaMsj.querySelectorAll('.tarjeta:not([data-pos="arriba"]):not([data-pos="fondo"])')].map(el => [Number(el.dataset.i), el]));
+  hay.forEach((el, k) => {
+    if (quiero.includes(k)) return;
+    el.dataset.pos = k > verMsj ? 'arriba' : 'fondo'; // una más nueva sale hacia arriba; una vieja se apaga atrás
+    el.inert = true;
+    const t = setTimeout(() => { salidasMsj.delete(t); el.remove(); }, MSJ_SALIDA_MS); salidasMsj.add(t);
+  });
+  quiero.forEach((k, pos) => {
+    let el = hay.get(k);
+    if (!el) {
+      el = tarjetaMsj(histMsj[k], k);
+      el.dataset.pos = pos === 0 ? 'arriba' : 'fondo'; // entra desde arriba (o aparece detrás al revisar)
+      pilaMsj.append(el);
+      void el.offsetWidth; // fija el estado inicial para que la transición corra
+    }
+    el.dataset.pos = pos;
+    const activa = pos === 0;
+    el.tabIndex = activa ? 0 : -1;
+    el.setAttribute('aria-hidden', activa ? 'false' : 'true');
+    el.title = activa ? 'Ver en el mapa' : 'Volver a leer este mensaje';
+  });
+}
+const pausadoMsj = () => encimaMsj || verMsj < histMsj.length - 1;
+/** Un solo temporizador: muestra el siguiente de la cola cuando el activo ya tuvo su tiempo de lectura. */
+function programarMsj() {
+  if (timerMsj || !colaMsj.length) return;
+  timerMsj = setTimeout(() => {
+    timerMsj = null;
+    if (pausadoMsj()) return; // se retoma al salir del mensaje o al volver al último
+    siguienteMsj(); programarMsj();
+  }, Math.max(0, listoMsj - performance.now()));
+}
+function siguienteMsj() {
+  const m = colaMsj.shift();
+  histMsj.push(m);
+  if (histMsj.length > MSJ_HIST) { histMsj.shift(); pilaMsj.querySelectorAll('.tarjeta').forEach(el => { el.dataset.i = Number(el.dataset.i) - 1; }); }
+  verMsj = histMsj.length - 1;
+  listoMsj = performance.now() + (colaMsj.length > 2 ? MSJ_APURO_MS : MSJ_LECTURA[m.nivel]);
+  $('#msj-vacio').hidden = true;
+  const n = NIVEL_MSJ[m.nivel];
+  if (n.rango > rangoMsj) { rangoMsj = n.rango; estadoMsj.dataset.e = n.e; estadoMsj.textContent = n.txt; }
+  pintarPila();
+}
+/** Releer una carta de abajo (tocándola): pausa la cola y a los pocos segundos vuelve sola al último. */
+function irMsj(k) {
+  verMsj = Math.max(0, Math.min(histMsj.length - 1, k));
+  clearTimeout(revisionMsj); revisionMsj = null;
+  if (verMsj < histMsj.length - 1) revisionMsj = setTimeout(() => { revisionMsj = null; irMsj(histMsj.length - 1); }, MSJ_REVISION_MS);
+  pintarPila(); programarMsj();
+}
+// con el mouse encima no cambia: se puede leer tranquilo (solo mouse: en táctil no hay «salir» y quedaría en pausa)
+pilaMsj.onpointerenter = e => { if (e.pointerType === 'mouse') encimaMsj = true; };
+pilaMsj.onpointerleave = e => { if (e.pointerType === 'mouse') { encimaMsj = false; programarMsj(); } };
+/** Reiniciar / falsa alarma: corta temporizadores, saca las tarjetas (también las que estaban saliendo) y vacía la cola. */
 function limpiarMsj() {
-  msjSalieron.clear(); colaMsj = []; ultimoMsj = 0; rangoMsj = 0;
-  listaMsj.innerHTML = ''; $('#msj-vacio').hidden = false;
+  clearTimeout(timerMsj); timerMsj = null;
+  clearTimeout(revisionMsj); revisionMsj = null;
+  salidasMsj.forEach(clearTimeout); salidasMsj.clear();
+  msjSalieron.clear(); colaMsj = []; histMsj = []; verMsj = -1; rangoMsj = 0; listoMsj = 0;
+  pilaMsj.replaceChildren(); $('#msj-vacio').hidden = false;
   estadoMsj.dataset.e = 'normal'; estadoMsj.textContent = 'sin reportes';
 }
 
