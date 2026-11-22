@@ -281,8 +281,8 @@ html.grande .barrios .tiempo { font-size: 26px; }
   body { display: flex; flex-direction: column; }
   .barra { flex: none; }
   .tablero { flex: 1 1 auto; height: auto; min-height: 0; grid-template-rows: auto minmax(260px, 1fr); }
-  /* 88px = barra en pantallas medianas (los chips pasan a dos líneas); deja al menos 260px a los paneles de abajo */
-  .oido, .cuenta { max-height: calc(100vh - 88px - 32px - 16px - 260px); }
+  /* alto según su fila de la grilla (no una fórmula fija): si la barra crece en el simulacro, no se meten debajo de los paneles de abajo */
+  .oido, .cuenta { max-height: 100%; }
   .oido .fila { flex-wrap: wrap; }
   .oido .fila .btn.chico { padding: 6px 8px; gap: 6px; }
 }
