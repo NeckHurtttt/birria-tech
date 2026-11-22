@@ -1,0 +1,206 @@
+================================================================================
+EL RÍO SUENA — RESUMEN GENERAL DEL PROYECTO
+Abstracthon 2026 · Track "Ayuda Tecnológica" = Comunicación + Educación
+Equipo Birria TECH · Resumen al 21/11/2026
+================================================================================
+
+1. QUÉ ES
+--------------------------------------------------------------------------------
+Sistema de alerta temprana de crecidas para la ribera del río Piraí
+(Santa Cruz, Bolivia). Informa a cada barrio cuánto tiempo falta para que
+llegue el agua y asigna a cada persona que no puede evacuar sola un vecino
+guardián responsable de su traslado.
+
+Lema: "Cuando el río suena, piedras trae."
+Frase de cierre del pitch: "Cuando el río suena… el barrio responde."
+
+Demo en vivo: https://neckhurtttt.github.io/el-rio-suena/?jurado
+Guion del pitch: pitch-el-rio-suena.md  (3:45, 4 min + 3 de preguntas)
+Presentación: "El Río Suena · Pitch corto.pptx" (versión corta; se retiró
+la presentación larga por redundante).
+Video de respaldo: capturas/demo-respaldo.mp4 (sin internet, con subtítulos).
+
+2. PROBLEMA
+--------------------------------------------------------------------------------
+- 13/12/2025: el Piraí se desbordó en El Torno. 26 fallecidos oficiales y
+  al menos 1.300 familias damnificadas en 18 comunidades; desastre
+  departamental. Peor riada en 42 años.
+- Temporada 2024-2025: más de 186.000 familias afectadas en Bolivia.
+- Las alertas oficiales son por colores y departamentales: no dicen a qué
+  hora llega el agua a cada barrio ni quién debe ir a buscar a quién.
+- Muchas familias no evacúan porque no creen que el agua llegue a su casa.
+- Adultos mayores, personas con discapacidad o sordas y niños solos dependen
+  de que alguien los recuerde.
+
+Hallazgo central: con los datos abiertos de esa noche (4 modelos
+meteorológicos + GloFAS) la tormenta local del Amboró no fue detectada
+(≤ 26 mm, caudal plano). El sistema, tal como estaba, NO habría avisado.
+Eso cambió el diseño: dos vigías río arriba (Bermejo, río Espejos) pueden
+activar la alerta por sí solos (~4 h de anticipación; hora de reporte
+hipotética).
+
+3. SOLUCIÓN (COMPONENTES PRINCIPALES)
+--------------------------------------------------------------------------------
+a) Vigía del Piraí: cada 10 min consulta lluvia en 5 puntos de la cuenca
+   alta (Open-Meteo), caudal GloFAS en La Angostura y reportes de vigías;
+   calcula un índice de riesgo 0-100 (indiceRiesgo en js/datos.js).
+   Un solo reporte de la ribera no alerta: solo pone la zona en vigilancia.
+b) Cuenta regresiva por barrio: distancias sobre el cauce real (OSM).
+   Ej.: "el agua llega a El Torno en 2 h 20 min". Ventaja de la cuenca:
+   la lluvia tarda ~2 h 30 min en bajar hasta La Angostura.
+c) El agua en tu pared: con la cámara, dibuja sobre la vivienda la altura
+   que alcanzaría el agua; hay respaldo con pared ilustrada.
+d) Vecino guardián: aviso con sirena/vibración (ntfy + BroadcastChannel),
+   confirmación con un toque y derivación al rescate oficial si no confirma
+   30 min antes de la llegada del agua. Respaldo por SMS o llamada.
+e) Registro compartido (Supabase): la junta registra y aprueba personas
+   desde cualquier celular; cada aprobada obtiene un QR de guardián.
+   Panel en vivo con CSV (;) e impresión. RLS cerrado: solo RPC con clave.
+f) Oído del río (extra opcional): micrófono analiza 20-300 Hz con Web Audio.
+g) Regla pintada: lectura del riesgo en 3 toques (componente educativo).
+
+4. DEMOSTRACIÓN (GUION CORTO)
+--------------------------------------------------------------------------------
+1. Abrir ?jurado (tiempo ×300) y mostrar el QR "Sé guardián" (~10 s).
+2. Iniciar simulacro → tormenta en la cuenca → índice > 55 → ALERTA.
+3. Cada barrio muestra su cuenta regresiva; se ve el agua en la pared.
+4. El celular del guardián suena/vibra → "Ya la ayudé" → confirmación
+   en tiempo real en la central.
+5. Pantalla "Todos a salvo" con personas, margen promedio y costo 0 Bs.
+6. Botón "¿Habría avisado la riada real del 13/12/2025?" → gráfica
+   hora por hora (js/historico.js + herramientas/validar.py).
+
+5. VALIDACIÓN Y DATOS
+--------------------------------------------------------------------------------
+- Validación con la riada real del 13/12/2025 y 42 años de GloFAS
+  (1984-2026: mediana 11 m³/s, percentil 95 = 35; antes se usaba 2024-26,
+  p95 = 17, que daba falsas alarmas).
+- Prueba con celulares reales (21/11/2026): Android + iPhone recibieron
+  la alerta con sirena y confirmaron; la central mostró el tiempo de
+  respuesta en vivo.
+- Tiempos y alturas son estimaciones del prototipo: requieren calibración
+  con SEARPI y COED. El sistema complementa a las estaciones oficiales,
+  no las reemplaza.
+
+6. TECNOLOGÍAS
+--------------------------------------------------------------------------------
+Frontend: JavaScript ES2022 (módulos), HTML5, CSS3, MapLibre GL,
+OpenStreetMap / OpenFreeMap, Web Audio, cámara, PWA (sw.js, manifest,
+iconos). Sin backend obligatorio para la alerta.
+Datos: Open-Meteo (lluvia), Open-Meteo Flood API / GloFAS (caudal),
+datos abiertos históricos.
+Avisos: ntfy.sh (pub/sub) con BroadcastChannel como respaldo local;
+SMS y llamada sin internet.
+Persistencia: Supabase (PostgreSQL + RPC), localStorage para pendientes
+y configuración.
+Idiomas: js/idioma.js (ES · EN · 中文, sin recargar).
+Pruebas: pruebas.mjs (17 pruebas, según el propio archivo; no se pudieron
+ejecutar localmente porque Node no está instalado en este entorno).
+
+7. ESTRUCTURA DEL REPOSITORIO
+--------------------------------------------------------------------------------
+index.html              aplicación principal (mapa, índice, alerta, pared)
+guardian.html           pantalla del celular del guardián
+estilo.css              estilos, selector de idioma, modo Aa
+sw.js                   PWA sin internet (rs-v5, incluye js/idioma.js)
+manifest.webmanifest    instalación como app
+icono.svg / icono-192.png / icono-512.png
+js/
+  app.js           orquestación, simulacro, voz, accesibilidad
+  datos.js         barrios, personas, índice de riesgo, vigías
+  lluvia.js        Vigía: Open-Meteo y GloFAS
+  cauce-pirai.js   cauce real del Piraí (OSM)
+  mapa.js          mapa y cuenta regresiva
+  oído.js          oído del río (micrófono)
+  pared.js         agua sobre la pared (cámara)
+  canal.js         ntfy + BroadcastChannel
+  registro.js      registro, aprobación, CSV
+  nube.js / config.js   Supabase y configuración
+  historico.js     riada 12-13/12/2025
+  idioma.js        interfaz ES/EN/中文
+supabase/esquema.sql    tablas y funciones RPC
+herramientas/validar.py reproduce la validación con Open-Meteo
+pruebas.mjs             pruebas automatizadas
+capturas/               banner, GIFs, capturas, riada, video y banners
+                        en/ zh/ (EN y 中文), gn/ y qu/ (banners)
+docs/                   documentación adicional
+README.md               documentación completa en varios idiomas
+CONTEXTO.md             criterios, estado y notas de trabajo
+pitch-el-rio-suena.md   guion del pitch
+"El Río Suena · Pitch corto.pptx"   presentación corta
+LICENSE                 MIT
+
+8. IDIOMAS Y ACCESIBILIDAD
+--------------------------------------------------------------------------------
+- Interfaz: castellano, inglés y chino con botones ES · EN · 中文 y
+  parámetros ?lang=en / ?lang=zh. Cambia sin recargar. SMS/ntfy y CSV
+  permanecen en castellano, el idioma de la ribera.
+- README: documentación completa en inglés y chino; guaraní y runasimi
+  (quechua) como borradores para revisión de hablantes; ayoreo en
+  preparación con texto base para traducir con la comunidad (CANOB).
+- Botón Aa (letra grande y alto contraste) y botón de lectura en voz alta
+  en el idioma elegido.
+
+9. ALCANCE, COSTO Y ESCALABILIDAD
+--------------------------------------------------------------------------------
+- Público: familias ribereñas, personas que no pueden evacuar solas,
+  guardianes, vigías y juntas/COED/SEARPI.
+- Piloto propuesto en El Torno: 10 vigías, 5 reglas pintadas, ~50 personas
+  registradas, servidor ntfy propio. Costo estimado ≈ Bs 1.500.
+  Gratis para las familias.
+- Escalado: Piraí → todo el país (Mamoré, Rocha, ríos de La Paz). El río,
+  los puntos de lluvia y los barrios son configuración: cambia el mapa,
+  no la aplicación. Open-Meteo/GloFAS cubren todo Bolivia y las juntas
+  vecinales ya existen en cada municipio.
+
+10. ESTADO ACTUAL Y PENDIENTE
+--------------------------------------------------------------------------------
+Hecho:
+- Prototipo funcional, demo en vivo y video de respaldo.
+- Validación con riada real, PWA sin internet, SMS/llamada, registro
+  compartido con Supabase, panel de junta y métricas en "Todos a salvo".
+- Prueba en 2 celulares reales; interfaz y README multilingües.
+- Presentación corta; presentación larga retirada por redundante.
+
+Pendiente:
+- Calibrar tiempos y alturas con SEARPI/COED.
+- Confirmar con MLSA si se permite una base previa.
+- Audios reales de crecida y en quechua/guaraní grabados por hablantes;
+  aviso en video en Lengua de Señas Boliviana.
+- Terminar la sección de ayoreo con hablantes; revisar borradores de
+  guaraní y quechua.
+- Red de vigías reales y prueba en temporada de lluvias.
+- Precipitación satelital de alta resolución (GPM IMERG).
+- Revisar visualmente las diapositivas del PPTX y ejecutar pruebas en CI.
+
+11. ESTADO EN GITHUB
+--------------------------------------------------------------------------------
+- Upstream: https://github.com/NeckHurtttt/el-rio-suena
+  rama main en c98e5cf (README formal, versión base del proyecto).
+- Fork: https://github.com/SalinasMiguel/el-rio-suena
+  rama main en b33a2a3. Incluye, además del upstream:
+    * 5b579b2 idiomas (interfaz ES/EN/中文 y README multilingüe),
+      integrado mediante PR #1 del fork (merge edcbd43);
+    * e24f412 presentación corta;
+    * b33a2a3 borrado de la presentación larga y enlace del README
+      apuntando a la versión corta.
+- PR pendiente hacia el upstream: no se pudo abrir porque el token
+  disponible solo tiene permisos de lectura en NeckHurtttt/el-rio-suena
+  (GitHub devuelve 403). Enlace para abrirlo manualmente:
+  https://github.com/NeckHurtttt/el-rio-suena/compare/main...SalinasMiguel:main
+
+12. CÓMO EJECUTAR
+--------------------------------------------------------------------------------
+  python3 -m http.server 8765        # http://localhost:8765/?jurado
+  node pruebas.mjs                   # 17 pruebas
+  python3 herramientas/validar.py    # riada 2025 + 42 años de GloFAS
+
+Atajos en consola: __rs.alerta(3,'prueba'), __rs.confirmar('rosa','central')
+Parámetros: ?jurado (tiempo ×300), ?x=60 (aceleración), ?lang=en|zh,
+?c=<comunidad>. Cámara y micrófono requieren HTTPS o localhost.
+
+Equipo: Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y
+depuración) · Rodrigo Camacho (pruebas) · Deron Zuñiga (programación).
+Licencia MIT. Datos: Open-Meteo, GloFAS, colaboradores de OpenStreetMap,
+OpenFreeMap.
+================================================================================
