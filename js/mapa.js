@@ -1,10 +1,12 @@
 import { CAUCE, BARRIOS, SENSOR, tramoHasta } from './datos.js';
-const PAD = () => innerWidth > 900 ? { left: 400, right: 360, top: 40, bottom: 40 } : { left: 20, right: 20, top: 20, bottom: 20 };
+const PAD_CENTRAL = () => innerWidth > 900 ? { left: 400, right: 360, top: 40, bottom: 40 } : { left: 20, right: 20, top: 20, bottom: 20 };
 const ESTILO = 'https://tiles.openfreemap.org/styles/dark';
 const ESTILO_RESPALDO = { version: 8, sources: {}, layers: [{ id: 'fondo', type: 'background', paint: { 'background-color': '#08131c' } }] };
 
-export function crearMapa(el) {
-  const map = new maplibregl.Map({ container: el, style: ESTILO, center: [-63.36, -17.93], zoom: 9.2, pitch: 55, bearing: -20, attributionControl: { compact: true } });
+export function crearMapa(el, opc = {}) {
+  // en un mapa chico (guardián/vecino) el padding de los paneles de la central no aplica
+  const PAD = opc.pad ? () => opc.pad : PAD_CENTRAL;
+  const map = new maplibregl.Map({ container: el, style: ESTILO, center: [-63.36, -17.93], zoom: 9.2, pitch: 55, bearing: -20, attributionControl: { compact: true }, ...(opc.mapa || {}) });
   map.setPadding(PAD());
   // al girar el celular o cambiar el tamaño de ventana, el padding de los paneles cambia
   let rz; addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => map.setPadding(PAD()), 200); });

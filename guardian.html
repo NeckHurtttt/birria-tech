@@ -2,106 +2,386 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Guardián · El Río Suena</title>
 <meta name="theme-color" content="#071219">
 <link rel="icon" href="icono.svg" type="image/svg+xml">
 <link rel="stylesheet" href="vendor/fuentes.css">
+<link rel="stylesheet" href="vendor/maplibre-gl.css">
 <style>
-  :root { --fondo:#071219; --sup:#0c1f2b; --borde:rgba(91,231,240,.16); --texto:#e7f4f7; --texto-2:#9db6bf; --acento:#5be7f0; --alerta:#ff5a4a; --exito:#4fe39a; color-scheme: dark; }
+  :root {
+    --fondo:#071219; --sup:rgba(12,31,43,.82); --borde:rgba(91,231,240,.18); --texto:#e7f4f7; --texto-2:#9db6bf;
+    --acento:#5be7f0; --alerta:#ff5a4a; --aviso:#ffb547; --exito:#4fe39a; --agua:#5be7f0; --nivel:10vh;
+    --f:"Space Grotesk", system-ui, sans-serif; --mono:"JetBrains Mono", monospace;
+    color-scheme: dark;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100dvh; background: var(--fondo); color: var(--texto); font: 16px/1.5 "Space Grotesk", system-ui, sans-serif; display: grid; place-items: center; padding: 16px; transition: background .3s; }
-  body.alerta { background: #3a0c0a; animation: late 1s infinite; }
-  body.salvo { background: #06281b; animation: none; }
-  .caja { width: 100%; max-width: 420px; text-align: center; }
-  h1 { font-size: 28px; margin: 8px 0; } p { color: var(--texto-2); margin: 0 0 16px; }
-  .tarjeta { background: var(--sup); border: 1px solid var(--borde); border-radius: 16px; padding: 24px 16px; margin: 16px 0; }
-  .grande { font: 700 44px "JetBrains Mono", monospace; color: #fff; }
-  button { width: 100%; min-height: 64px; border: 0; border-radius: 14px; font: 700 20px "Space Grotesk", sans-serif; cursor: pointer; background: var(--acento); color: #04222a; }
-  button.ok { background: var(--exito); color: #03281a; }
+  html, body { margin: 0; min-height: 100dvh; overflow-x: hidden; }
+  body { background: radial-gradient(120% 70% at 50% 0%, #0f2c3b 0%, var(--fondo) 60%) fixed; color: var(--texto);
+    font: 16px/1.5 var(--f); transition: background .4s; }
+  body.vigilancia { --agua:#ffb547; --nivel:18vh; }
+  body.alerta { --agua:#ff5a4a; --nivel:26vh; background: radial-gradient(120% 80% at 50% 10%, #5a1410 0%, #250605 70%) fixed; }
+  body.alerta::before { content:""; position:fixed; inset:0; background:#ff5a4a; opacity:0; animation: flash 1s infinite; pointer-events:none; z-index:0; }
+  body.salvo { --agua:#4fe39a; --nivel:8vh; background: radial-gradient(120% 80% at 50% 10%, #0d4a31 0%, #04180f 70%) fixed; }
+
+  /* agua animada al fondo: sube con el riesgo */
+  .agua { position: fixed; left: 0; right: 0; bottom: 0; height: var(--nivel); transition: height 1.2s cubic-bezier(.3,1.3,.5,1); z-index: 0; pointer-events: none; overflow: hidden; padding-top: 60px; margin-top: -60px; }
+  .agua .olas { position: absolute; top: 0; left: 0; width: 200%; height: 60px; }
+  .agua .olas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .agua .ola1 { fill: var(--agua); opacity: .28; animation: ola 7s linear infinite; }
+  .agua .ola2 { fill: var(--agua); opacity: .18; animation: ola 11s linear infinite reverse; top: 10px; }
+  .agua .cuerpo { position: absolute; left: 0; right: 0; top: 58px; bottom: 0; background: linear-gradient(var(--agua), transparent 140%); opacity: .22; }
+
+  .caja { position: relative; z-index: 1; width: 100%; max-width: 480px; margin: 0 auto; padding: 60px 16px 48px; text-align: center; }
+  body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 2; pointer-events: none; background: linear-gradient(180deg, var(--fondo) 72%, rgba(7,18,25,0)); }
+  .marca-app { position: fixed; top: 14px; left: 16px; z-index: 3; display: flex; align-items: center; gap: 8px; font: 600 12px var(--mono); color: var(--texto-2); letter-spacing: .06em; text-transform: uppercase; }
+  .marca-app svg { width: 22px; height: 22px; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; }
+  h1 { font-size: 26px; line-height: 1.2; margin: 6px 0 8px; overflow-wrap: anywhere; }
+  p { color: var(--texto-2); margin: 0 0 14px; }
+  .tarjeta { position: relative; background: var(--sup); backdrop-filter: blur(8px); border: 1px solid var(--borde); border-radius: 18px; padding: 16px; margin: 14px 0; text-align: left; }
+  .etiqueta { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--texto-2); }
+
+  /* persona */
+  .persona { display: flex; gap: 14px; align-items: center; }
+  .avatar { flex: none; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font: 700 22px var(--f); color: #04222a;
+    background: conic-gradient(from 200deg, var(--acento), #8ff3c9, var(--acento)); box-shadow: 0 0 0 4px rgba(91,231,240,.14); }
+  .persona b { display: block; font-size: 19px; color: var(--texto); }
+  .chip { display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 99px; font-size: 13px; background: rgba(255,181,71,.14); color: var(--aviso); border: 1px solid rgba(255,181,71,.3); }
+
+  /* barrios (modo vecino) */
+  .barrios { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .barrios button { width: auto; min-height: 40px; padding: 6px 14px; border-radius: 99px; font: 600 14px var(--f); background: rgba(7,18,25,.6); color: var(--texto-2); border: 1px solid var(--borde); animation: none; }
+  .barrios button[aria-pressed="true"] { background: var(--acento); color: #04222a; border-color: var(--acento); }
+
+  /* río ahora */
+  .rio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; text-align: center; }
+  .rio div { background: rgba(7,18,25,.5); border-radius: 12px; padding: 10px 4px; }
+  .rio strong { display: block; font: 700 20px var(--mono); color: var(--texto); }
+  .rio small { font-size: 11px; color: var(--texto-2); }
+  .estado { position: absolute; top: 14px; right: 14px; padding: 2px 10px; border-radius: 99px; font: 700 12px var(--mono); text-transform: uppercase; }
+  .estado.normal { background: rgba(79,227,154,.14); color: var(--exito); }
+  .estado.vigilancia { background: rgba(255,181,71,.16); color: var(--aviso); }
+  .estado.alerta { background: rgba(255,90,74,.18); color: var(--alerta); }
+  .estado.sin { background: rgba(157,182,191,.12); color: var(--texto-2); }
+  .fuente { margin: 10px 0 0; font-size: 12px; }
+
+  /* mapa: por dónde viene el agua */
+  .oficial { display: flex; align-items: center; gap: 8px; margin: 10px 0 0; font-size: 13px; opacity: .9; }
+  .oficial i { width: 10px; height: 10px; border-radius: 50%; background: #4fe39a; flex: none; }
+  .oficial[data-n="amarilla"] i { background: #ffd84a; } .oficial[data-n="naranja"] i { background: #ffb347; } .oficial[data-n="roja"] i { background: #ff5a4a; }
+  .nota-vecino { font-size: 14px; opacity: .85; margin: 14px 0 0; }
+  .mapa { height: 330px; margin: 10px -16px -16px; border-radius: 0 0 18px 18px; overflow: hidden; }
+  .ruta { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 13px; color: var(--texto-2); }
+  .ruta span { flex: 1; text-align: center; }
+  .ruta i { flex: none; width: 22px; height: 2px; background: linear-gradient(90deg, transparent, var(--acento)); position: relative; }
+  .ruta i::after { content: ""; position: absolute; right: -2px; top: -4px; border: 5px solid transparent; border-left-color: var(--acento); }
+  .ruta b { display: block; font: 700 15px var(--mono); color: var(--texto); }
+  .marca { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 3px 8px; border-radius: 8px; background: rgba(7,18,25,.9); border: 1px solid var(--borde); font: 11px var(--f); color: var(--texto); white-space: nowrap; transform: translateY(-50%); }
+  .marca .cr { font: 600 11px var(--mono); color: var(--texto-2); }
+  .marca[data-estado="alerta"] { border-color: var(--aviso); } .marca[data-estado="alerta"] .cr { color: var(--aviso); }
+  .marca[data-estado="llego"] { border-color: var(--alerta); background: rgba(70,12,10,.92); } .marca[data-estado="llego"] .cr { color: #ffb3aa; }
+  .marca.sensor { flex-direction: row; gap: 6px; color: var(--acento); }
+  .marca.sensor.crecida .pulso { background: var(--alerta); animation-duration: .7s; }
+  .marca.mio { border: 2px solid var(--acento); box-shadow: 0 0 0 4px rgba(91,231,240,.2); font-weight: 700; }
+  .marca.lluvia { flex-direction: row; gap: 4px; padding: 2px 6px; background: rgba(15,44,59,.9); color: #bfe9ff; }
+  .marca.lluvia .cr { color: #7cc8ff; }
+  .pulso { width: 9px; height: 9px; border-radius: 50%; background: var(--acento); animation: latido 1.8s infinite; }
+  .maplibregl-ctrl-attrib { font-size: 10px; }
+
+  /* botones */
+  button { width: 100%; min-height: 62px; border: 0; border-radius: 16px; font: 700 19px var(--f); cursor: pointer; background: var(--acento); color: #04222a; transition: transform .15s; }
+  button:active { transform: scale(.98); }
   button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
-  svg { width: 56px; height: 56px; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; }
-  input { width: 100%; min-height: 48px; margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--borde); background: #071219; color: var(--texto); font: 16px "Space Grotesk", sans-serif; }
+  button.pulso-btn { animation: pulso 1.8s infinite; }
+  button.activo { background: rgba(79,227,154,.14); color: var(--exito); border: 1px solid rgba(79,227,154,.4); }
+  button.ok { background: var(--exito); color: #03281a; }
+  button.sec { min-height: 46px; margin-top: 10px; background: transparent; color: var(--texto-2); border: 1px solid var(--borde); font-size: 15px; font-weight: 600; }
+  .escucha { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0 0; font-size: 14px; color: var(--exito); }
+  .latido { width: 10px; height: 10px; border-radius: 50%; background: var(--exito); animation: latido 1.6s infinite; }
+
+  /* icono de onda */
+  .onda { width: 60px; height: 60px; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; }
+  .onda .arco { animation: sonar 2.4s ease-out infinite; transform-origin: 16px 14px; }
+  body.alerta .onda { stroke: #fff; animation: sacude .5s infinite; }
+
+  /* alerta */
+  .reloj { position: relative; width: 200px; height: 200px; margin: 8px auto 4px; }
+  .reloj svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .reloj circle { fill: none; stroke-width: 12; }
+  .reloj .pista { stroke: rgba(255,255,255,.12); }
+  .reloj .arco { stroke: #fff; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .reloj .cifra { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+  .reloj .cifra strong { font: 700 42px var(--mono); color: #fff; line-height: 1; }
+  .reloj .cifra span { font-size: 13px; color: #ffd2cc; margin-top: 6px; }
+  .pasos { list-style: none; margin: 0; padding: 0; counter-reset: p; }
+  .pasos li { counter-increment: p; display: flex; gap: 12px; align-items: flex-start; padding: 7px 0; color: var(--texto); }
+  .pasos li::before { content: counter(p); flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #5a1410; font: 700 14px var(--mono); }
+  body.alerta .tarjeta { background: rgba(40,6,5,.78); border-color: rgba(255,90,74,.4); }
+  body.alerta p { color: #ffd2cc; }
+
+  /* a salvo */
+  .visto { width: 116px; height: 116px; margin: 12px auto; display: block; }
+  .visto circle { fill: rgba(79,227,154,.15); stroke: var(--exito); stroke-width: 3; }
+  .visto path { fill: none; stroke: var(--exito); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 60; stroke-dashoffset: 60; animation: trazo .6s .2s forwards; }
+
+  input { width: 100%; min-height: 48px; margin-top: 8px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--borde); background: #071219; color: var(--texto); font: 16px var(--f); }
   label { color: var(--texto-2); font-size: 14px; }
   a { color: var(--acento); }
-  @keyframes late { 50% { background: #5a1410; } }
-  @media (prefers-reduced-motion: reduce) { body.alerta { animation: none; } }
-  .idiomas { position: fixed; top: 12px; right: 12px; display: inline-flex; border: 1px solid var(--borde); border-radius: 10px; overflow: hidden; }
-  .idiomas button { width: auto; min-height: 36px; padding: 6px 10px; border-radius: 0; background: rgba(7,18,25,.6); color: var(--texto-2); font: 600 12px "JetBrains Mono", monospace; }
+  .idiomas { position: fixed; top: 12px; right: 12px; z-index: 3; display: inline-flex; border: 1px solid var(--borde); border-radius: 10px; overflow: hidden; }
+  .idiomas button { width: auto; min-height: 36px; padding: 6px 10px; border-radius: 0; background: rgba(7,18,25,.75); color: var(--texto-2); font: 600 12px var(--mono); animation: none; }
   .idiomas button + button { border-left: 1px solid var(--borde); }
   .idiomas button[aria-pressed="true"] { background: #0f3f4a; color: var(--acento); }
-  html:lang(zh-Hans) body { font-family: "Space Grotesk", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", system-ui, sans-serif; }
+  html:lang(zh-Hans) body { font-family: var(--f), "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", system-ui, sans-serif; }
+  .entra { animation: entra .45s ease-out both; }
+
+  @keyframes ola { to { transform: translateX(-50%); } }
+  @keyframes flash { 50% { opacity: .14; } }
+  @keyframes pulso { 0% { box-shadow: 0 0 0 0 rgba(91,231,240,.55); } 70% { box-shadow: 0 0 0 16px rgba(91,231,240,0); } 100% { box-shadow: 0 0 0 0 rgba(91,231,240,0); } }
+  @keyframes latido { 0% { box-shadow: 0 0 0 0 rgba(79,227,154,.7); } 70% { box-shadow: 0 0 0 10px rgba(79,227,154,0); } 100% { box-shadow: 0 0 0 0 rgba(79,227,154,0); } }
+  @keyframes sonar { 0% { opacity: 1; transform: scale(.8); } 100% { opacity: 0; transform: scale(1.5); } }
+  @keyframes sacude { 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+  @keyframes trazo { to { stroke-dashoffset: 0; } }
+  @keyframes entra { from { opacity: 0; transform: translateY(10px); } }
+  @media (prefers-reduced-motion: reduce) { *, *::before { animation: none !important; transition: none !important; } .visto path { stroke-dashoffset: 0; } }
 </style>
 </head>
 <body>
+<div class="marca-app" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M3 20c4-4 6 4 10 0s6 4 10 0 5 2 6 1"/></svg>El Río Suena</div>
+<div class="agua" aria-hidden="true">
+  <div class="olas"><svg class="ola1" viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0 30 Q75 0 150 30 T300 30 T450 30 T600 30 T750 30 T900 30 T1050 30 T1200 30 V60 H0Z"/></svg>
+  <svg class="ola2" viewBox="0 0 1200 60" preserveAspectRatio="none"><path d="M0 30 Q100 55 200 30 T400 30 T600 30 T800 30 T1000 30 T1200 30 V60 H0Z"/></svg></div>
+  <div class="cuerpo"></div>
+</div>
 <main class="caja">
-  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M3 20c4-4 6 4 10 0s6 4 10 0 5 2 6 1"/><path d="M10 11a6 6 0 0 1 12 0"/></svg>
+  <svg class="onda" viewBox="0 0 32 32" aria-hidden="true"><path d="M3 22c4-4 6 4 10 0s6 4 10 0 5 2 6 1"/><path class="arco" d="M10 13a6 6 0 0 1 12 0"/></svg>
   <div id="vista"></div>
+  <div class="tarjeta" id="t-mapa" hidden>
+    <span class="etiqueta">Por dónde viene el agua</span>
+    <div class="ruta"><span><b id="r-lluvia">–</b>Lluvia río arriba</span><i></i><span><b>La Angostura</b>punto de control</span><i></i><span><b id="r-km">–</b><em id="r-barrio" style="font-style:normal"></em></span></div>
+    <div class="mapa" id="mapa" aria-label="Mapa del río Piraí: el agua baja de la cuenca alta, pasa por La Angostura y sigue hacia los barrios"></div>
+  </div>
 </main>
+<script src="vendor/maplibre-gl.js"></script>
 <script type="module">
-import { PERSONAS, BARRIOS, formatoTiempo } from './js/datos.js';
+import { PERSONAS, BARRIOS, CUENCA, SENSOR, formatoTiempo, indiceRiesgo, minutosHasta, velocidad, LAG_CUENCA_MIN } from './js/datos.js';
 import { abrirCanal, limpiarTema } from './js/canal.js';
 import { iniciarIdioma } from './js/idioma.js';
+import { hayNube, vigiaCentral, deLectura } from './js/nube.js';
+import { crearMapa } from './js/mapa.js';
+import { escanear } from './js/lluvia.js';
+import { cargarSenamhi, amenazaHoy, textoOficial } from './js/senamhi.js';
 iniciarIdioma(document.body);
+const $ = s => document.querySelector(s);
 // un enlace mal copiado (p= desconocido o t= con símbolos) no debe dejar la pantalla en blanco
 const q = new URLSearchParams(location.search), tema = limpiarTema(q.get('t'));
+const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const deEnlace = () => q.get('n') && BARRIOS.some(x => x.id === q.get('b'))
   ? { id: q.get('p'), nombre: q.get('n').slice(0, 60), necesidad: (q.get('nec') || '').slice(0, 80), barrio: q.get('b'), cuadra: (q.get('cu') || '').slice(0, 40), guardian: (q.get('g') || 'guardián').slice(0, 60) } : null;
-const p = PERSONAS.find(x => x.id === q.get('p')) || deEnlace() || PERSONAS[0];
-const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-for (const k of ['nombre', 'necesidad', 'cuadra', 'guardian']) p[k] = esc(p[k]);
-const b = BARRIOS.find(x => x.id === p.barrio), vista = document.getElementById('vista');
-let activo = false, sonido;
+// modo vecino: solo mira el río y recibe la alerta general, sin estar a cargo de nadie
+const vecino = q.get('modo') === 'vecino';
+const base = PERSONAS.find(x => x.id === q.get('p')) || deEnlace() || PERSONAS[0];
+const p = { ...base }; for (const k of ['nombre', 'necesidad', 'cuadra', 'guardian']) p[k] = esc(p[k]);
+const leerBarrio = () => { try { return localStorage.getItem('rs-barrio'); } catch { return null; } };
+let b = BARRIOS.find(x => x.id === (vecino ? (q.get('b') || leerBarrio()) : p.barrio)) || BARRIOS.find(x => x.id === 'eltorno');
+const vista = $('#vista');
+const iniciales = String(p.nombre).replace(/&\w+;/g, '').replace(/^(Doña|Don|Niños)\s+/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+let activo = false, sonido, reloj, rio = null, lectura = null, crecida = null, mapa = null, oficial = null;
+
+// ---------- mapa: de la cuenca alta (lluvia) a La Angostura y río abajo hasta el barrio ----------
+function iniciarMapa() {
+  $('#t-mapa').hidden = false;
+  if (mapa || typeof maplibregl === 'undefined') return pintarRuta();
+  mapa = crearMapa($('#mapa'), { pad: { top: 30, bottom: 30, left: 20, right: 20 }, mapa: { pitch: 35, bearing: 0, cooperativeGestures: true } });
+  const m = mapa.map;
+  const lluvias = CUENCA.map(c => { const d = document.createElement('div'); d.className = 'marca lluvia'; d.innerHTML = `☔ <span>${c.nombre}</span> <span class="cr">–</span>`;
+    return { c, d, mk: new maplibregl.Marker({ element: d }).setLngLat([c.lon, c.lat]).addTo(m) }; });
+  mapa.lluvias = lluvias;
+  // flechas que corren por el cauce: muestran hacia dónde va el agua
+  const flujo = () => {
+    if (!m.getSource('cauce') || m.getLayer('flujo')) return;
+    m.addLayer({ id: 'flujo', type: 'line', source: 'cauce', layout: { 'line-cap': 'round' }, paint: { 'line-color': '#e7f4f7', 'line-width': 2.5, 'line-opacity': .85, 'line-dasharray': [0, 4, 3] } }, 'crecida');
+  };
+  m.on('style.load', flujo); m.on('load', flujo);
+  const pasos = [[0, 4, 3], [0.5, 4, 2.5], [1, 4, 2], [1.5, 4, 1.5], [2, 4, 1], [2.5, 4, 0.5], [3, 4, 0], [0, 0.5, 3, 3.5], [0, 1, 3, 3], [0, 1.5, 3, 2.5], [0, 2, 3, 2], [0, 2.5, 3, 1.5], [0, 3, 3, 1], [0, 3.5, 3, 0.5]];
+  let i = 0;
+  if (!matchMedia('(prefers-reduced-motion: reduce)').matches) setInterval(() => { if (m.getLayer('flujo') && !document.hidden) m.setPaintProperty('flujo', 'line-dasharray', pasos[i = (i + 1) % pasos.length]); }, 90);
+  m.once('load', encuadrar);
+  pintarRuta();
+}
+function encuadrar() {
+  if (!mapa) return;
+  const lons = [...CUENCA.map(c => c.lon), SENSOR.lon, b.lon], lats = [...CUENCA.map(c => c.lat), SENSOR.lat, b.lat];
+  mapa.map.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: { top: 40, bottom: 30, left: 30, right: 30 }, duration: 1200 });
+}
+function pintarRuta() {
+  const llueve = lectura?.puntos?.length ? Math.max(...lectura.puntos.map(x => Number(x.ll24) || 0)) : null;
+  $('#r-lluvia').textContent = llueve == null ? '–' : `${llueve.toFixed(1)} mm`;
+  $('#r-km').textContent = `${b.km} km`;
+  $('#r-barrio').textContent = b.nombre;
+  if (!mapa) return;
+  document.querySelectorAll('.marca.barrio').forEach(d => d.classList.toggle('mio', d.querySelector('b')?.textContent === b.nombre));
+  mapa.lluvias?.forEach(({ c, d }) => { const pt = lectura?.puntos?.find(x => x.nombre === c.nombre); d.querySelector('.cr').textContent = pt ? `${Number(pt.ll24).toFixed(1)} mm` : '–'; });
+  if (!crecida) BARRIOS.forEach(x => mapa.barrio(x.id, x.id === b.id ? `${formatoTiempo(LAG_CUENCA_MIN + minutosHasta(x))} si crece` : 'sin alerta', 'tranquilo'));
+}
+
+// ---------- río ahora (vigía central: la PC del equipo sube una lectura cada 10 min) ----------
+function tarjetaRio() {
+  if (!rio) return `<div class="tarjeta entra" id="rio"><span class="etiqueta">El río ahora</span><span class="estado sin">sin datos</span>
+    <p class="fuente">Esperando la lectura del vigía central…</p>${lineaOficial()}</div>`;
+  return `<div class="tarjeta entra" id="rio"><span class="etiqueta">El río ahora</span><span class="estado ${rio.estado}">${rio.estado}</span>
+    <div class="rio"><div><strong>${rio.caudal}</strong><small>m³/s caudal</small></div><div><strong>${rio.ll24}</strong><small>mm lluvia 24 h</small></div><div><strong>${rio.indice}</strong><small>riesgo /100</small></div></div>
+    <p class="fuente">${rio.central ? `Vigía central · hace ${rio.minutos} min` : 'Datos abiertos de la cuenca alta · Open-Meteo y GloFAS'}</p>${lineaOficial()}</div>`;
+}
+function lineaOficial() {
+  return oficial ? `<p class="oficial" data-n="${oficial.nivel}"><i></i><span>${esc(textoOficial(oficial))}</span></p>` : '';
+}
+async function leerRio() {
+  oficial = amenazaHoy(await cargarSenamhi('datos/senamhi.json')) || oficial;
+  try {
+    // primero la PC del equipo (vigía central); si no hay lectura fresca, el celular consulta los datos abiertos
+    let l = null, central = false;
+    if (hayNube()) { try { l = deLectura(await vigiaCentral.ultima()); central = !!l; } catch {} }
+    if (!l) { const e = await escanear(); if (e.vivo) l = { ...e, caudal: e.caudal ?? e.caudalPico }; }
+    if (l) {
+      lectura = l;
+      const r = indiceRiesgo({ ll6: l.ll6, ll24: l.ll24, prox6: l.prox6, caudal: l.caudal, oficial: oficial?.nivel });
+      rio = { estado: r.estado, indice: Math.round(r.r * 100), caudal: Number(l.caudal || 0).toFixed(1), ll24: Number(l.ll24).toFixed(1), minutos: l.minutos, central };
+      if (!document.body.classList.contains('alerta') && !document.body.classList.contains('salvo')) document.body.className = r.estado === 'normal' ? '' : 'vigilancia';
+    }
+  } catch {}
+  const t = $('#rio'); if (t) t.outerHTML = tarjetaRio().replace(' entra', '');
+  pintarRuta();
+}
+
+// ---------- espera ----------
+function botonAvisos() {
+  return `<button id="activar" class="${activo ? 'activo' : 'pulso-btn'}">${activo ? 'Avisos activados ✓' : 'Activar avisos'}</button>
+    ${activo ? `<div class="escucha"><span class="latido"></span><span>Escuchando al río</span></div><button class="sec" id="probar">Probar sonido</button>`
+             : `<p style="margin-top:12px">Deja esta pantalla abierta. Si el río suena, este celular va a sonar y vibrar.</p>`}`;
+}
 function esperar() {
-  document.body.className = '';
-  vista.innerHTML = `<h1>Eres guardián de ${p.nombre}</h1><p>${b.nombre}, ${p.cuadra} · ${p.necesidad}</p>
-    <div class="tarjeta"><p>Deja esta pantalla abierta. Si el río suena, este celular va a sonar y vibrar.</p></div>
-    <button id="activar">${activo ? 'Avisos activados ✓' : 'Activar avisos'}</button>`;
-  document.getElementById('activar').onclick = () => {
+  document.body.className = rio && rio.estado !== 'normal' ? 'vigilancia' : '';
+  const cabeza = vecino
+    ? `<h1 class="entra">El río y tu barrio</h1>
+       <div class="tarjeta entra"><span class="etiqueta">Tu barrio</span><div class="barrios">${BARRIOS.map(x => `<button data-b="${x.id}" aria-pressed="${x.id === b.id}">${x.nombre}</button>`).join('')}</div></div>`
+    : `<h1 class="entra">Eres guardián de ${p.nombre}</h1>
+       <div class="tarjeta entra"><div class="persona"><div class="avatar" aria-hidden="true">${iniciales}</div>
+       <div><b>${p.nombre}</b><span>${b.nombre} · ${p.cuadra}</span><br><span class="chip">${p.necesidad}</span></div></div></div>`;
+  const pie = vecino
+    ? `${tema ? '' : '<p class="nota-vecino">Para que este celular suene con la alerta de tu comunidad, escanea el código QR de tu junta vecinal.</p>'}<button class="sec" id="ser-guardian">Quiero ser guardián de alguien</button>`
+    : `<button class="sec" id="solo-ver">Solo quiero ver el río</button>`;
+  vista.innerHTML = `${cabeza}${tarjetaRio()}<div class="entra">${botonAvisos()}${pie}</div>`;
+  $('#activar').onclick = async () => {
     activo = true;
     // un solo AudioContext: el navegador limita cuántos puede haber abiertos
     try { sonido ??= new (window.AudioContext || window.webkitAudioContext)(); sonido.resume(); } catch {}
     try { if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission(); } catch {}
+    despertar(); navigator.vibrate?.(80);
     esperar();
   };
+  $('#probar')?.addEventListener('click', () => { sirena(1); navigator.vibrate?.([200, 100, 200]); });
+  $('#solo-ver')?.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.set('modo', 'vecino'); u.searchParams.set('b', b.id); u.searchParams.delete('p'); location.href = u; });
+  $('#ser-guardian')?.addEventListener('click', () => { const u = new URL(location.href); u.searchParams.delete('modo'); u.searchParams.delete('b'); location.href = u; });
+  document.querySelectorAll('.barrios button').forEach(x => x.onclick = () => {
+    b = BARRIOS.find(y => y.id === x.dataset.b); try { localStorage.setItem('rs-barrio', b.id); } catch {}
+    document.querySelectorAll('.barrios button').forEach(y => y.setAttribute('aria-pressed', String(y === x)));
+    pintarRuta(); encuadrar();
+  });
+  iniciarMapa();
 }
-function sirena() {
+// la pantalla no se apaga mientras espera; al volver a la pestaña el navegador suelta el bloqueo
+async function despertar() { try { await navigator.wakeLock?.request('screen'); } catch {} }
+document.addEventListener('visibilitychange', () => { if (activo && document.visibilityState === 'visible') despertar(); });
+
+function sirena(seg = 3) {
   if (!sonido || sonido.state === 'closed') return;
   sonido.resume?.();
   const o = sonido.createOscillator(), g = sonido.createGain(), t = sonido.currentTime;
   o.type = 'sawtooth'; g.gain.value = 0.15; o.connect(g).connect(sonido.destination);
-  for (let i = 0; i < 6; i++) { o.frequency.setValueAtTime(700, t + i * 0.5); o.frequency.linearRampToValueAtTime(1100, t + i * 0.5 + 0.25); }
-  o.start(t); o.stop(t + 3); o.onended = () => { o.disconnect(); g.disconnect(); };
+  for (let i = 0; i < seg * 2; i++) { o.frequency.setValueAtTime(700, t + i * 0.5); o.frequency.linearRampToValueAtTime(1100, t + i * 0.5 + 0.25); }
+  o.start(t); o.stop(t + seg); o.onended = () => { o.disconnect(); g.disconnect(); };
 }
-function alerta(m) {
+
+// ---------- alerta: la crecida avanza en el mapa desde La Angostura ----------
+function avanzarCrecida() {
+  if (!crecida || !mapa) return;
+  const min = (Date.now() - crecida.t0) / 6e4 + crecida.sim - crecida.lag; // minutos desde que el frente pasó La Angostura
+  const km = Math.max(0, min / 60 * velocidad(crecida.i));
+  mapa.crecida(km); mapa.sensor(min >= 0 ? 'crecida' : '');
+  BARRIOS.forEach(x => {
+    const falta = Math.round(minutosHasta(x, crecida.i, crecida.lag) - crecida.sim - (Date.now() - crecida.t0) / 6e4);
+    mapa.barrio(x.id, falta <= 0 ? 'llegó el agua' : formatoTiempo(falta), falta <= 0 ? 'llego' : 'alerta');
+  });
+}
+function alerta({ min, titulo, ayuda }) {
   document.body.className = 'alerta'; navigator.vibrate?.([600, 200, 600, 200, 600]); sirena();
+  const total = Math.max(0, Number(min) || 0) * 60, fin = Date.now() + total * 1000, L = 2 * Math.PI * 87;
+  vista.innerHTML = `<h1>${titulo}</h1>${ayuda}
+    <div class="reloj" role="timer" aria-live="off"><svg viewBox="0 0 200 200"><circle class="pista" cx="100" cy="100" r="87"/><circle class="arco" id="arco" cx="100" cy="100" r="87" stroke-dasharray="${L}" stroke-dashoffset="0"/></svg>
+      <div class="cifra"><strong id="cuenta">${formatoTiempo(Number(min))}</strong><span>El agua llega en</span></div></div>
+    ${vecino
+      ? `<div class="tarjeta"><ol class="pasos"><li>Avisa a tu familia y vecinos</li><li>Sube a la loma de la plaza principal</li><li>Ayuda a quien no pueda caminar</li></ol></div>`
+      : `<div class="tarjeta"><ol class="pasos"><li>Ve ahora a su casa</li><li>Llévala a la loma de la plaza principal</li><li>Cuando esté a salvo, toca el botón verde</li></ol></div>
+         <button class="ok" id="ok">Ya la ayudé ✓</button>`}`;
+  clearInterval(reloj);
+  const tic = () => {
+    const s = Math.max(0, Math.round((fin - Date.now()) / 1000)), c = $('#cuenta'), a = $('#arco');
+    if (!c) return clearInterval(reloj);
+    c.textContent = s <= 0 ? formatoTiempo(0) : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    if (a && total) a.style.strokeDashoffset = String(L * (1 - s / total));
+    avanzarCrecida();
+    if (s <= 0 && !crecida) clearInterval(reloj);
+  };
+  tic(); reloj = setInterval(tic, 1000);
+  iniciarMapa();
+  if (mapa) mapa.tramo(b);
+  $('#ok')?.addEventListener('click', () => {
+    // la pantalla responde al instante; el envío por internet sigue en segundo plano
+    canal.enviar({ tipo: 'ok', id: p.id }, { titulo: `${p.nombre}: a salvo`, texto: `Confirmado por ${p.guardian}` });
+    salvo(`${p.nombre} está a salvo. La central ya lo sabe.`, '¡Gracias!');
+  });
+}
+function alertaGuardian(m) {
   // acuse silencioso: la central ve que el celular sonó, antes del «a salvo»
   canal.enviar({ tipo: 'recibido', id: p.id }, { titulo: `${p.nombre}: aviso recibido`, texto: `Celular de ${p.guardian}`, prioridad: 1 });
   try { if ('Notification' in window && Notification.permission === 'granted') new Notification(`Crecida: ayuda a ${p.nombre}`, { body: `El agua llega en ${formatoTiempo(Number(m.min))}` }); } catch {}
-  vista.innerHTML = `<h1>¡El río suena!</h1><p>Ayuda a <b>${p.nombre}</b> (${p.necesidad})<br>${b.nombre}, ${p.cuadra}</p>
-    <div class="tarjeta"><p>El agua llega en</p><div class="grande">${formatoTiempo(Number(m.min))}</div><p>Punto seguro: la loma de la plaza principal</p></div>
-    <button class="ok" id="ok">Ya la ayudé ✓</button>`;
-  document.getElementById('ok').onclick = () => {
-    // la pantalla responde al instante; el envío por internet sigue en segundo plano
-    canal.enviar({ tipo: 'ok', id: p.id }, { titulo: `${p.nombre}: a salvo`, texto: `Confirmado por ${p.guardian}` });
-    navigator.vibrate?.(0); document.body.className = 'salvo';
-    vista.innerHTML = `<h1>¡Gracias!</h1><p>${p.nombre} está a salvo. La central ya lo sabe.</p>`;
-  };
+  // sin aviso general (central vieja): el frente se estima desde los minutos que faltan a su barrio
+  crecida ??= { i: 1, lag: 0, sim: Math.max(0, minutosHasta(b) - Number(m.min)), t0: Date.now() };
+  alerta({ min: m.min, titulo: '¡El río suena!', ayuda: `<p>Ayuda a <b>${p.nombre}</b> (${p.necesidad})<br>${b.nombre}, ${p.cuadra}</p>` });
 }
-const canal = !tema ? null : abrirCanal(tema, m => { if (m.tipo === 'alerta' && m.id === p.id) alerta(m); if (m.tipo === 'ok' && m.id === p.id && document.body.className === 'alerta') { document.body.className = 'salvo'; vista.innerHTML = `<h1>${p.nombre} está a salvo</h1><p>Confirmado desde la central.</p>`; } });
+function alertaVecino() {
+  const min = Math.max(0, Math.round(minutosHasta(b, crecida.i, crecida.lag) - crecida.sim));
+  try { if ('Notification' in window && Notification.permission === 'granted') new Notification('Crecida del Piraí', { body: `El agua llega a ${b.nombre} en ${formatoTiempo(min)}` }); } catch {}
+  alerta({ min, titulo: '¡El río suena!', ayuda: `<p>El agua viene río abajo hacia <b>${b.nombre}</b></p>` });
+}
+function salvo(texto, titulo = `${p.nombre} está a salvo`) {
+  clearInterval(reloj); navigator.vibrate?.(0); document.body.className = 'salvo';
+  vista.innerHTML = `<svg class="visto" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/><path d="M38 62l15 15 30-32"/></svg>
+    <h1>${titulo}</h1><p>${texto}</p>`;
+}
+const canal = !tema ? null : abrirCanal(tema, m => {
+  if (m.tipo === 'crecida') {
+    crecida = { i: Number(m.i) || 1, lag: Number(m.lag) || 0, sim: Number(m.sim) || 0, t0: Date.now() };
+    if (vecino && !document.body.classList.contains('alerta')) alertaVecino();
+  }
+  if (vecino) return;
+  if (m.tipo === 'alerta' && m.id === p.id) alertaGuardian(m);
+  if (m.tipo === 'ok' && m.id === p.id && document.body.classList.contains('alerta')) salvo('Confirmado desde la central.');
+});
 function sinCodigo() {
   vista.innerHTML = `<h1>Falta el código</h1><p>Escanee el código QR que muestra la central (botón «Sé guardián») o pegue aquí el enlace o el código recibido.</p>
     <div class="tarjeta"><label for="codigo">Enlace o código de la central</label><input id="codigo" autocomplete="off" placeholder="rio-suena-xxxxxxxx"></div>
-    <button id="entrar">Continuar</button><p style="margin-top:16px"><a href="./">Abrir la central</a></p>`;
+    <button id="entrar">Continuar</button><button class="sec" id="solo-mirar">Solo quiero ver el río</button><p style="margin-top:16px"><a href="./">Abrir la central</a></p>`;
+  $('#solo-mirar').onclick = () => { location.search = '?modo=vecino'; };
   const ir = () => {
-    const v = document.getElementById('codigo').value.trim(); if (!v) return;
+    const v = $('#codigo').value.trim(); if (!v) return;
     try { const u = new URL(v); if (u.searchParams.get('t')) { location.search = u.search; return; } } catch {}
     const t = limpiarTema(v); if (t) location.search = `?t=${t}&p=${PERSONAS[0].id}`;
   };
-  document.getElementById('entrar').onclick = ir;
-  document.getElementById('codigo').onkeydown = e => { if (e.key === 'Enter') ir(); };
+  $('#entrar').onclick = ir;
+  $('#codigo').onkeydown = e => { if (e.key === 'Enter') ir(); };
 }
-if (!tema) sinCodigo(); else esperar();
+if (!tema && !vecino) sinCodigo(); else { esperar(); leerRio(); setInterval(leerRio, 120000); }
 </script>
 </body>
 </html>

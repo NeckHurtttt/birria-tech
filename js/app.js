@@ -116,6 +116,9 @@ function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.
   u.search = '?' + s; return u.href; }
 function avisarGuardianes() {
   est.avisoT = Date.now(); est.resp = {}; est.recib = {};
+  // aviso general: cualquier vecino (no solo los guardianes) calcula cuándo llega el agua a su barrio
+  canal.enviar({ tipo: 'crecida', i: est.intensidad.toFixed(2), lag: Math.round(est.lag), sim: Math.round(est.simMin) },
+    { titulo: 'Crecida del Piraí', texto: 'El río viene crecido desde La Angostura. Abre la app para ver cuándo llega a tu barrio.', prioridad: 4 });
   activas().forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), min = minutosHasta(b, est.intensidad, est.lag) - est.simMin;
     est.personas[p.id] = 'avisado';
