@@ -180,6 +180,8 @@ const D = {
   'Que suene con el celular bloqueado': ['Ring even when the phone is locked', '手机锁屏时也响铃'],
   'Para instalarla: botón Compartir y luego «Agregar a inicio».': ['To install: tap Share, then «Add to Home Screen».', '安装方法：点“分享”，再点“添加到主屏幕”。'],
   'Bajar ntfy': ['Get ntfy', '下载 ntfy'],
+  'ascensos': ['rising', '上涨'], 'descensos': ['falling', '下降'], 'poco variable': ['steady', '基本稳定'],
+  'boletín': ['bulletin', '公报'], 'aviso rojo de SENAMHI': ['SENAMHI red alert', 'SENAMHI 红色预警'],
   'Solo quiero ver el río': ['I just want to watch the river', '我只想看看河流'],
   'Quiero ser guardián de alguien': ['I want to be someone’s guardian', '我想成为某人的守护者'],
   'Avisa a tu familia y vecinos': ['Warn your family and neighbors', '通知家人和邻居'],
@@ -235,7 +237,14 @@ const D = {
 // ---------- textos con números o nombres ----------
 const lista = (s, l) => s.split(', ').map(x => t(x, l)).join(l === 'zh' ? '、' : ', ');
 const n = (s, l) => l === 'es' ? s : s.replace(/(\d),(\d)/g, '$1.$2'); // 1,2 m → 1.2 m
+const NIVEL_OF = { 'sin amenaza': ['no threat', '无威胁'], amarilla: ['yellow alert', '黄色预警'], naranja: ['orange alert', '橙色预警'], roja: ['red alert', '红色预警'] };
+const DIA_OF = { lunes: ['Monday', '周一'], martes: ['Tuesday', '周二'], 'miércoles': ['Wednesday', '周三'], jueves: ['Thursday', '周四'], viernes: ['Friday', '周五'], 'sábado': ['Saturday', '周六'], domingo: ['Sunday', '周日'] };
 const P = [
+  // aviso oficial de SENAMHI (js/senamhi.js → textoOficial)
+  [/^SENAMHI hoy: amenaza (sin amenaza|amarilla|naranja|roja)$/, (l, m) => l === 'zh' ? `SENAMHI 今日：${NIVEL_OF[m[1]][1]}` : `SENAMHI today: ${NIVEL_OF[m[1]][0]}`],
+  [/^sube a (amarilla|naranja|roja) el (\S+) (\d+)$/, (l, m) => l === 'zh' ? `${m[3]} 日（${DIA_OF[m[2]]?.[1] || m[2]}）升至${NIVEL_OF[m[1]][1]}` : `rises to ${NIVEL_OF[m[1]][0]} on ${DIA_OF[m[2]]?.[0] || m[2]} ${m[3]}`],
+  [/^Vigilancia por el aviso oficial: SENAMHI prevé amenaza (amarilla|naranja|roja) en la cuenca del Piraí\. Revisen la regla y tengan lista la mochila\.$/, (l, m) => l === 'zh'
+    ? `因官方预警而警戒：SENAMHI 预报皮拉伊河流域${NIVEL_OF[m[1]][1]}。请查看水位标尺，备好应急背包。` : `On watch because of the official warning: SENAMHI forecasts ${NIVEL_OF[m[1]][0]} for the Piraí basin. Check the gauge and have your go-bag ready.`],
   [/^(\d+) h (\d+) min$/, (l, m) => l === 'zh' ? `${m[1]} 小时 ${m[2]} 分` : m[0]],
   [/^(\d+) min$/, (l, m) => l === 'zh' ? `${m[1]} 分钟` : m[0]],
   [/^(\d+) horas? (\d+) minutos?$/, (l, m) => l === 'zh' ? `${m[1]} 小时 ${m[2]} 分钟` : `${m[1]} hours ${m[2]} minutes`],
