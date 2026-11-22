@@ -69,6 +69,12 @@ const D = {
   'Celular del ayudante': ['Helper’s phone', '帮手手机'],
   'Quien no puede salir solo tiene un vecino asignado. Si nadie confirma, pasa al rescate oficial.':
     ['Anyone who can’t leave alone has an assigned neighbor. If nobody confirms, the case goes to official rescue.', '无法独自撤离的人都有一位指定邻居。若无人确认，则转交官方救援。'],
+  'Apoyo prioritario y enlace con rescate oficial': ['Priority support, linked to official rescue', '优先协助，并对接官方救援'],
+  'Celular del ayudante: escanea el QR y recibe la alerta': ['Helper’s phone: scan the QR and get the alert', '帮手手机：扫描二维码即可接收警报'],
+  'Silla de ruedas': ['Wheelchair', '轮椅'],
+  'No oye · señas': ['Deaf · sign language', '听障 · 手语'],
+  'Solos hasta 19:00': ['Alone until 7 pm', '独自在家至 19:00'],
+  'Habla quechua': ['Speaks Quechua', '说克丘亚语'],
   'sin alerta': ['no alert', '无警报'],
   'avisado': ['alerted', '已通知'],
   'a salvo': ['safe', '安全'],

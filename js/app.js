@@ -57,6 +57,11 @@ BARRIOS.forEach(b => {
 
 // ---------- personas ----------
 const listaP = $('#lista-personas');
+// etiqueta corta de la necesidad para la tarjeta (el texto completo queda en el title)
+const NECESIDAD_CORTA = { 'silla de ruedas': 'Silla de ruedas', 'no oye: aviso en señas': 'No oye · señas', 'solos hasta las 19:00': 'Solos hasta 19:00', 'habla quechua': 'Habla quechua' };
+const necesidadCorta = n => NECESIDAD_CORTA[n] || (n ? n[0].toUpperCase() + n.slice(1) : '');
+// «Marcelo (vecino)» → «Marcelo»: en la tarjeta ya dice «Ayudante»
+const nombreAyudante = g => String(g || '').replace(/\s*\((vecin[oa])\)\s*$/i, '');
 function pintarPersonas() {
   listaP.innerHTML = '';
   activas().forEach(p => {
@@ -64,7 +69,8 @@ function pintarPersonas() {
     const txt = { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'a salvo', rescate: 'al rescate' }[e];
     const li = document.createElement('li'); li.dataset.e = e;
     li.innerHTML = `<span class="av">${esc((p.nombre.replace(/^(Doña|Don|Niños)\s/, '')[0] || '?'))}</span>
-      <div><div class="quien">${esc(p.nombre)} · ${b.nombre}, ${esc(p.cuadra)}</div><div class="que">${esc(p.necesidad)} · ayudante: ${esc(p.guardian)}</div></div>
+      <div class="quien"><b>${esc(p.nombre)}</b><span class="donde">${b.nombre}, ${esc(p.cuadra)}</span></div>
+      <div class="que"><span class="tag" title="${esc(p.necesidad)}">${esc(necesidadCorta(p.necesidad))}</span><span class="ayu"><span>Ayudante</span><b>${esc(nombreAyudante(p.guardian))}</b></span></div>
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
     if (e === 'avisado' || e === 'rescate') {
       const ok = document.createElement('button'); ok.className = 'btn chico ok';
