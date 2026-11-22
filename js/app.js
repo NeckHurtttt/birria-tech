@@ -461,6 +461,7 @@ function alerta(intensidad, fuente, lag = 0) {
   avisarGuardianes();
   est.alertaDesde = { t: new Date().toISOString(), fuente };
   $('#btn-falsa').hidden = false;
+  $('.panel.mensajes').hidden = false; // el panel de mensajes aparece recién con la alerta
   $('#chip-reloj').hidden = false;
   despues(() => mapa.tramo(torno), 1500);
 }
@@ -649,7 +650,7 @@ function reiniciar() {
   BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = 'sin crecida'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'sin alerta', 'tranquilo'); });
   mapa.crecida(0); mapa.sensor(''); mapa.general();
   $('#confianza').hidden = true; $('#chip-reloj').hidden = true; $('#exito').hidden = true; $('#btn-falsa').hidden = true;
-  limpiarMsj();
+  limpiarMsj(); $('.panel.mensajes').hidden = true;
 }
 // ---------- falsa alarma: la junta verificó el río y no hay crecida ----------
 // se cancela en todos los celulares (sirena apagada, pantalla verde con el motivo) y queda en el registro de alertas
@@ -835,7 +836,7 @@ async function oficial() {
   const el = $('#oficial'); if (!el) return;
   el.hidden = !est.oficial; if (!est.oficial) return;
   el.dataset.n = est.oficial.nivel;
-  el.querySelector('span').textContent = textoOficial(est.oficial);
+  el.querySelector('span').textContent = el.title = textoOficial(est.oficial); // una línea; el texto completo queda en el title
   const a = el.querySelector('a'); a.hidden = !est.oficial.url; if (est.oficial.url) a.href = est.oficial.url;
 }
 async function escaneo() {
@@ -983,5 +984,9 @@ if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.ser
 addEventListener('offline', () => document.body.classList.add('sin-red'));
 addEventListener('online', () => document.body.classList.remove('sin-red'));
 
-if (JURADO) { $('#btn-simulacro').classList.add('late'); document.title = 'El Río Suena · demo'; }
+// menú de ajustes: se cierra al tocar fuera o con Esc
+document.addEventListener('click', e => { const a = $('#ajustes'); if (a.open && !a.contains(e.target)) a.open = false; document.querySelectorAll('.info-i[open]').forEach(d => { if (!d.contains(e.target)) d.open = false; }); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('#ajustes').open = false; document.querySelectorAll('.info-i[open]').forEach(d => d.open = false); } });
+
+if (JURADO) { document.body.classList.add('jurado'); $('#btn-simulacro').classList.add('late'); document.title = 'El Río Suena · demo'; }
 window.__rs = { est, alerta, confirmar, oido, mapa, evaluar, activas, riada, abrirChat, pasoAyudante }; // para pruebas

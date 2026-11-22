@@ -208,7 +208,7 @@ Antes de adoptar el índice, se evaluó su comportamiento con los datos de la no
 2. El índice supera 55, se emite la **alerta** y cada barrio muestra su cuenta regresiva.
 3. El teléfono del ayudante (código QR **Sé ayudante**) suena. En **Vecinos Ayudantes** se abre el chat de cada caso: el ayudante avisa que va en camino, la central le escribe y él confirma que ya están a salvo; entonces se presiona **Confirmar evacuación** (o el ayudante toca **«Listo, a salvo»** en su celular).
 4. Un caso sin confirmación a T−30 pasa a **«al rescate»** y se avisa al rescate oficial. Cuando todos están confirmados, aparece la pantalla de cierre con las personas trasladadas, el margen y el costo.
-5. **«¿Habría avisado la riada real del 13/12/2025?»** muestra la gráfica de esa noche, hora por hora.
+5. En **Validación y extras** del Vigía, **«¿Habría avisado la riada real del 13/12/2025?»** muestra la gráfica de esa noche, hora por hora.
 6. **Panel de la junta**: se ingresa la clave `1312`; las personas registradas desde otro teléfono aparecen en vivo y pueden aprobarse o exportarse a CSV.
 7. Sin conexión, la aplicación instalada sigue abriendo y desde el chat de cada persona se puede enviar un SMS o llamar al ayudante.
 

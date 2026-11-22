@@ -40,7 +40,7 @@ h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
 .panel h2 { font-size: 16px; font-weight: 600; }
 .sub, .nota { margin: 0 0 12px; color: var(--texto-2); font-size: 13px; }
 .nota { margin: 12px 0 0; font-size: 12px; }
-.oido { grid-column: 1; grid-row: 1; }
+.oido { grid-column: 1; grid-row: 1; align-self: start; }
 .mensajes { grid-column: 1; grid-row: 2; align-self: stretch; max-height: 100%; display: flex; flex-direction: column; }
 .cuenta { grid-column: 3; grid-row: 1; align-self: start; max-height: 100%; }
 /* abajo a la derecha, debajo de la cuenta regresiva; deja libre la atribución del mapa (OpenStreetMap) */
@@ -498,3 +498,27 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 .caso-pulso::after { animation-delay: 1.1s; }
 @keyframes onda-caso { 0% { transform: scale(1); opacity: .9; } 70% { opacity: .15; } 100% { transform: scale(4.2); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .caso-pulso::before, .caso-pulso::after { animation: none; transform: scale(2); opacity: .35; } }
+
+/* ---------- menos carga visual: lo secundario queda a un toque ---------- */
+.panel[hidden] { display: none !important; }
+.ajustes, .reportar, .info-i { position: relative; }
+.ajustes > summary, .reportar > summary, .info-i > summary { list-style: none; cursor: pointer; }
+.ajustes > summary::-webkit-details-marker, .reportar > summary::-webkit-details-marker, .info-i > summary::-webkit-details-marker { display: none; }
+.ajustes > summary svg { width: 18px; height: 18px; }
+.ajustes[open] > summary { border-color: var(--acento); }
+.ajustes-menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; display: flex; flex-direction: column; gap: 8px; min-width: 210px; padding: 10px; border-radius: var(--r-chico); background: var(--superficie-solida); border: 1px solid var(--borde); box-shadow: var(--sombra); }
+.ajustes-menu .btn { justify-content: flex-start; width: 100%; }
+.ajustes-menu .idiomas { display: flex; } .ajustes-menu .idiomas .btn { flex: 1; justify-content: center; }
+.reportar { margin-top: 12px; }
+.reportar > summary { width: 100%; justify-content: center; }
+.reportar > summary::after { content: "▾"; margin-left: 2px; transition: transform .2s; }
+.reportar[open] > summary::after { transform: rotate(180deg); }
+.reportar > .fila { margin-top: 8px; }
+.info-i > summary { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; border: 1px solid var(--borde); color: var(--texto-2); font: italic 600 12px/1 var(--f); }
+.info-i > summary:hover, .info-i[open] > summary { color: var(--texto); border-color: var(--acento); }
+.info-i > p { position: absolute; right: 0; top: calc(100% + 6px); z-index: 5; width: 240px; margin: 0; padding: 8px 10px; border-radius: var(--r-chico); background: var(--superficie-solida); border: 1px solid var(--borde); box-shadow: var(--sombra); color: var(--texto-2); font-size: 12px; }
+.extra-tit { margin: 12px 0 6px; color: var(--texto-2); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.extra .btn.riada { margin-top: 4px; }
+@media (min-width: 901px) { .oficial span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } }
+body.jurado #btn-pared { display: none; }
+@media (max-width: 900px) { .ajustes-menu { right: auto; left: 0; } }

@@ -135,7 +135,8 @@ Para las familias es gratuito. El piloto cuesta aproximadamente Bs 1.500; poster
 - [ ] La página abierta con HTTPS (Pages), ya instalada como app por si falla el wifi
 - [ ] Video de respaldo listo: `capturas/demo-respaldo.mp4`
 - [ ] La PC de Rodrigo encendida y subiendo lecturas: la fuente del Vigía debe decir **«vigía central (PC del equipo)»**
-- [ ] Bot de Telegram encendido (`nodo/`) y un audio de vigía grabado listo para mandar; si falla, usar el botón «Vigía río arriba»
+- [ ] Bot de Telegram encendido (`nodo/`) y un audio de vigía grabado listo para mandar; si falla, usar «Reportar ▾ → Vigía río arriba»
 - [ ] En el discurso mostrar solo **dos** cosas nuevas: el audio del vigía y la cuenta regresiva; lo demás, para las preguntas
 - [ ] Ensayado con cronómetro: **menos de 2:55** (son 3 min de exposición; si se pasa, recortar la parte IV)
+- [ ] Idioma, voz y letra grande están en el botón ⚙; la riada del 13/12/2025 y el micrófono, en «Validación y extras» del Vigía (para las preguntas)
 - [ ] Tono respetuoso al referirse a las víctimas del 13/12/2025: son la razón del proyecto

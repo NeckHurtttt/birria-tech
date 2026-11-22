@@ -28,9 +28,14 @@
     <span class="chip sin-red-chip">Sin internet · última alerta guardada</span>
   </div>
   <button class="btn chico qr-jurado" id="btn-qr-jurado" title="Escanea y recibe la alerta en tu celular"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h3v-3"/></svg>Sé ayudante</button>
-  <span id="idioma-sel"></span>
-  <button class="btn chico icono" id="btn-repetir" title="Leer el aviso en voz alta" aria-label="Leer el aviso en voz alta"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg></button>
-  <button class="btn chico icono" id="btn-grande" aria-pressed="false" title="Letra grande y alto contraste" aria-label="Letra grande y alto contraste"><b>Aa</b></button>
+  <details class="ajustes" id="ajustes">
+    <summary class="btn chico icono" title="Idioma, voz y letra grande" aria-label="Idioma, voz y letra grande"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></summary>
+    <div class="ajustes-menu">
+      <span id="idioma-sel"></span>
+      <button class="btn chico" id="btn-repetir" title="Leer el aviso en voz alta"><svg viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>Leer en voz alta</button>
+      <button class="btn chico" id="btn-grande" aria-pressed="false" title="Letra grande y alto contraste"><b>Aa</b>Letra grande</button>
+    </div>
+  </details>
   <button class="btn" id="btn-falsa" hidden title="La junta verificó el río y no hay crecida: se cancela la alerta en todos los celulares"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8M16 8l-8 8"/></svg>Falsa alarma</button>
   <button class="btn primario" id="btn-simulacro"><svg viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></svg>Iniciar simulacro</button>
 </header>
@@ -40,7 +45,6 @@
 
   <section class="panel oido" aria-labelledby="t-oido">
     <header><h2 id="t-oido">Vigía del Piraí</h2><span class="estado" id="estado-riesgo" data-e="normal">escaneando…</span></header>
-    <p class="sub" id="fuente-escaneo">Datos abiertos de la cuenca alta · sin sensores ni hardware</p>
     <p class="oficial" id="oficial" hidden><i></i><span></span> <a target="_blank" rel="noopener" hidden>boletín</a></p>
     <div class="riesgo">
       <div class="aguja"><b id="riesgo-num">…</b><span>riesgo</span></div>
@@ -51,17 +55,22 @@
       </ul>
     </div>
     <p class="detalle" id="detalle-riesgo">La lluvia en Samaipata y Bermejo tarda unas 2 h 30 min en bajar hasta La Angostura: ese es el tiempo que ganamos.</p>
-    <div class="fila">
+    <details class="reportar" id="reportar">
+      <summary class="btn chico"><svg viewBox="0 0 24 24"><path d="M12 3v12M6 9l6-6 6 6M4 21h16"/></svg>Reportar</summary>
+      <div class="fila">
       <button class="btn chico" id="btn-crecio" title="Un vecino de la ribera reporta que el río creció (solo sube el índice)"><svg viewBox="0 0 24 24"><path d="M3 17c3-3 5 3 9 0s6 3 9 0M12 3v9M8 8l4 4 4-4"/></svg>Ribera: «creció»</button>
       <button class="btn chico" id="btn-vigia" title="Un vigía río arriba (Bermejo, río Espejos) reporta que el río creció: con 2 vigías hay alerta"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="3"/><path d="M5 21v-2a7 7 0 0 1 14 0v2M3 4l2 2M21 4l-2 2"/></svg>Vigía río arriba</button>
       <button class="btn chico" id="btn-qr-vigia" title="Escanea con otro celular para reportar como vigía río arriba"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3z"/></svg>QR vigía</button>
       <button class="btn chico" id="btn-regla" title="Foto de la regla pintada: se lee el nivel con 3 toques"><svg viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="1"/><path d="M8 7h4M8 11h3M8 15h4M8 19h3"/></svg>Regla</button>
       <input type="file" accept="image/*" capture="environment" id="foto-regla" hidden>
-    </div>
+      </div>
+    </details>
     <p class="confianza" id="confianza" hidden></p>
-    <button class="btn chico riada" id="btn-riada"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>¿Habría avisado la riada real del 13/12/2025?</button>
     <details class="extra">
-      <summary>Extra opcional: oído del río (micrófono)</summary>
+      <summary>Validación y extras</summary>
+      <p class="sub" id="fuente-escaneo">Datos abiertos de la cuenca alta · sin sensores ni hardware</p>
+    <button class="btn chico riada" id="btn-riada"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/></svg>¿Habría avisado la riada real del 13/12/2025?</button>
+      <p class="extra-tit">Oído del río (micrófono, opcional)</p>
       <canvas id="espectro" width="520" height="120" aria-label="Espectrograma del sonido del río"></canvas>
       <div class="medidor"><div id="medidor-barra"></div></div>
       <p class="detalle"><span class="estado" id="estado-oido" data-e="apagado">apagado</span> <span id="detalle-oido">El rugido grave (20–300 Hz) de las piedras arrastradas sube antes que el nivel del agua.</span></p>
@@ -69,7 +78,7 @@
     </details>
   </section>
 
-  <section class="panel mensajes" aria-labelledby="t-msj">
+  <section class="panel mensajes" aria-labelledby="t-msj" hidden>
     <header><h2 id="t-msj">Mensajes de emergencia</h2><span class="estado" id="estado-msj" data-e="normal">sin reportes</span></header>
     <!-- pila sin scroll: el mensaje activo queda quieto unos segundos para leerlo; los anteriores asoman detrás -->
     <div id="pila-msj" class="msj msj-pila" role="log" aria-live="polite" aria-relevant="additions"></div>
@@ -77,9 +86,8 @@
   </section>
 
   <section class="panel cuenta" aria-labelledby="t-cuenta">
-    <header><h2 id="t-cuenta">Cuenta regresiva por barrio</h2></header>
+    <header><h2 id="t-cuenta">Cuenta regresiva por barrio</h2><details class="info-i"><summary aria-label="Cómo se calcula" title="Cómo se calcula">i</summary><p>Tiempos y alturas estimados para el prototipo; se calibran con SEARPI y el COED.</p></details></header>
     <ol id="lista-barrios" class="barrios"></ol>
-    <p class="nota">Tiempos y alturas estimados para el prototipo; se calibran con SEARPI y el COED.</p>
   </section>
 
   <section class="panel guardianes" aria-labelledby="t-guard">
