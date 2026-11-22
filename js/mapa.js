@@ -38,14 +38,26 @@ export function crearMapa(el, opc = {}) {
   BARRIOS.forEach((b, i) => marca(b.id, b.lon, b.lat, `<b>${b.nombre}</b><span class="cr" id="cr-${b.id}">sin alerta</span>`, 'barrio', i % 2 ? 'top' : 'bottom'));
   Object.values(marcas).forEach(({ el: d }) => { if (d.classList.contains('barrio')) d.dataset.estado = 'tranquilo'; });
   // un marcador cortado contra el borde del mapa se ve como un error: se oculta mientras esté ahí
+  // y si dos etiquetas se pisan (celular, zoom lejano) queda la más importante:
+  // tu barrio > La Angostura > barrio con alerta > barrio > punto de lluvia
+  const prioridad = d => d.classList.contains('mio') ? 5 : d.classList.contains('sensor') ? 4
+    : d.dataset.estado && d.dataset.estado !== 'tranquilo' ? 3 : d.classList.contains('barrio') ? 2 : 1;
   const recortar = () => {
     const w = el.clientWidth, h = el.clientHeight;
     Object.values(marcas).forEach(({ el: d, m }) => {
       const { x, y } = map.project(m.getLngLat());
       d.style.visibility = x < 40 || x > w - 40 || y < 36 || y > h - 20 ? 'hidden' : '';
     });
+    const todas = [...el.querySelectorAll('.maplibregl-marker')].filter(d => d.style.visibility !== 'hidden' || d.dataset.tapada);
+    todas.forEach(d => { if (d.dataset.tapada) { d.style.visibility = ''; delete d.dataset.tapada; } });
+    const puestas = [];
+    todas.sort((a, b) => prioridad(b) - prioridad(a)).forEach(d => {
+      const r = d.getBoundingClientRect(), m = 2;
+      if (puestas.some(q => r.left < q.right + m && r.right > q.left - m && r.top < q.bottom + m && r.bottom > q.top - m)) { d.style.visibility = 'hidden'; d.dataset.tapada = '1'; }
+      else puestas.push(r);
+    });
   };
-  map.on('move', recortar); map.on('resize', recortar); map.once('idle', recortar);
+  map.on('move', recortar); map.on('resize', recortar); map.on('idle', recortar);
 
   return {
     map,
@@ -55,10 +67,12 @@ export function crearMapa(el, opc = {}) {
       const pts = km > 0 ? tramoHasta(km) : [];
       s.setData(pts.length > 1 ? { type: 'Feature', geometry: { type: 'LineString', coordinates: pts } } : vacio());
     },
+    /** el barrio de quien mira el mapa nunca se oculta */
+    destacar(id) { Object.entries(marcas).forEach(([k, { el: d }]) => d.classList.toggle('mio', k === id)); recortar(); },
     sensor(clase) { marcas.sensor.el.classList.toggle('crecida', clase === 'crecida'); },
     barrio(id, texto, estado) {
       const m = marcas[id]; if (!m) return;
-      m.el.querySelector('.cr').textContent = texto; m.el.dataset.estado = estado;
+      m.el.querySelector('.cr').textContent = texto; m.el.dataset.estado = estado; recortar();
     },
     volar(b) { map.flyTo({ center: [b.lon, b.lat], zoom: 11, pitch: 58, duration: 2500, padding: PAD() }); },
     // MapLibre suma este padding al de los paneles (setPadding), por eso aquí va solo el margen extra

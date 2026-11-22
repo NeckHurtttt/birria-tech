@@ -236,6 +236,7 @@ function pintarRuta() {
   if (!mapa) return;
   document.querySelectorAll('.marca.barrio').forEach(d => d.classList.toggle('mio', d.querySelector('b')?.textContent === b.nombre));
   mapa.lluvias?.forEach(({ c, d }) => { const pt = lectura?.puntos?.find(x => x.nombre === c.nombre); d.querySelector('.cr').textContent = pt ? `${Number(pt.ll24).toFixed(1)} mm` : '–'; });
+  mapa.destacar(b.id);
   if (!crecida) BARRIOS.forEach(x => mapa.barrio(x.id, x.id === b.id ? `${formatoTiempo(LAG_CUENCA_MIN + minutosHasta(x))} si crece` : 'sin alerta', 'tranquilo'));
 }
 
