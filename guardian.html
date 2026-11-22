@@ -171,7 +171,7 @@
 </main>
 <script src="vendor/maplibre-gl.js"></script>
 <script type="module">
-import { PERSONAS, BARRIOS, CUENCA, SENSOR, formatoTiempo, indiceRiesgo, minutosHasta, velocidad, LAG_CUENCA_MIN, nombresAleatorios } from './js/datos.js';
+import { PERSONAS, BARRIOS, CUENCA, SENSOR, formatoTiempo, indiceRiesgo, minutosHasta, velocidad, LAG_CUENCA_MIN, nombresAleatorios, ayudantesAleatorios } from './js/datos.js';
 import { abrirCanal, limpiarTema } from './js/canal.js';
 import { iniciarIdioma } from './js/idioma.js';
 import { hayNube, vigiaCentral, deLectura } from './js/nube.js';
@@ -194,21 +194,23 @@ const deEnlace = () => q.get('n') && BARRIOS.some(x => x.id === q.get('b'))
   ? { id: q.get('p'), nombre: q.get('n').slice(0, 60), necesidad: (q.get('nec') || '').slice(0, 80), barrio: q.get('b'), cuadra: (q.get('cu') || '').slice(0, 40), guardian: (q.get('g') || 'ayudante').slice(0, 60) } : null;
 // modo vecino: solo mira el río y recibe la alerta general, sin estar a cargo de nadie
 const vecino = q.get('modo') === 'vecino';
-// persona de ejemplo: el nombre sorteado en la central llega en el QR (n=). Si el enlace no lo trae, se sortea uno
-// aquí y se deja en la dirección (y en lo guardado), para que no cambie al recargar.
+// persona de ejemplo: el nombre y el ayudante sorteados en la central llegan en el QR (n= y g=). Si el enlace no los
+// trae, se sortean aquí y se dejan en la dirección (y en lo guardado), para que no cambien al recargar.
 const demo = PERSONAS.find(x => x.id === q.get('p')) || (deEnlace() ? null : PERSONAS[0]);
-if (demo && !vecino && !q.get('n')) {
-  q.set('p', demo.id); q.set('n', nombresAleatorios([demo])[demo.id]);
+if (demo && !vecino && (!q.get('n') || !q.get('g'))) {
+  q.set('p', demo.id);
+  if (!q.get('n')) q.set('n', nombresAleatorios([demo])[demo.id]);
+  if (!q.get('g')) q.set('g', ayudantesAleatorios([demo])[demo.id]);
   history.replaceState(null, '', '?' + q);
   const guardar = new URLSearchParams(q); guardar.delete('app'); guardar.delete('v');
   if (tema) { try { localStorage.setItem(GUARDADO, guardar.toString()); } catch {} }
 }
-const base = demo ? { ...demo, nombre: (q.get('n') || demo.nombre).slice(0, 60) } : deEnlace();
+const base = demo ? { ...demo, nombre: (q.get('n') || demo.nombre).slice(0, 60), guardian: (q.get('g') || demo.guardian).slice(0, 60) } : deEnlace();
 const p = { ...base }; for (const k of ['nombre', 'necesidad', 'cuadra', 'guardian']) p[k] = esc(p[k]);
 const leerBarrio = () => { try { return localStorage.getItem('rs-barrio'); } catch { return null; } };
 let b = BARRIOS.find(x => x.id === (vecino ? (q.get('b') || leerBarrio()) : p.barrio)) || BARRIOS.find(x => x.id === 'eltorno');
 const vista = $('#vista');
-const iniciales = String(p.nombre).replace(/&\w+;/g, '').replace(/^(Doña|Don|Niños)\s+/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+const iniciales = String(p.nombre).replace(/&\w+;/g, '').replace(/^(Doña|Don|Niños|Familia)\s+/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
 let activo = false, sonido, reloj, rio = null, lectura = null, crecida = null, mapa = null, oficial = null;
 
 // ---------- mapa: de la cuenca alta (lluvia) a La Angostura y río abajo hasta el barrio ----------

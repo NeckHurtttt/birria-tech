@@ -309,6 +309,10 @@ const P = [
   [/^Sé ayudante de (.+)$/, (l, m) => l === 'zh' ? `成为 ${t(m[1], l)} 的帮手` : `Be ${t(m[1], l)}’s helper`],
   // hermanos de ejemplo con apellido sorteado: «Niños Vargas (3)»
   [/^Niños (\S+) \((\d+)\)$/, (l, m) => l === 'zh' ? `${m[1]} 家的孩子（${m[2]} 人）` : `${m[1]} children (${m[2]})`],
+  [/^Familia (\S+)$/, (l, m) => l === 'zh' ? `${m[1]} 一家` : `${m[1]} family`],
+  // ayudantes sorteados: «Paola (vecina)», «Profe Javier»
+  [/^(\S+) \((vecino|vecina)\)$/, (l, m) => l === 'zh' ? `${m[1]}（邻居）` : `${m[1]} (neighbor)`],
+  [/^Profe (\S+)$/, (l, m) => l === 'zh' ? `${m[1]} 老师` : `${m[1]} (teacher)`],
   [/^Rugido ([\d.]+)× más fuerte que lo normal: piedras en movimiento…$/, (l, m) => l === 'zh' ? `轰鸣比平时强 ${m[1]} 倍：石块正在滚动…` : `Rumble ${m[1]}× louder than normal: stones on the move…`],
   [/^Aquí llegaría el agua: ([\d,]+) m$/, (l, m) => l === 'zh' ? `水会涨到这里：${n(m[1], l)} 米` : `The water would reach here: ${n(m[1], l)} m`],
   [/^Toca la marca de (\d+) m$/, (l, m) => l === 'zh' ? `点击 ${m[1]} 米刻度` : `Tap the ${m[1]} m mark`],

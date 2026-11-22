@@ -128,27 +128,62 @@ export const PERSONAS = [
   { id: 'juana', nombre: 'Doña Juana', g: 'f', edad: 68, necesidad: 'habla quechua', barrio: 'porongo', cuadra: 'Cuadra 1', guardian: 'Rubén (vecino)', idioma: 'quechua' },
 ];
 
-// Nombres realistas de la ribera para sortear. No incluyen los nombres fijos de antes (Rosa, Teodoro, Juana,
-// Gutiérrez) para que nunca vuelva a salir el mismo de siempre, ni los de los ayudantes o de los mensajes de emergencia.
+// Nombres comunes de la ribera para sortear: fáciles de leer en voz alta, una sola palabra cada uno (la traducción de
+// «Niños X (N)» y «Familia X» espera una palabra). No incluyen los nombres fijos de antes (Rosa, Teodoro, Juana, Gutiérrez)
+// ni los de los mensajes de emergencia; las listas de personas y de ayudantes no se pisan entre sí.
 export const NOMBRES_FIJOS = PERSONAS.map(p => p.nombre);
 export const NOMBRES_DEMO = {
-  f: ['Carmen', 'Teresa', 'Elvira', 'Filomena', 'Dora', 'Gladys', 'Hilda', 'Benita', 'Josefa', 'Encarnación', 'Sonia', 'Lidia', 'Nelly', 'Marina', 'Asunta', 'Felicidad', 'Eulalia', 'Gregoria', 'Remedios', 'Clotilde'],
-  m: ['Ernesto', 'Julián', 'Hilarión', 'Mario', 'Fermín', 'Ramón', 'Efraín', 'Severino', 'Gregorio', 'Tomás', 'Isidoro', 'Celestino', 'Lorenzo', 'Aurelio', 'Faustino', 'Nicanor', 'Eusebio', 'Saturnino'],
-  apellidos: ['Vargas', 'Mamani', 'Choque', 'Quispe', 'Peña', 'Rivero', 'Montaño', 'Céspedes', 'Paniagua', 'Zeballos', 'Méndez', 'Ortúzar', 'Velasco', 'Arandia'],
+  f: ['Carmen', 'Beatriz', 'Teresa', 'Gladys', 'Lidia', 'Sonia', 'Marina', 'Nelly', 'Hilda', 'Dora', 'Josefa', 'Benita', 'Elvira', 'Alicia',
+    'Isabel', 'Victoria', 'Graciela', 'Norma', 'Silvia', 'Luisa', 'Margarita', 'Antonia', 'Mercedes', 'Esther', 'Blanca', 'Gloria', 'Amalia',
+    'Olga', 'Yolanda', 'Delia', 'Irma', 'Celia', 'Leonor', 'Susana', 'Cristina', 'Lourdes', 'Raquel', 'Matilde', 'Julia', 'Rita'],
+  m: ['Humberto', 'Enrique', 'Alberto', 'Ernesto', 'Julián', 'Mario', 'Fermín', 'Ramón', 'Gregorio', 'Tomás', 'Lorenzo', 'Aurelio', 'Arturo',
+    'Jorge', 'Óscar', 'Raúl', 'Gonzalo', 'Rodolfo', 'Víctor', 'Alfredo', 'Rolando', 'Eduardo', 'Fernando', 'Gustavo', 'Hernán', 'Jaime',
+    'Manuel', 'Pedro', 'Ricardo', 'Roberto', 'Antonio', 'Francisco', 'Guillermo', 'Mauricio', 'Efraín', 'Isidoro', 'Severino', 'Faustino'],
+  apellidos: ['Vargas', 'Mamani', 'Choque', 'Quispe', 'Peña', 'Rivero', 'Montaño', 'Céspedes', 'Paniagua', 'Zeballos', 'Méndez', 'Velasco',
+    'Arandia', 'Quiroga', 'Soliz', 'Aguilera', 'Barba', 'Durán', 'Egüez', 'Hurtado', 'Ibáñez', 'Melgar', 'Moreno', 'Parada', 'Ribera',
+    'Salvatierra', 'Terrazas', 'Toledo', 'Zambrana', 'Guzmán', 'Mercado', 'Medina', 'Aguirre', 'Sandoval', 'Torrico', 'Lijerón'],
+};
+// ayudantes: vecinos más jóvenes; quien cuida a niños solos es «Profe …»
+export const NOMBRES_AYUDANTES = {
+  f: ['Lucía', 'Ana', 'Paola', 'Daniela', 'Mariela', 'Vanessa', 'Andrea', 'Jimena', 'Fernanda', 'Gabriela', 'Natalia', 'Verónica',
+    'Claudia', 'Karina', 'Sandra', 'Lorena', 'Valeria', 'Mónica', 'Roxana', 'Pamela'],
+  m: ['Marcelo', 'Rubén', 'Daniel', 'Andrés', 'Carlos', 'Javier', 'Miguel', 'Pablo', 'Esteban', 'Iván', 'Gabriel', 'Mateo', 'Nicolás',
+    'Álvaro', 'Cristian', 'Franz', 'Marco', 'Bruno', 'Adrián', 'Joel'],
+};
+const sorteo = azar => {
+  const usados = new Set();
+  return lista => { const libres = lista.filter(x => !usados.has(x)); const x = libres[Math.floor(azar() * libres.length) % libres.length]; usados.add(x); return x; };
 };
 /**
- * Sortea un nombre para cada persona de ejemplo, sin repetir: «Doña …», «Don …» o «Niños … (N)».
+ * Sortea un nombre para cada persona de ejemplo, sin repetir: «Doña …», «Don …», «Niños … (N)» o «Familia …».
  * @returns {Record<string, string>} id → nombre
  */
 export function nombresAleatorios(personas = PERSONAS, azar = Math.random) {
-  const usados = new Set(), out = {};
-  const sacar = lista => { const libres = lista.filter(x => !usados.has(x)); const x = libres[Math.floor(azar() * libres.length) % libres.length]; usados.add(x); return x; };
+  const sacar = sorteo(azar), out = {};
   for (const p of personas) {
-    if (p.g === 'ninos') out[p.id] = `Niños ${sacar(NOMBRES_DEMO.apellidos)} (${(String(p.nombre).match(/\((\d+)\)/) || [, 2])[1]})`;
-    else out[p.id] = `${p.g === 'm' ? 'Don' : 'Doña'} ${sacar(NOMBRES_DEMO[p.g === 'm' ? 'm' : 'f'])}`;
+    if (p.g === 'ninos') {
+      const apellido = sacar(NOMBRES_DEMO.apellidos), forma = azar(), cuantos = 2 + Math.floor(azar() * 3) % 3; // 2 a 4 hermanos
+      out[p.id] = forma < 0.6 ? `Niños ${apellido} (${cuantos})` : `Familia ${apellido}`;
+    } else out[p.id] = `${p.g === 'm' ? 'Don' : 'Doña'} ${sacar(NOMBRES_DEMO[p.g === 'm' ? 'm' : 'f'])}`;
   }
   return out;
 }
+/**
+ * Sortea el vecino ayudante de cada persona de ejemplo, sin repetir: «Marcelo (vecino)», «Lucía (vecina)»
+ * o, para niños solos, «Profe …».
+ * @returns {Record<string, string>} id → ayudante
+ */
+export function ayudantesAleatorios(personas = PERSONAS, azar = Math.random) {
+  const sacar = sorteo(azar), out = {};
+  for (const p of personas) {
+    const mujer = azar() < 0.5, nombre = sacar(NOMBRES_AYUDANTES[mujer ? 'f' : 'm']);
+    out[p.id] = p.g === 'ninos' ? `Profe ${nombre}` : `${nombre} (${mujer ? 'vecina' : 'vecino'})`;
+  }
+  return out;
+}
+/** Formas válidas de un nombre sorteado y de un ayudante sorteado (para descartar lo guardado de versiones viejas). */
+export const NOMBRE_SORTEADO = /^(Doña|Don) \S.{0,30}$|^Niños \S+ \(\d+\)$|^Familia \S+$/;
+export const AYUDANTE_SORTEADO = /^\S+ \((vecino|vecina)\)$|^Profe \S+$/;
 
 /** Minutos que tarda la crecida en llegar a un barrio. intensidad 1 = normal, >1 más rápida. */
 export const velocidad = (intensidad = 1, vel = VELOCIDAD_KMH) => vel * Math.min(1.6, Math.max(0.8, Math.sqrt(intensidad)));

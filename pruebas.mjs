@@ -137,10 +137,10 @@ t('nombres sorteados: sin repetir, con tratamiento y sin nombre fijo', () => {
     const n = nombresAleatorios(PERSONAS);
     assert.equal(new Set(Object.values(n)).size, PERSONAS.length, 'no repite dentro de una central');
     assert.match(n.rosa, /^Doña \S/); assert.match(n.teo, /^Don \S/); assert.match(n.juana, /^Doña \S/);
-    assert.match(n.nina, /^Niños \S+ \(3\)$/);
+    assert.match(n.nina, /^Niños \S+ \([234]\)$|^Familia \S+$/);
     vistos.add(n.rosa);
   }
-  assert.ok(vistos.size > 5, 'cambia entre una central y otra');
+  assert.ok(vistos.size > 15, 'cambia entre una central y otra');
   const fijo = nombresAleatorios(PERSONAS, () => 0);
   assert.equal(fijo.rosa, 'Doña ' + NOMBRES_DEMO.f[0]); assert.equal(fijo.juana, 'Doña ' + NOMBRES_DEMO.f[1]);
 });
@@ -149,4 +149,23 @@ t('el sorteo nunca devuelve los nombres fijos de antes (Doña Rosa, Don Teodoro�
   assert.ok(NOMBRES_FIJOS.includes('Doña Rosa'));
   for (let k = 0; k < 500; k++) Object.values(nombresAleatorios(PERSONAS)).forEach(n => assert.ok(!NOMBRES_FIJOS.includes(n), n));
   for (const l of Object.values(NOMBRES_DEMO)) assert.ok(l.every(x => !/\s/.test(x)), 'sin espacios: la traducción de «Niños X (N)» espera una palabra');
+});
+import { ayudantesAleatorios, NOMBRES_AYUDANTES, NOMBRE_SORTEADO, AYUDANTE_SORTEADO } from './js/datos.js';
+t('ayudantes sorteados: variados, sin repetir y con la forma que la central y el celular reconocen', () => {
+  const vistos = new Set(), grupos = new Set();
+  for (let k = 0; k < 200; k++) {
+    const a = ayudantesAleatorios(PERSONAS), n = nombresAleatorios(PERSONAS);
+    assert.equal(new Set(Object.values(a)).size, PERSONAS.length, 'no repite ayudante dentro de una central');
+    Object.values(a).forEach(x => assert.match(x, AYUDANTE_SORTEADO));
+    Object.values(n).forEach(x => assert.match(x, NOMBRE_SORTEADO));
+    assert.match(a.nina, /^Profe \S+$/, 'a los niños solos los cuida un profe');
+    assert.match(a.rosa, /^\S+ \((vecino|vecina)\)$/);
+    vistos.add(a.rosa); grupos.add(n.nina.split(' ')[0]);
+  }
+  assert.ok(vistos.size > 15, 'los ayudantes cambian entre una central y otra');
+  assert.deepEqual([...grupos].sort(), ['Familia', 'Niños'], 'el grupo sale como «Niños X (N)» o «Familia X»');
+  // las listas de personas y de ayudantes no se pisan (nunca «Doña Paola» ayudada por «Paola»)
+  const personas = new Set([...NOMBRES_DEMO.f, ...NOMBRES_DEMO.m]);
+  assert.ok([...NOMBRES_AYUDANTES.f, ...NOMBRES_AYUDANTES.m].every(x => !personas.has(x) && !/\s/.test(x)));
+  assert.equal(new Set([...NOMBRES_DEMO.f, ...NOMBRES_DEMO.m, ...NOMBRES_DEMO.apellidos]).size, NOMBRES_DEMO.f.length + NOMBRES_DEMO.m.length + NOMBRES_DEMO.apellidos.length, 'sin duplicados');
 });

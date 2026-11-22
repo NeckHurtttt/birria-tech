@@ -11,20 +11,23 @@ import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 import { mensajesNuevos } from './mensajes.js';
-import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios } from './datos.js';
+import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios, ayudantesAleatorios, NOMBRE_SORTEADO, AYUDANTE_SORTEADO } from './datos.js';
 
-// Nombres de las personas de ejemplo: se sortean al abrir la central (no hay uno fijo). Se guardan en esta pestaña
-// para que al recargar sigan siendo los mismos que ya viajaron en el QR al celular del ayudante.
+// Nombres de las personas de ejemplo y de sus ayudantes: se sortean al abrir la central (no hay uno fijo). Se guardan
+// en esta pestaña para que al recargar o reiniciar el simulacro sigan siendo los mismos que ya viajaron en el QR al
+// celular del ayudante. Otra pestaña (o cerrar y abrir) sortea de nuevo.
 {
-  // un sorteo guardado que tenga un nombre fijo de antes (Doña Rosa…) se descarta y se sortea de nuevo
-  const CLAVE = 'rs-nombres-demo', valido = n => typeof n === 'string' && !NOMBRES_FIJOS.includes(n) && /^(Doña|Don) \S.{0,30}$|^Niños \S+ \(\d+\)$/.test(n);
-  let nombres = null;
-  try { nombres = JSON.parse(sessionStorage.getItem(CLAVE)); } catch {}
-  if (!nombres || !PERSONAS.every(p => valido(nombres[p.id]))) {
-    nombres = nombresAleatorios(PERSONAS);
-    try { sessionStorage.setItem(CLAVE, JSON.stringify(nombres)); } catch {}
+  // clave nueva: lo guardado con la lista corta de antes se descarta; también un nombre fijo de antes (Doña Rosa…)
+  const CLAVE = 'rs-sorteo-demo-v2';
+  const valido = s => s && PERSONAS.every(p => typeof s.nombres?.[p.id] === 'string' && !NOMBRES_FIJOS.includes(s.nombres[p.id]) && NOMBRE_SORTEADO.test(s.nombres[p.id])
+    && typeof s.ayudantes?.[p.id] === 'string' && AYUDANTE_SORTEADO.test(s.ayudantes[p.id]));
+  let s = null;
+  try { s = JSON.parse(sessionStorage.getItem(CLAVE)); } catch {}
+  if (!valido(s)) {
+    s = { nombres: nombresAleatorios(PERSONAS), ayudantes: ayudantesAleatorios(PERSONAS) };
+    try { sessionStorage.setItem(CLAVE, JSON.stringify(s)); } catch {}
   }
-  PERSONAS.forEach(p => { p.nombre = nombres[p.id]; });
+  PERSONAS.forEach(p => { p.nombre = s.nombres[p.id]; p.guardian = s.ayudantes[p.id]; });
 }
 
 // idioma de la interfaz (ES · EN · 中文): cambia sin recargar; ver js/idioma.js
@@ -68,7 +71,7 @@ const SILUETA = {
   m: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M11.6 13.4c-.2-4.6 2.7-7.4 6.4-7.4s6.6 2.8 6.4 7.4c-1.2-1.9-3.4-2.9-6.4-2.9s-5.2 1-6.4 2.9z"/><circle class="piel" cx="18" cy="14.2" r="6.1"/><path class="piel" d="M4 37c0-8 6.2-12.3 14-12.3S32 29 32 37z"/></svg>',
   f: '<svg class="silueta" viewBox="0 0 36 36"><path class="pelo" d="M9.6 15.2c0-6 3.7-9.8 8.4-9.8s8.4 3.8 8.4 9.8c0 4.3.8 8 2.6 11.2-2.8 1.6-6.5 2.3-11 2.3s-8.2-.7-11-2.3c1.8-3.2 2.6-6.9 2.6-11.2z"/><path class="piel" d="M8 37c0-6.6 4.4-10.4 10-10.4s10 3.8 10 10.4z"/><circle class="piel" cx="18" cy="15" r="5.4"/><path class="pelo" d="M12.6 13.6c1.6-3.3 4-4.6 7.2-4.2 1.9.3 3.3 1.4 4.1 3.4-3.6.4-7.4-.1-11.3.8z"/></svg>',
 };
-// silueta según el nombre que se ve: «Doña …» mujer, «Don …» hombre; si no, la ficha (g); grupos («Niños …») y sin dato: hombre
+// silueta según el nombre que se ve: «Doña …» mujer, «Don …» hombre; si no, la ficha (g); grupos («Niños …», «Familia …») y sin dato: hombre
 const generoPersona = p => /^Doña\s/i.test(p.nombre) ? 'f' : /^Don\s/i.test(p.nombre) ? 'm' : (p.g === 'f' ? 'f' : 'm');
 function pintarPersonas() {
   listaP.innerHTML = '';
@@ -144,7 +147,7 @@ const canal = abrirCanal(tema, m => {
 const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
 function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id }), per = todas().find(x => x.id === id);
   if (per && !per.demo) { s.set('n', per.nombre); s.set('b', per.barrio); s.set('cu', per.cuadra); s.set('nec', per.necesidad); s.set('g', per.guardian); }
-  else if (per) s.set('n', per.nombre); // persona de ejemplo: el nombre sorteado viaja en el QR para que el celular muestre el mismo
+  else if (per) { s.set('n', per.nombre); s.set('g', per.guardian); } // persona de ejemplo: nombre y ayudante sorteados viajan en el QR para que el celular muestre los mismos
   u.search = '?' + s; return u.href; }
 function avisarGuardianes() {
   est.avisoT = Date.now(); est.resp = {}; est.recib = {};
