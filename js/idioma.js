@@ -28,6 +28,8 @@ const D = {
   'Mensajes de emergencia': ['Emergency messages', '紧急消息'],
   'sin reportes': ['no reports', '暂无报告'],
   'aviso': ['warning', '预警'],
+  'Ver en el mapa': ['See it on the map', '在地图上查看'],
+  'Volver a leer este mensaje': ['Read this message again', '重新阅读这条消息'],
   'Reportes de vecinos por tramo del río, en orden de llegada. Toca uno para verlo en el mapa.': ['Neighbor reports by river stretch, in order of arrival. Tap one to see it on the map.', '按河段排列的邻居报告，按到达顺序显示。点击即可在地图上查看。'],
   'Sin mensajes. Al iniciar el simulacro, aquí aparecen los avisos de cada tramo del río a medida que baja la crecida.': ['No messages yet. When the drill starts, warnings from each river stretch appear here as the flood moves downstream.', '暂无消息。演练开始后，洪水向下游推进时，各河段的预警会出现在这里。'],
   'Datos abiertos de la cuenca alta · sin sensores ni hardware': ['Open data from the upper basin · no sensors or hardware', '上游流域开放数据 · 无需传感器或硬件'],

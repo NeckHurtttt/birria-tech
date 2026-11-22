@@ -146,7 +146,6 @@ select { min-height: 36px; border-radius: var(--r-chico); background: var(--supe
   .tablero { height: auto; display: flex; flex-direction: column; padding: 0 16px 96px; gap: 16px; pointer-events: auto; }
   .mapa { position: relative; height: 52vh; margin: 0 -16px; inset: auto; }
   .cuenta { order: 2; } .oido { order: 1; } .mensajes { order: 3; } .guardianes { order: 4; margin-bottom: 0; }
-  .mensajes .msj { max-height: 50vh; }
   .panel { max-height: none; overflow: visible; }
   .marca { padding: 3px 7px; font-size: 10px; border-radius: 8px; }
   .marca .cr { font-size: 10px; }
@@ -304,13 +303,34 @@ html.grande .barrios .tiempo { font-size: 26px; }
 html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", system-ui, sans-serif; --mono: "JetBrains Mono", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", ui-monospace, monospace; }
 #btn-falsa { white-space: nowrap; border-color: var(--alerta); color: var(--alerta); }
 
-/* mensajes de emergencia por tramo del río (abajo a la izquierda) */
-.mensajes .sub { margin-bottom: 8px; }
+/* mensajes de emergencia por tramo del río (abajo a la izquierda): pila sin scroll */
+.mensajes { overflow: hidden; }
 #estado-msj { white-space: nowrap; flex: none; }
-.msj { list-style: none; margin: 0; padding: 0 2px 0 0; display: grid; gap: 8px; align-content: start; flex: 0 1 auto; min-height: 0; overflow-y: auto; }
-.msj li { display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: start; padding: 10px 12px; border-radius: var(--r-chico); border-left: 3px solid var(--aviso); background: rgba(255,179,71,.07); cursor: pointer; animation: msj-entra .45s ease-out both; transition: background .18s; }
-.msj li:hover { background: rgba(255,179,71,.13); }
-.msj li:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.msj-pila { --paso: 9px; position: relative; display: grid; margin-top: 8px; padding-bottom: calc(var(--paso) * 2); flex: none; }
+.tarjeta { --tinte: rgba(255,179,71,.08); --borde-n: var(--aviso);
+  /* sombra de carta: la de arriba proyecta sobre la de abajo */
+  --sombra-carta: 0 1px 0 rgba(255,255,255,.05) inset, 0 12px 22px -8px rgba(0,0,0,.7), 0 3px 8px rgba(0,0,0,.35);
+  grid-area: 1 / 1; display: grid; grid-template-columns: 36px 1fr; gap: 10px; align-items: start; padding: 10px 12px;
+  border-radius: var(--r-chico); border-left: 3px solid var(--borde-n); cursor: pointer;
+  /* opaca: las de atrás no se transparentan */
+  background: linear-gradient(var(--tinte), var(--tinte)), var(--superficie-solida);
+  box-shadow: var(--sombra-carta);
+  transform-origin: 50% 100%;
+  transition: transform .42s cubic-bezier(.22,.8,.24,1), opacity .32s ease, filter .42s ease, box-shadow .42s ease; }
+.tarjeta:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+/* posiciones: 0 = la que se lee (arriba de todo, nítida); 1 y 2 = cartas de abajo, corridas y en penumbra;
+   arriba = entra o sale por arriba; fondo = se apaga atrás */
+.tarjeta[data-pos="0"] { z-index: 3; transform: none; opacity: 1; filter: none; }
+.tarjeta[data-pos="1"] { z-index: 2; transform: translate(3px, var(--paso)) rotate(.6deg) scale(.96); filter: brightness(.82) saturate(.8);
+  --sombra-carta: 0 0 0 1px rgba(255,255,255,.07), 0 6px 14px -6px rgba(0,0,0,.6); }
+.tarjeta[data-pos="2"] { z-index: 1; transform: translate(-3px, calc(var(--paso) * 2)) rotate(-.8deg) scale(.92); filter: brightness(.64) saturate(.65);
+  --sombra-carta: 0 0 0 1px rgba(255,255,255,.06), 0 4px 10px -6px rgba(0,0,0,.5); }
+.tarjeta[data-pos="arriba"] { z-index: 4; transform: translateY(-14px); opacity: 0; pointer-events: none; }
+.tarjeta[data-pos="fondo"] { z-index: 0; transform: translateY(calc(var(--paso) * 3)) scale(.88); opacity: 0; filter: brightness(.3); pointer-events: none; }
+.tarjeta:not([data-pos="0"]) .cuerpo, .tarjeta:not([data-pos="0"]) .av { visibility: hidden; }
+/* la activa da el alto de la pila; las de atrás (y las que entran o salen) toman ese mismo tamaño */
+.tarjeta:not([data-pos="0"]) { position: absolute; inset: 0 0 calc(var(--paso) * 2) 0; overflow: hidden; }
+.tarjeta[data-pos="0"]:hover { --tinte: rgba(255,179,71,.14); }
 .msj .lugar { display: flex; align-items: center; gap: 6px; font: 600 12px var(--mono); color: var(--aviso); text-transform: uppercase; letter-spacing: .04em; min-width: 0; }
 .msj .lugar svg { width: 14px; height: 14px; }
 .msj .nivel { font: 600 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 2px 8px; border-radius: 99px; background: var(--aviso); color: #2a1a00; align-self: start; white-space: nowrap; }
@@ -328,17 +348,15 @@ html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "M
 .msj .quien { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; min-width: 0; }
 .msj .quien b { font-size: 14px; color: var(--texto); }
 .msj .quien small { font-size: 12px; color: var(--texto-2); }
-.msj li[data-n="alerta"] { border-left-color: var(--alerta); background: rgba(255,90,74,.09); }
-.msj li[data-n="alerta"]:hover { background: rgba(255,90,74,.15); }
-.msj li[data-n="alerta"] .lugar { color: #ff8a7e; }
-.msj li[data-n="alerta"] .nivel { background: var(--alerta); color: #fff; }
-.msj li[data-n="desborde"] { border-left-color: var(--alerta); background: rgba(255,90,74,.16); box-shadow: inset 0 0 0 1px rgba(255,90,74,.45); }
-.msj li[data-n="desborde"] .lugar { color: #ffb3aa; }
-.msj li[data-n="desborde"] .nivel { background: #fff; color: #9a1408; animation: late 1s infinite; }
-.msj li.nuevo .texto { animation: msj-brilla 1.6s ease-out; }
-.msj-vacio { margin: 4px 0 0; padding: 12px; border-radius: var(--r-chico); border: 1px dashed var(--borde); color: var(--texto-2); font-size: 13px; }
-@keyframes msj-entra { from { opacity: 0; transform: translateX(-12px); } }
-@keyframes msj-brilla { 0% { color: #fff; text-shadow: 0 0 12px rgba(255,90,74,.8); } }
+.tarjeta[data-n="alerta"] { --tinte: rgba(255,90,74,.1); --borde-n: var(--alerta); }
+.tarjeta[data-n="alerta"][data-pos="0"]:hover { --tinte: rgba(255,90,74,.16); }
+.tarjeta[data-n="alerta"] .lugar { color: #ff8a7e; }
+.tarjeta[data-n="alerta"] .nivel { background: var(--alerta); color: #fff; }
+.tarjeta[data-n="desborde"] { --tinte: rgba(255,90,74,.18); --borde-n: var(--alerta); box-shadow: inset 0 0 0 1px rgba(255,90,74,.45), var(--sombra-carta); }
+.tarjeta[data-n="desborde"][data-pos="0"]:hover { --tinte: rgba(255,90,74,.24); }
+.tarjeta[data-n="desborde"] .lugar { color: #ffb3aa; }
+.tarjeta[data-n="desborde"] .nivel { background: #fff; color: #9a1408; animation: late 1s infinite; }
+.msj-vacio { margin: 8px 0 0; padding: 12px; border-radius: var(--r-chico); border: 1px dashed var(--borde); color: var(--texto-2); font-size: 13px; }
 html.grande .msj .texto { font-size: 17px; }
 html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 @media (max-width: 900px) { .mensajes { display: block; } }
