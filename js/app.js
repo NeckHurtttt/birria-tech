@@ -11,12 +11,13 @@ import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 import { mensajesNuevos } from './mensajes.js';
-import { PERSONAS, nombresAleatorios } from './datos.js';
+import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios } from './datos.js';
 
 // Nombres de las personas de ejemplo: se sortean al abrir la central (no hay uno fijo). Se guardan en esta pestaña
 // para que al recargar sigan siendo los mismos que ya viajaron en el QR al celular del ayudante.
 {
-  const CLAVE = 'rs-nombres-demo', valido = n => typeof n === 'string' && /^(Doña|Don) \S.{0,30}$|^Niños \S.{0,30} \(\d+\)$/.test(n);
+  // un sorteo guardado que tenga un nombre fijo de antes (Doña Rosa…) se descarta y se sortea de nuevo
+  const CLAVE = 'rs-nombres-demo', valido = n => typeof n === 'string' && !NOMBRES_FIJOS.includes(n) && /^(Doña|Don) \S.{0,30}$|^Niños \S+ \(\d+\)$/.test(n);
   let nombres = null;
   try { nombres = JSON.parse(sessionStorage.getItem(CLAVE)); } catch {}
   if (!nombres || !PERSONAS.every(p => valido(nombres[p.id]))) {

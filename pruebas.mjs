@@ -144,3 +144,9 @@ t('nombres sorteados: sin repetir, con tratamiento y sin nombre fijo', () => {
   const fijo = nombresAleatorios(PERSONAS, () => 0);
   assert.equal(fijo.rosa, 'Doña ' + NOMBRES_DEMO.f[0]); assert.equal(fijo.juana, 'Doña ' + NOMBRES_DEMO.f[1]);
 });
+import { NOMBRES_FIJOS } from './js/datos.js';
+t('el sorteo nunca devuelve los nombres fijos de antes (Doña Rosa, Don Teodoro…)', () => {
+  assert.ok(NOMBRES_FIJOS.includes('Doña Rosa'));
+  for (let k = 0; k < 500; k++) Object.values(nombresAleatorios(PERSONAS)).forEach(n => assert.ok(!NOMBRES_FIJOS.includes(n), n));
+  for (const l of Object.values(NOMBRES_DEMO)) assert.ok(l.every(x => !/\s/.test(x)), 'sin espacios: la traducción de «Niños X (N)» espera una palabra');
+});

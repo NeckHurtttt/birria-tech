@@ -128,11 +128,13 @@ export const PERSONAS = [
   { id: 'juana', nombre: 'Doña Juana', g: 'f', edad: 68, necesidad: 'habla quechua', barrio: 'porongo', cuadra: 'Cuadra 1', guardian: 'Rubén (vecino)', idioma: 'quechua' },
 ];
 
-// Nombres realistas de la ribera para sortear (no repiten los de los ayudantes ni los de los mensajes de emergencia)
+// Nombres realistas de la ribera para sortear. No incluyen los nombres fijos de antes (Rosa, Teodoro, Juana,
+// Gutiérrez) para que nunca vuelva a salir el mismo de siempre, ni los de los ayudantes o de los mensajes de emergencia.
+export const NOMBRES_FIJOS = PERSONAS.map(p => p.nombre);
 export const NOMBRES_DEMO = {
-  f: ['Rosa', 'Carmen', 'Juana', 'Teresa', 'Elvira', 'Filomena', 'Dora', 'Gladys', 'Hilda', 'Benita', 'Josefa', 'Encarnación', 'Sonia', 'Lidia', 'Nelly', 'Marina', 'Asunta', 'Felicidad', 'Eulalia', 'Gregoria'],
-  m: ['Teodoro', 'Ernesto', 'Julián', 'Hilarión', 'Mario', 'Fermín', 'Ramón', 'Efraín', 'Severino', 'Gregorio', 'Tomás', 'Isidoro', 'Celestino', 'Lorenzo', 'Aurelio', 'Faustino', 'Nicanor', 'Eusebio'],
-  apellidos: ['Gutiérrez', 'Vargas', 'Mamani', 'Choque', 'Quispe', 'Peña', 'Rivero', 'Montaño', 'Céspedes', 'Paniagua', 'Zeballos', 'Méndez', 'Ortúzar', 'Velasco'],
+  f: ['Carmen', 'Teresa', 'Elvira', 'Filomena', 'Dora', 'Gladys', 'Hilda', 'Benita', 'Josefa', 'Encarnación', 'Sonia', 'Lidia', 'Nelly', 'Marina', 'Asunta', 'Felicidad', 'Eulalia', 'Gregoria', 'Remedios', 'Clotilde'],
+  m: ['Ernesto', 'Julián', 'Hilarión', 'Mario', 'Fermín', 'Ramón', 'Efraín', 'Severino', 'Gregorio', 'Tomás', 'Isidoro', 'Celestino', 'Lorenzo', 'Aurelio', 'Faustino', 'Nicanor', 'Eusebio', 'Saturnino'],
+  apellidos: ['Vargas', 'Mamani', 'Choque', 'Quispe', 'Peña', 'Rivero', 'Montaño', 'Céspedes', 'Paniagua', 'Zeballos', 'Méndez', 'Ortúzar', 'Velasco', 'Arandia'],
 };
 /**
  * Sortea un nombre para cada persona de ejemplo, sin repetir: «Doña …», «Don …» o «Niños … (N)».
