@@ -483,3 +483,15 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 .personas li.abre-chat:hover { background: rgba(255,255,255,.06); }
 .personas li.abre-chat:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
 .guardianes .personas { scroll-padding-top: 4px; }
+
+/* punto rojo pulsante del caso cuyo chat está abierto (en el mapa, corrido para no tapar la etiqueta del barrio) */
+.caso-pulso { position: relative; width: 16px; height: 16px; pointer-events: none; z-index: 3; }
+.caso-pulso i { position: absolute; inset: 0; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 0 14px 2px rgba(255,59,48,.85); }
+.caso-pulso::before, .caso-pulso::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,59,48,.85); animation: onda-caso 1.8s ease-out infinite; }
+.caso-pulso::after { animation-delay: .9s; }
+@keyframes onda-caso { from { transform: scale(1); opacity: .95; } to { transform: scale(3.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .caso-pulso::before, .caso-pulso::after { animation: none; transform: scale(1.8); opacity: .5; } }
+/* en escritorio el chat va sobre la columna izquierda: así no tapa el mapa (donde late el punto del caso) ni Vecinos Ayudantes */
+@media (min-width: 901px) {
+  .chat { left: 16px; right: auto; bottom: 16px; width: 380px; height: min(540px, calc(100vh - 88px - 32px)); }
+}

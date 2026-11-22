@@ -193,9 +193,10 @@ function limpiarChats() { reiniciarEstadoChats(); cerrarChat(); }
 function abrirChat(id) {
   CHAT.abierto = id; CHAT.sinLeer.delete(id);
   $('#chat').hidden = false; pintarChat(); pintarPersonas();
+  { const p = activas().find(x => x.id === id), b = p && BARRIOS.find(x => x.id === p.barrio); if (b) mapa.caso(b, id); } // punto rojo cerca del caso
   if (matchMedia('(min-width: 901px)').matches) $('#chat-texto').focus();
 }
-function cerrarChat() { CHAT.abierto = null; $('#chat').hidden = true; }
+function cerrarChat() { CHAT.abierto = null; $('#chat').hidden = true; mapa.quitarCaso(); }
 function pintarChat() {
   const id = CHAT.abierto, p = activas().find(x => x.id === id);
   if (!p) { cerrarChat(); return; }
@@ -237,7 +238,7 @@ function pintarChat() {
   if (listo && teniaFoco) ok.focus(); // el campo desaparece: el foco pasa al botón
   // sugerencias variadas: mandan un mensaje de verdad (cuentan como «la central escribió»); nada de atajos que lo salteen
   const rap = $('#chat-rapidas'); rap.replaceChildren();
-  if (escribir && !est.pregunta[id]) {
+  if (escribir && n >= 1 && !est.pregunta[id]) { // antes del primer mensaje del ayudante no hay sugerencias
     for (const { texto, tema } of sugerencias(id, p, n)) { const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn chico'; bt.textContent = texto; bt.onclick = () => enviarCentral(id, texto, tema); rap.append(bt); }
   }
   // auto-scroll al último mensaje, también después de que la zona de abajo cambie de alto
@@ -402,9 +403,12 @@ function confirmar(id, desde) {
   listaP.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   { const pb = activas().find(x => x.id === id), bb = BARRIOS.find(x => x.id === pb.barrio); est.margen[id] = Math.round(minutosHasta(bb, est.intensidad, est.lag) - est.simMin); }
   const p = activas().find(x => x.id === id);
-  hablar(`${p.nombre} está a salvo.`);
+  // con la última persona no se dice su nombre: la locución de cierre «Todos a salvo» sale sola, sin pisarse
+  const todos = activas().every(x => est.personas[x.id] === 'salvo');
+  if (todos) callar(); else hablar(`${p.nombre} está a salvo.`);
+  if (CHAT.abierto === id) mapa.quitarCaso(); // el punto del caso en el mapa se va al confirmar
   if (desde === 'central') canal.enviar({ tipo: 'ok', id }, { titulo: `${p.nombre}: evacuado`, texto: 'Evacuación confirmada desde la central' });
-  if (activas().every(x => est.personas[x.id] === 'salvo')) despues(exito, 900);
+  if (todos) despues(exito, 900);
 }
 
 // ---------- oído ----------
@@ -602,7 +606,7 @@ $('#btn-mic').onclick = async () => {
 function reiniciar() {
   est.margen = {};
   clearInterval(rampa); cancelarTimers(); oido.detener();
-  try { speechSynthesis.cancel(); } catch {}
+  callar();
   est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.intensidad = 1; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0, vigias: 0 }; est.vigiasCel = new Set();
   delete $('#v-vecinos').dataset.extra; evaluar();
   limpiarChats(); // mensajes y respuestas pendientes del ayudante (sus timers ya se cancelaron arriba)
@@ -720,11 +724,19 @@ function exito() {
   $('#respuestas').replaceChildren(); $('#exito').hidden = false; hablar('Todos a salvo.'); oido.detener();
   est.fase = 'fin'; $('#exito-cerrar').focus();
 }
-$('#exito-cerrar').onclick = () => { $('#exito').hidden = true; mapa.general(); };
+$('#exito-cerrar').onclick = () => { callar(); $('#exito').hidden = true; mapa.general(); }; // al volver al mapa no queda voz sonando
 
 // voz
+// una sola locución a la vez: cancel() seguido de speak() en el mismo instante a veces no corta la anterior (Chrome),
+// así que se cancela y la nueva sale un momento después; si llega otra antes, solo vale la última
+let vozTurno = 0;
+function callar() { vozTurno++; try { speechSynthesis.cancel(); } catch {} }
 function hablar(t) {
-  try { const u = new SpeechSynthesisUtterance(traducir(t)); u.lang = vozActual(); u.rate = 1.02; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
+  callar(); const turno = vozTurno;
+  setTimeout(() => {
+    if (turno !== vozTurno) return;
+    try { const u = new SpeechSynthesisUtterance(traducir(t)); u.lang = vozActual(); u.rate = 1.02; speechSynthesis.speak(u); } catch {}
+  }, 120);
 }
 
 // ---------- vigía: escaneo de datos abiertos + reportes ----------
