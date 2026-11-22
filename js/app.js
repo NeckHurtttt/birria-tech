@@ -11,7 +11,7 @@ import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
 import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 import { mensajesNuevos } from './mensajes.js';
-import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios, ayudantesAleatorios, NOMBRE_SORTEADO, AYUDANTE_SORTEADO } from './datos.js';
+import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios, ayudantesAleatorios, NOMBRE_SORTEADO, AYUDANTE_SORTEADO, NOMBRES_AYUDANTES } from './datos.js';
 
 // Nombres de las personas de ejemplo y de sus ayudantes: se sortean al abrir la central (no hay uno fijo). Se guardan
 // en esta pestaña para que al recargar o reiniciar el simulacro sigan siendo los mismos que ya viajaron en el QR al
@@ -39,7 +39,8 @@ const JURADO = params.has('jurado');
 const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simulados por minuto real
 const tema = temaDemo();
 
-const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set() };
+const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set(),
+  chat: {}, etapa: {}, chatTimer: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -73,6 +74,115 @@ const SILUETA = {
 };
 // silueta según el nombre que se ve: «Doña …» mujer, «Don …» hombre; si no, la ficha (g); grupos («Niños …», «Familia …») y sin dato: hombre
 const generoPersona = p => /^Doña\s/i.test(p.nombre) ? 'f' : /^Don\s/i.test(p.nombre) ? 'm' : (p.g === 'f' ? 'f' : 'm');
+
+// ---------- chat con el ayudante ----------
+// En la demo el ayudante contesta solo durante el simulacro (mensajes simulados; en un despliegue real llegarían por el
+// mismo canal de avisos). Primero avisa que va en camino y después que ya están a salvo: recién ahí se habilita
+// «Confirmar evacuación» en la tarjeta. Si el ayudante confirma desde su celular, eso vale igual.
+const PASOS_AYUDANTE = [p => `¡Ya voy por ${p.nombre}!`, () => '¡Listo! Ya estamos a salvo.'];
+const CHAT = { abierto: null, sinLeer: new Set(), escribiendo: new Set() };
+const horaChat = () => new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: false });
+// silueta del ayudante: «(vecina)» o un nombre de la lista de mujeres → mujer; si no, hombre
+const generoAyudante = g => /\(vecina\)\s*$/i.test(g) || NOMBRES_AYUDANTES.f.includes(nombreAyudante(g).replace(/^Profe\s+/i, '')) ? 'f' : 'm';
+const enAlerta = id => est.fase === 'alerta' && est.personas[id] === 'avisado';
+function decirChat(id, de, texto) {
+  (est.chat[id] ||= []).push({ de, texto, hora: horaChat() });
+  if (CHAT.abierto === id) pintarChat(); else if (de === 'ayudante') CHAT.sinLeer.add(id);
+}
+/** El próximo mensaje del ayudante llega en ms (con «escribiendo…» justo antes). Reprogramar reemplaza al anterior. */
+function programarPaso(id, ms) {
+  clearTimeout(est.chatTimer[id]); CHAT.escribiendo.delete(id);
+  est.chatTimer[id] = despues(() => {
+    if (!enAlerta(id)) return;
+    CHAT.escribiendo.add(id); if (CHAT.abierto === id) pintarChat();
+    est.chatTimer[id] = despues(() => pasoAyudante(id), 1200);
+  }, Math.max(0, ms - 1200));
+}
+function pasoAyudante(id) {
+  const p = activas().find(x => x.id === id), n = est.etapa[id] || 0;
+  clearTimeout(est.chatTimer[id]); delete est.chatTimer[id]; CHAT.escribiendo.delete(id);
+  if (!p || !enAlerta(id) || n >= PASOS_AYUDANTE.length) { if (CHAT.abierto === id) pintarChat(); return; }
+  est.etapa[id] = n + 1;
+  decirChat(id, 'ayudante', PASOS_AYUDANTE[n](p));
+  if (n + 1 < PASOS_AYUDANTE.length) programarPaso(id, 5000 + Math.random() * 4000);
+  else decirChat(id, 'sistema', 'Ya puedes confirmar la evacuación en la tarjeta.');
+  pintarPersonas();
+}
+/** Mensaje de la central: el ayudante lo «lee» y adelanta su próxima respuesta. */
+function enviarCentral(id, texto) {
+  texto = String(texto || '').trim().slice(0, 160); if (!texto) return;
+  decirChat(id, 'central', texto);
+  if (enAlerta(id) && (est.etapa[id] || 0) < PASOS_AYUDANTE.length) programarPaso(id, 2000);
+}
+function iniciarChats() {
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
+  activas().forEach((p, i) => {
+    const b = BARRIOS.find(x => x.id === p.barrio), min = Math.max(0, Math.round(minutosHasta(b, est.intensidad, est.lag) - est.simMin));
+    decirChat(p.id, 'sistema', `Alerta enviada a ${nombreAyudante(p.guardian)}. El agua llega en ${formatoTiempo(min)}.`);
+    programarPaso(p.id, 3000 + i * 1500 + Math.random() * 3000); // escalonado: no contestan todos a la vez
+  });
+}
+function limpiarChats() {
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; CHAT.sinLeer.clear(); CHAT.escribiendo.clear(); cerrarChat();
+}
+function abrirChat(id) {
+  CHAT.abierto = id; CHAT.sinLeer.delete(id);
+  $('#chat').hidden = false; pintarChat(); pintarPersonas();
+  if (matchMedia('(min-width: 901px)').matches) $('#chat-texto').focus();
+}
+function cerrarChat() { CHAT.abierto = null; $('#chat').hidden = true; }
+function pintarChat() {
+  const id = CHAT.abierto, p = activas().find(x => x.id === id);
+  if (!p) { cerrarChat(); return; }
+  const b = BARRIOS.find(x => x.id === p.barrio), e = est.personas[id], n = est.etapa[id] || 0, ayu = nombreAyudante(p.guardian);
+  $('#chat-av').innerHTML = SILUETA[generoAyudante(p.guardian)];
+  $('#chat-quien').textContent = ayu;
+  $('#chat-persona').textContent = `${p.nombre} · ${b.nombre}, ${p.cuadra}`;
+  const [txt, clave] = e === 'salvo' ? ['evacuado', 'salvo'] : e === 'rescate' ? ['al rescate', 'rescate'] : e !== 'avisado' ? ['sin alerta', 'tranquilo']
+    : n >= PASOS_AYUDANTE.length ? ['a salvo', 'listo'] : n ? ['en camino', 'camino'] : ['avisado', 'avisado'];
+  const ce = $('#chat-est'); ce.textContent = txt; ce.dataset.e = clave;
+  // mensajes (con textContent: lo que escribe la central no se interpreta como HTML)
+  const ol = $('#chat-msjs'); ol.replaceChildren();
+  for (const m of est.chat[id] || []) {
+    const li = document.createElement('li'); li.className = m.de;
+    if (m.de === 'sistema') li.textContent = m.texto;
+    else {
+      if (m.de === 'ayudante') { const de = document.createElement('span'); de.className = 'de'; de.textContent = ayu; de.translate = false; li.append(de); }
+      const bur = document.createElement('span'); bur.className = 'burbuja'; bur.textContent = m.texto;
+      if (m.de === 'central') bur.translate = false; // lo que escribe la central queda tal cual
+      const hora = document.createElement('small'); hora.textContent = m.de === 'central' ? `${m.hora} · Central` : m.hora;
+      li.append(bur, hora);
+    }
+    ol.append(li);
+  }
+  if (CHAT.escribiendo.has(id)) {
+    const li = document.createElement('li'); li.className = 'ayudante escribiendo';
+    li.innerHTML = `<span class="burbuja" aria-label="escribiendo"><i></i><i></i><i></i></span>`;
+    ol.append(li);
+  }
+  ol.scrollTop = ol.scrollHeight;
+  // respuestas rápidas según el paso, y una para probar sin esperar
+  const rap = $('#chat-rapidas'); rap.replaceChildren();
+  if (enAlerta(id) && n < PASOS_AYUDANTE.length) {
+    const rapida = (texto, f, clase = '') => { const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn chico ' + clase; bt.textContent = texto; bt.onclick = f; rap.append(bt); };
+    rapida(n ? 'Avísame cuando estén a salvo.' : '¿Ya vas en camino?', () => enviarCentral(id, n ? 'Avísame cuando estén a salvo.' : '¿Ya vas en camino?'));
+    rapida('Simular respuesta', () => pasoAyudante(id), 'simular');
+  }
+  // respaldo sin internet: SMS (sin número abre la app de SMS para elegir el contacto) y llamada si hay número
+  const min = Math.max(0, Math.round(minutosHasta(b, est.intensidad, est.lag) - est.simMin));
+  const resp = $('#chat-respaldo'); resp.replaceChildren();
+  if (e === 'avisado' || e === 'rescate') {
+    const etq = document.createElement('span'); etq.textContent = 'Sin internet:'; resp.append(etq);
+    const sms = document.createElement('a'); sms.textContent = 'SMS';
+    sms.href = `sms:${p.tel || ''}?&body=${encodeURIComponent(`EL RÍO SUENA: crecida del Piraí. Ayuda a ${p.nombre} (${b.nombre}, ${p.cuadra}). El agua llega en ${formatoTiempo(min)}. Responde OK cuando esté a salvo.`)}`;
+    resp.append(sms);
+    if (p.tel) { const tel = document.createElement('a'); tel.textContent = 'Llamar'; tel.href = 'tel:' + p.tel; resp.append(tel); }
+  }
+}
+$('#chat-cerrar').onclick = cerrarChat;
+$('#chat-form').onsubmit = ev => { ev.preventDefault(); const i = $('#chat-texto'); if (CHAT.abierto) enviarCentral(CHAT.abierto, i.value); i.value = ''; };
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('#chat').hidden && !document.querySelector('dialog[open]')) cerrarChat(); });
+
 function pintarPersonas() {
   listaP.innerHTML = '';
   activas().forEach(p => {
@@ -85,16 +195,20 @@ function pintarPersonas() {
       <div class="que"><span class="tag" title="${esc(p.necesidad)}">${esc(necesidadCorta(p.necesidad))}</span><span class="ayu"><span>Ayudante</span><b>${esc(nombreAyudante(p.guardian))}</b></span></div>
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
     if (e === 'avisado' || e === 'rescate') {
+      // «Confirmar evacuación» se habilita recién cuando el ayudante avisó en el chat que va en camino y que ya están a salvo
+      const listo = e === 'rescate' || (est.etapa[p.id] || 0) >= PASOS_AYUDANTE.length;
       const ok = document.createElement('button'); ok.className = 'btn chico ok';
       ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar evacuación';
+      ok.disabled = !listo;
+      if (!listo) ok.title = (est.etapa[p.id] || 0) ? 'En camino: se habilita cuando el ayudante avise que ya están a salvo' : 'Se habilita cuando el ayudante avise en el chat que va en camino y que ya están a salvo';
       ok.onclick = () => confirmar(p.id, 'central');
       const acc = document.createElement('div'); acc.className = 'acciones'; acc.append(ok);
-      // respaldo sin internet: SMS y llamada al guardián (sin número abre la app de SMS para elegir el contacto)
-      const min = Math.max(0, Math.round(minutosHasta(b, est.intensidad, est.lag) - est.simMin));
-      const sms = document.createElement('a'); sms.className = 'btn chico'; sms.textContent = 'SMS';
-      sms.href = `sms:${p.tel || ''}?&body=${encodeURIComponent(`EL RÍO SUENA: crecida del Piraí. Ayuda a ${p.nombre} (${b.nombre}, ${p.cuadra}). El agua llega en ${formatoTiempo(min)}. Responde OK cuando esté a salvo.`)}`;
-      acc.append(sms);
-      if (p.tel) { const tel = document.createElement('a'); tel.className = 'btn chico'; tel.textContent = 'Llamar'; tel.href = 'tel:' + p.tel; acc.append(tel); }
+      // chat con el ayudante (el SMS y la llamada de respaldo sin internet están dentro del chat)
+      const chat = document.createElement('button'); chat.className = 'btn chico chat-btn'; chat.textContent = 'Chat';
+      chat.setAttribute('aria-label', `Chat con ${nombreAyudante(p.guardian)}`);
+      if (CHAT.sinLeer.has(p.id)) chat.dataset.nuevo = '';
+      chat.onclick = () => abrirChat(p.id);
+      acc.append(chat);
       li.append(acc);
     }
     listaP.append(li);
@@ -113,6 +227,7 @@ function recibido(id) {
   const p = activas().find(x => x.id === id);
   if (!p || est.fase !== 'alerta' || est.personas[id] !== 'avisado' || est.recib[id] != null) return;
   est.recib[id] = Math.round((Date.now() - est.avisoT) / 1000);
+  decirChat(id, 'sistema', 'Su celular recibió la alerta.');
   pintarPersonas(); aviso(`${p.nombre}: aviso recibido`, `El celular de ${p.guardian} sonó · ${reloj(est.recib[id])} tras el aviso`, 'recib');
 }
 const PUESTOS = { bermejo: 'Bermejo', espejos: 'río Espejos', samaipata: 'Samaipata', angostura: 'La Angostura' };
@@ -167,12 +282,19 @@ function avisarGuardianes() {
       ],
     });
   });
+  iniciarChats();
   pintarPersonas();
 }
 function confirmar(id, desde) {
   // solo se confirma a quien fue avisado: ignora toques viejos o de otro simulacro
   if (est.fase !== 'alerta' || !['avisado', 'rescate'].includes(est.personas[id])) return;
   est.personas[id] = 'salvo';
+  clearTimeout(est.chatTimer[id]); delete est.chatTimer[id]; CHAT.escribiendo.delete(id);
+  if (desde === 'celular') {
+    // confirmó desde su celular («Ya la ayudé»): en el chat queda su «¡Listo!» aunque no hubiera escrito antes
+    if ((est.etapa[id] || 0) < PASOS_AYUDANTE.length) { est.etapa[id] = PASOS_AYUDANTE.length; decirChat(id, 'ayudante', '¡Listo! Ya estamos a salvo.'); }
+    decirChat(id, 'sistema', 'Confirmó desde su celular: evacuado.');
+  } else decirChat(id, 'sistema', 'Evacuación confirmada en la central.');
   est.resp[id] = { seg: Math.round((Date.now() - est.avisoT) / 1000), desde };
   pintarPersonas(); respuestaEnVivo(id);
   { const pb = activas().find(x => x.id === id), bb = BARRIOS.find(x => x.id === pb.barrio); est.margen[id] = Math.round(minutosHasta(bb, est.intensidad, est.lag) - est.simMin); }
@@ -242,7 +364,7 @@ setInterval(() => {
     li.querySelector('.info').textContent = llego ? 'El agua llegó' : `${b.km} km · hasta ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m de agua`;
     mapa.barrio(b.id, llego ? `agua ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m` : formatoTiempo(resta), llego ? 'llego' : 'alerta');
     // sin confirmación 30 min antes de que llegue el agua → rescate oficial
-    activas().filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; cambio = true; });
+    activas().filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; cambio = true; decirChat(p.id, 'sistema', 'Sin confirmación a T−30: pasa al rescate oficial.'); });
   });
   if (cambio) pintarPersonas();
   // mensajes de emergencia: se encolan al cambiar el estado de cada tramo (con la hora en que pasó)
@@ -381,6 +503,7 @@ function reiniciar() {
   try { speechSynthesis.cancel(); } catch {}
   est.fase = 'espera'; est.simMin = 0; est.lag = 0; est.intensidad = 1; est.regla = null; est.escenario = null; est.vecinos = { crecido: 0, desborde: 0, vigias: 0 }; est.vigiasCel = new Set();
   delete $('#v-vecinos').dataset.extra; evaluar();
+  limpiarChats(); // mensajes y respuestas pendientes del ayudante (sus timers ya se cancelaron arriba)
   activas().forEach(p => est.personas[p.id] = 'tranquilo'); pintarPersonas();
   BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = 'sin crecida'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'sin alerta', 'tranquilo'); });
   mapa.crecida(0); mapa.sensor(''); mapa.general();
@@ -685,4 +808,4 @@ addEventListener('offline', () => document.body.classList.add('sin-red'));
 addEventListener('online', () => document.body.classList.remove('sin-red'));
 
 if (JURADO) { $('#btn-simulacro').classList.add('late'); document.title = 'El Río Suena · demo'; }
-window.__rs = { est, alerta, confirmar, oido, mapa, evaluar, activas, riada }; // para pruebas
+window.__rs = { est, alerta, confirmar, oido, mapa, evaluar, activas, riada, abrirChat, pasoAyudante }; // para pruebas

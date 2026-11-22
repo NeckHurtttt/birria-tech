@@ -94,6 +94,20 @@
   <button class="btn flotante" id="btn-pared" aria-label="El agua en tu pared" title="El agua en tu pared"><svg viewBox="0 0 24 24"><path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3"/><path d="M4 15c3-2 5 2 8 0s5 2 8 0"/></svg>El agua en tu pared</button>
 </main>
 
+<!-- chat con el ayudante: panel flotante junto a Vecinos Ayudantes, sobre el mapa -->
+<aside class="chat" id="chat" role="dialog" aria-labelledby="chat-quien" hidden>
+  <header class="chat-cab">
+    <span class="av" id="chat-av" aria-hidden="true"></span>
+    <div class="chat-tit"><b id="chat-quien" translate="no">Ayudante</b><span><span>Asiste a</span> <b id="chat-persona"></b></span></div>
+    <span class="chat-est" id="chat-est"></span>
+    <button class="btn chico chat-cerrar" id="chat-cerrar" type="button" aria-label="Cerrar chat" title="Cerrar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </header>
+  <ol class="chat-msjs" id="chat-msjs" aria-live="polite"></ol>
+  <div class="chat-rapidas" id="chat-rapidas"></div>
+  <form class="chat-form" id="chat-form" autocomplete="off"><input id="chat-texto" maxlength="160" placeholder="Escribe un mensaje…" aria-label="Mensaje para el ayudante"><button class="btn chico primario" type="submit">Enviar</button></form>
+  <p class="chat-pie"><span id="chat-respaldo"></span><span>Demo: el ayudante responde solo durante el simulacro.</span></p>
+</aside>
+
 <dialog id="dlg-pared" class="dlg pantalla">
   <div class="pared">
     <video id="video" playsinline muted></video>

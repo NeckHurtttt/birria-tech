@@ -365,10 +365,10 @@ html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "M
 .msj .hora { font: 400 11px var(--mono); color: var(--texto-2); }
 /* quién reporta: foto de perfil por defecto, silueta gris sin rostro (mujer / hombre) */
 .msj .av { width: 36px; height: 36px; }
-.msj .av, .personas .av { border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: #3a434b; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
-.msj .av .silueta, .personas .av .silueta { width: 100%; height: 100%; stroke: none; }
-.msj .av .piel, .personas .av .piel { fill: #a9b2ba; }
-.msj .av .pelo, .personas .av .pelo { fill: #7d8892; }
+.msj .av, .personas .av, .chat .av { border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: #3a434b; box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.msj .av .silueta, .personas .av .silueta, .chat .av .silueta { width: 100%; height: 100%; stroke: none; }
+.msj .av .piel, .personas .av .piel, .chat .av .piel { fill: #a9b2ba; }
+.msj .av .pelo, .personas .av .pelo, .chat .av .pelo { fill: #7d8892; }
 .msj .av.sistema { background: var(--acento-osc); color: var(--acento); box-shadow: 0 0 0 2px rgba(91,231,240,.45); }
 .msj .av.sistema svg { width: 20px; height: 20px; }
 .msj .cuerpo { display: grid; gap: 3px; min-width: 0; }
@@ -388,3 +388,48 @@ html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "M
 html.grande .msj .texto { font-size: 17px; }
 html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 @media (max-width: 900px) { .mensajes { display: block; } }
+
+/* chat con el ayudante: panel flotante a la izquierda de la columna derecha, sobre el mapa (no tapa Vecinos Ayudantes) */
+.chat { --col: 340px; position: fixed; z-index: 6; right: calc(var(--col) + 32px); bottom: 32px; width: min(340px, calc(100vw - var(--col) - 48px)); height: min(460px, calc(100vh - 140px)); display: flex; flex-direction: column; background: var(--superficie-solida); border: 1px solid var(--borde); border-radius: var(--r); box-shadow: var(--sombra); overflow: hidden; animation: entra .25s ease both; }
+@media (min-width: 1280px) { .chat { --col: 364px; } }
+.chat-cab { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; align-items: center; gap: 8px; padding: 10px 10px 10px 12px; border-bottom: 1px solid var(--borde); }
+.chat .av { width: 32px; height: 32px; }
+.chat-tit { display: grid; min-width: 0; line-height: 1.25; }
+.chat-tit > b { font-size: 14px; font-weight: 600; }
+.chat-tit > span { font-size: 12px; color: var(--texto-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-tit > span b { color: var(--texto); font-weight: 500; }
+.chat-est { font: 600 10px var(--mono); letter-spacing: .02em; text-transform: uppercase; padding: 3px 7px; border-radius: 99px; white-space: nowrap; background: rgba(255,255,255,.06); color: var(--texto-2); }
+.chat-est[data-e="avisado"], .chat-est[data-e="camino"] { background: rgba(255,179,71,.14); color: var(--aviso); box-shadow: inset 0 0 0 1px rgba(255,179,71,.4); }
+.chat-est[data-e="listo"], .chat-est[data-e="salvo"] { background: rgba(79,227,154,.16); color: var(--exito); box-shadow: inset 0 0 0 1px rgba(79,227,154,.55); }
+.chat-est[data-e="rescate"] { background: var(--alerta); color: #fff; }
+.chat-cerrar { min-height: 30px; width: 30px; padding: 0; }
+.chat-cerrar svg { width: 16px; height: 16px; }
+.chat-msjs { list-style: none; margin: 0; padding: 12px; flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: thin; }
+.chat-msjs li { max-width: 82%; display: grid; gap: 2px; }
+.chat-msjs .burbuja { padding: 7px 11px; border-radius: 14px; font-size: 13.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.chat-msjs .de { font-size: 11px; font-weight: 600; color: var(--acento); }
+.chat-msjs small { font: 400 10.5px var(--mono); color: var(--texto-2); }
+.chat-msjs li.ayudante { align-self: flex-start; }
+.chat-msjs li.ayudante .burbuja { background: rgba(255,255,255,.08); border-bottom-left-radius: 4px; }
+.chat-msjs li.central { align-self: flex-end; justify-items: end; }
+.chat-msjs li.central .burbuja { background: var(--acento-osc); border: 1px solid rgba(91,231,240,.25); border-bottom-right-radius: 4px; }
+.chat-msjs li.sistema { align-self: center; max-width: 94%; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.04); color: var(--texto-2); font-size: 11.5px; text-align: center; }
+.chat-msjs .escribiendo .burbuja { display: inline-flex; gap: 4px; padding: 10px 12px; }
+.chat-msjs .escribiendo i { width: 6px; height: 6px; border-radius: 50%; background: var(--texto-2); animation: escribe 1s infinite ease-in-out; }
+.chat-msjs .escribiendo i:nth-child(2) { animation-delay: .15s; } .chat-msjs .escribiendo i:nth-child(3) { animation-delay: .3s; }
+@keyframes escribe { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+.chat-rapidas { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 8px; }
+.chat-rapidas:empty { display: none; }
+.chat-rapidas .btn { min-height: 28px; padding: 3px 10px; font-size: 12px; border-radius: 99px; }
+.chat-rapidas .simular { border-style: dashed; color: var(--texto-2); }
+.chat-form { display: flex; gap: 6px; padding: 8px 12px; border-top: 1px solid var(--borde); }
+.chat-form input { flex: 1; min-width: 0; min-height: 34px; padding: 6px 10px; border-radius: var(--r-chico); border: 1px solid var(--borde); background: rgba(255,255,255,.04); color: var(--texto); font: 400 13px var(--f); }
+.chat-form input:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+.chat-form .btn { min-height: 34px; }
+.chat-pie { margin: 0; padding: 0 12px 10px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; font-size: 11px; color: var(--texto-2); }
+.chat-pie #chat-respaldo { display: inline-flex; gap: 8px; }
+.chat-pie a { color: var(--acento); }
+/* mensaje nuevo del ayudante sin leer: punto en el botón Chat */
+.chat-btn[data-nuevo]::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--aviso); box-shadow: 0 0 0 2px rgba(255,179,71,.25); }
+@media (max-width: 900px) { .chat { left: 8px; right: 8px; bottom: 8px; width: auto; height: min(70vh, 520px); z-index: 30; } }
+@media (prefers-reduced-motion: reduce) { .chat-msjs .escribiendo i { animation: none; } }
