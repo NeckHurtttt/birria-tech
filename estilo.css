@@ -433,3 +433,15 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 .chat-btn[data-nuevo]::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--aviso); box-shadow: 0 0 0 2px rgba(255,179,71,.25); }
 @media (max-width: 900px) { .chat { left: 8px; right: 8px; bottom: 8px; width: auto; height: min(70vh, 520px); z-index: 30; } }
 @media (prefers-reduced-motion: reduce) { .chat-msjs .escribiendo i { animation: none; } }
+
+/* tarjeta mientras el ayudante avanza: «en camino» (ámbar) y «a salvo» listo para confirmar (verde punteado: falta la central) */
+.personas li[data-paso="camino"] .est { animation: none; }
+.personas li[data-paso="listo"] { background: rgba(79,227,154,.05); }
+.personas li[data-paso="listo"] .est { background: transparent; color: var(--exito); outline: 1px dashed rgba(79,227,154,.7); outline-offset: -1px; animation: none; }
+/* aviso discreto en la tarjeta: mensaje nuevo del ayudante o esperando confirmación (abre el chat) */
+.personas .aviso-chat { grid-column: 2 / -1; justify-self: start; display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 7px; border: 0; border-radius: 99px; font: 600 11px var(--f); line-height: 1.4; cursor: pointer; background: rgba(255,179,71,.12); color: var(--aviso); }
+.personas .aviso-chat::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; flex: none; }
+.personas .aviso-chat[data-tipo="nuevo"]::before { animation: late 1.2s infinite; }
+.personas .aviso-chat[data-tipo="espera"] { background: rgba(79,227,154,.1); color: var(--exito); }
+.personas .aviso-chat:hover { filter: brightness(1.15); }
+.personas .aviso-chat:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }

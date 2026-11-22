@@ -40,7 +40,7 @@ const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simul
 const tema = temaDemo();
 
 const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set(),
-  chat: {}, etapa: {}, chatTimer: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
+  chat: {}, etapa: {}, chatTimer: {}, apuros: {}, apuroTimer: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -105,9 +105,34 @@ function pasoAyudante(id) {
   est.etapa[id] = n + 1;
   decirChat(id, 'ayudante', PASOS_AYUDANTE[n](p));
   if (n + 1 < PASOS_AYUDANTE.length) programarPaso(id, 5000 + Math.random() * 4000);
-  else decirChat(id, 'sistema', 'Ya puedes confirmar la evacuación en la tarjeta.');
+  else { decirChat(id, 'sistema', 'Ya puedes confirmar la evacuación en la tarjeta.'); programarApuro(id); }
   pintarPersonas();
 }
+// apuro: si el ayudante ya avisó que están a salvo y la central no confirma (por estar en otro chat), insiste cada
+// 12–18 s, hasta 3 veces, sin repetir mensaje. Si la central está mirando ese chat, esa vez no insiste.
+const APUROS = [
+  p => `¡Central, por favor confirmen recibido! Ya estamos en punto alto con ${p.nombre}.`,
+  () => '¿Me copian en la central? Ya salimos de la zona baja, espero confirmación.',
+  p => `¡Sigo esperando que confirmen la evacuación de ${p.nombre}, la señal está inestable!`,
+  () => '¡Por favor respondan! Necesito saber si ya nos registraron como evacuados.',
+];
+const MAX_APUROS = 3;
+function programarApuro(id) {
+  clearTimeout(est.apuroTimer[id]); delete est.apuroTimer[id];
+  if ((est.apuros[id]?.length || 0) >= MAX_APUROS) return;
+  est.apuroTimer[id] = despues(() => apurar(id), 12000 + Math.random() * 6000);
+}
+function apurar(id) {
+  delete est.apuroTimer[id];
+  const p = activas().find(x => x.id === id);
+  if (!p || !enAlerta(id) || (est.etapa[id] || 0) < PASOS_AYUDANTE.length) return;
+  if (CHAT.abierto === id) { programarApuro(id); return; } // la central está en este chat: no hace falta insistir ahora
+  const usados = (est.apuros[id] ||= []), libres = APUROS.map((_, i) => i).filter(i => !usados.includes(i));
+  const i = libres[Math.floor(Math.random() * libres.length)]; usados.push(i);
+  decirChat(id, 'ayudante', APUROS[i](p));
+  pintarPersonas(); programarApuro(id);
+}
+function pararApuro(id) { clearTimeout(est.apuroTimer[id]); delete est.apuroTimer[id]; }
 /** Mensaje de la central: el ayudante lo «lee» y adelanta su próxima respuesta. */
 function enviarCentral(id, texto) {
   texto = String(texto || '').trim().slice(0, 160); if (!texto) return;
@@ -115,7 +140,7 @@ function enviarCentral(id, texto) {
   if (enAlerta(id) && (est.etapa[id] || 0) < PASOS_AYUDANTE.length) programarPaso(id, 2000);
 }
 function iniciarChats() {
-  est.chat = {}; est.etapa = {}; est.chatTimer = {}; CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.apuros = {}; est.apuroTimer = {}; CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
   activas().forEach((p, i) => {
     const b = BARRIOS.find(x => x.id === p.barrio), min = Math.max(0, Math.round(minutosHasta(b, est.intensidad, est.lag) - est.simMin));
     decirChat(p.id, 'sistema', `Alerta enviada a ${nombreAyudante(p.guardian)}. El agua llega en ${formatoTiempo(min)}.`);
@@ -123,7 +148,7 @@ function iniciarChats() {
   });
 }
 function limpiarChats() {
-  est.chat = {}; est.etapa = {}; est.chatTimer = {}; CHAT.sinLeer.clear(); CHAT.escribiendo.clear(); cerrarChat();
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.apuros = {}; est.apuroTimer = {}; CHAT.sinLeer.clear(); CHAT.escribiendo.clear(); cerrarChat();
 }
 function abrirChat(id) {
   CHAT.abierto = id; CHAT.sinLeer.delete(id);
@@ -188,12 +213,20 @@ function pintarPersonas() {
   activas().forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), e = est.personas[p.id] || (est.personas[p.id] = 'tranquilo');
     // 'salvo' = el traslado ya se confirmó (desde la central o el celular del ayudante): en la tarjeta dice «evacuado»
-    const txt = { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'evacuado', rescate: 'al rescate' }[e];
-    const li = document.createElement('li'); li.dataset.e = e;
+    // mientras está avisado, el estado sigue al chat: «en camino» y luego «a salvo» (listo para confirmar, a la espera de la central)
+    const paso = e === 'avisado' ? (est.etapa[p.id] || 0) : 0, listoConfirmar = paso >= PASOS_AYUDANTE.length;
+    const txt = paso ? (listoConfirmar ? 'a salvo' : 'en camino') : { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'evacuado', rescate: 'al rescate' }[e];
+    const li = document.createElement('li'); li.dataset.e = e; if (paso) li.dataset.paso = listoConfirmar ? 'listo' : 'camino';
     li.innerHTML = `<span class="av" aria-hidden="true">${SILUETA[generoPersona(p)]}</span>
       <div class="quien"><b>${esc(p.nombre)}</b><span class="donde">${b.nombre}, ${esc(p.cuadra)}</span></div>
       <div class="que"><span class="tag" title="${esc(p.necesidad)}">${esc(necesidadCorta(p.necesidad))}</span><span class="ayu"><span>Ayudante</span><b>${esc(nombreAyudante(p.guardian))}</b></span></div>
-      <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
+      <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && !paso && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
+    // aviso discreto: mensaje nuevo del ayudante sin leer o, ya leído, el caso espera que la central confirme (abre el chat)
+    const nuevo = CHAT.sinLeer.has(p.id) && e === 'avisado';
+    if (nuevo || listoConfirmar) {
+      const av = document.createElement('button'); av.type = 'button'; av.className = 'aviso-chat'; av.dataset.tipo = nuevo ? 'nuevo' : 'espera';
+      av.textContent = nuevo ? 'Mensaje nuevo' : 'Esperando confirmación'; av.onclick = () => abrirChat(p.id); li.append(av);
+    }
     if (e === 'avisado' || e === 'rescate') {
       // «Confirmar evacuación» se habilita recién cuando el ayudante avisó en el chat que va en camino y que ya están a salvo
       const listo = e === 'rescate' || (est.etapa[p.id] || 0) >= PASOS_AYUDANTE.length;
@@ -289,7 +322,7 @@ function confirmar(id, desde) {
   // solo se confirma a quien fue avisado: ignora toques viejos o de otro simulacro
   if (est.fase !== 'alerta' || !['avisado', 'rescate'].includes(est.personas[id])) return;
   est.personas[id] = 'salvo';
-  clearTimeout(est.chatTimer[id]); delete est.chatTimer[id]; CHAT.escribiendo.delete(id);
+  clearTimeout(est.chatTimer[id]); delete est.chatTimer[id]; CHAT.escribiendo.delete(id); pararApuro(id); CHAT.sinLeer.delete(id);
   if (desde === 'celular') {
     // confirmó desde su celular («Ya la ayudé»): en el chat queda su «¡Listo!» aunque no hubiera escrito antes
     if ((est.etapa[id] || 0) < PASOS_AYUDANTE.length) { est.etapa[id] = PASOS_AYUDANTE.length; decirChat(id, 'ayudante', '¡Listo! Ya estamos a salvo.'); }
@@ -363,8 +396,7 @@ setInterval(() => {
     li.querySelector('.barra-t i').style.width = Math.min(100, est.simMin / total * 100) + '%';
     li.querySelector('.info').textContent = llego ? 'El agua llegó' : `${b.km} km · hasta ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m de agua`;
     mapa.barrio(b.id, llego ? `agua ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m` : formatoTiempo(resta), llego ? 'llego' : 'alerta');
-    // sin confirmación 30 min antes de que llegue el agua → rescate oficial
-    activas().filter(p => p.barrio === b.id && est.personas[p.id] === 'avisado' && resta < 30).forEach(p => { est.personas[p.id] = 'rescate'; cambio = true; decirChat(p.id, 'sistema', 'Sin confirmación a T−30: pasa al rescate oficial.'); });
+    // sin paso automático a «al rescate»: cada caso queda abierto hasta que la central confirme la evacuación
   });
   if (cambio) pintarPersonas();
   // mensajes de emergencia: se encolan al cambiar el estado de cada tramo (con la hora en que pasó)
