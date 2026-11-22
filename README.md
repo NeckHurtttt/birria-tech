@@ -22,7 +22,7 @@
 </p>
 <p align="center"><b>🇧🇴 Español</b> · <a href="#-english">🇬🇧 English</a> · <a href="#-中文">🇨🇳 中文</a> · <a href="#-guaraní">Guaraní</a> · <a href="#-runasimi-quechua">Runasimi (quechua)</a> · <a href="#-ayoreo">Ayoreo</a><br>
 <sub>Cada idioma se despliega aquí mismo, sin recargar · Each language opens right here, no reload · 各语言在本页展开，无需刷新</sub><br>
-🎤 <a href="pitch-el-rio-suena.md">Guion del pitch</a> · 📊 <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch.pptx">Presentación</a></p>
+🎤 <a href="pitch-el-rio-suena.md">Guion del pitch</a> · 📊 <a href="El%20R%C3%ADo%20Suena%20%C2%B7%20Pitch%20corto.pptx">Presentación</a></p>
 
 ![Simulacro completo: tormenta, alerta, cuenta regresiva y confirmación de todas las personas](capturas/simulacro.gif)
 
