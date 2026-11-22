@@ -53,7 +53,7 @@ Los invitamos a escanear este código: durante la demostración, ustedes serán 
 
 *(Cerrar el código. Presionar «Iniciar simulacro».)*
 
-El Río Suena combina tres fuentes: **la lluvia de los modelos, los vigías río arriba y la regla pintada en el puente.**
+El Río Suena combina cuatro fuentes: **la lluvia de los modelos, los vigías río arriba, la regla pintada en el puente y el aviso oficial de SENAMHI.**
 
 **Primero, asigna una hora a cada barrio.**
 No comunica «alerta roja», sino: *«el agua llega a El Torno en 5 horas»*.
@@ -85,7 +85,7 @@ Está dirigido a las familias de la ribera, a las personas que no pueden evacuar
 
 La junta registra y aprueba a cada persona desde cualquier teléfono, en un registro compartido protegido por clave.
 
-Es una aplicación web que **se instala sin tienda de aplicaciones y funciona sin internet**. No requiere sensores costosos: un teléfono, pintura y vecinos. Además, una PC del equipo vigila la cuenca las 24 horas y deja la última lectura en la nube; si esa PC se apaga, cada celular sigue vigilando por su cuenta.
+Es una aplicación que **se instala en el celular sin tienda de aplicaciones, funciona sin internet y suena aunque el teléfono esté bloqueado**. No requiere sensores costosos: un teléfono, pintura y vecinos. Además, una PC del equipo vigila la cuenca las 24 horas y deja la última lectura en la nube; si esa PC se apaga, cada celular sigue vigilando por su cuenta.
 
 Proponemos un piloto en **El Torno durante esta temporada de lluvias**: diez vigías, cinco reglas pintadas y cincuenta personas registradas, por aproximadamente **mil quinientos bolivianos**. Para las familias, **el servicio es gratuito**.
 
@@ -97,7 +97,7 @@ Luego, toda la cuenca del Piraí. Y después, **todo el país**: el Mamoré en e
 
 ## V. Cierre · 3:05 – 3:30 · *impacto*
 
-No reemplazamos la alerta oficial: **la complementamos con minutos, nombres y vecinos.**
+No reemplazamos la alerta oficial: **leemos cada día el boletín de SENAMHI y lo llevamos hasta cada barrio, con minutos, nombres y vecinos.**
 
 El 13 de diciembre, el río sonó, y nadie lo estaba escuchando.
 
@@ -141,6 +141,12 @@ Se almacenan en un registro compartido que solo puede consultarse con la clave d
 
 **«¿En qué se diferencia de Google Flood Hub o de la alerta por colores?»**
 Esos sistemas pronostican por tramo de río o por departamento. El Río Suena avisa **por barrio, con minutos y con un vecino asignado**, y detecta tormentas locales mediante personas.
+
+**«¿Y SENAMHI? ¿No compiten?»**
+No: lo usamos. Cada día hábil el sistema lee solo el boletín hidrológico de Santa Cruz y toma la amenaza oficial del Piraí por tramo. Si SENAMHI marca amarilla o naranja, la aplicación pasa a vigilancia; si marca roja, alerta. Nunca dice «normal» cuando el aviso oficial dice otra cosa. Lo que SENAMHI no puede hacer es avisar casa por casa: eso lo hacen los vecinos.
+
+**«¿Hay una aplicación para el celular?»**
+Sí. Se instala desde el navegador («Instalar como app»), sin Play Store, recuerda la comunidad de cada vecino y, con la app gratuita ntfy, suena aunque la pantalla esté apagada. Quien no quiere ser guardián puede entrar solo a mirar el río de su barrio.
 
 **«¿Quién paga esto?»**
 Para las familias es gratuito. El piloto cuesta aproximadamente Bs 1.500; posteriormente, el municipio y la Gobernación financian el servicio por tramo de río, con apoyo de la cooperación internacional.

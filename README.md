@@ -108,10 +108,11 @@ No se identificaron encuestas públicas sobre percepción del riesgo o recepció
 
 | Componente | Función |
 |---|---|
-| **Vigía del Piraí** | Cada diez minutos consulta la precipitación en cinco puntos de la cuenca alta (Open-Meteo), el caudal GloFAS en La Angostura y los reportes de **vigías río arriba**, y calcula un **índice de riesgo de 0 a 100**. Cualquiera de las tres fuentes puede activar la alerta; dos reportes de vigías son suficientes. |
+| **Vigía del Piraí** | Cada diez minutos consulta la precipitación en cinco puntos de la cuenca alta (Open-Meteo), el caudal GloFAS en La Angostura y los reportes de **vigías río arriba**, y calcula un **índice de riesgo de 0 a 100**. Cualquiera de las tres fuentes puede activar la alerta; dos reportes de vigías son suficientes. Además lee cada día hábil el **boletín hidrológico oficial de SENAMHI** (`herramientas/senamhi.py`, GitHub Action): con amenaza amarilla o naranja la zona pasa a vigilancia y con roja a alerta, de modo que la aplicación nunca contradice el aviso oficial. |
 | **Cuenta regresiva por barrio** | Calcula la distancia sobre el cauce real del río (OpenStreetMap) y muestra avisos como «el agua llega a El Torno en **2 h 20 min**». |
 | **El agua en su pared** | Con la cámara del teléfono, dibuja sobre la vivienda la altura que alcanzaría el agua. Sin cámara, la muestra sobre una pared ilustrada. |
 | **Vecino guardián** | Cada persona vulnerable tiene un vecino asignado. Ante una alerta, el teléfono del guardián suena y vibra, y este confirma el traslado con un toque. **Si no hay confirmación 30 minutos antes de la llegada del agua, el caso se deriva al rescate oficial.** |
+| **Aplicación para el celular** | `guardian.html` se instala como aplicación desde el navegador («Instalar como app», sin tienda), recuerda la comunidad de cada vecino, funciona sin internet y, con la aplicación gratuita ntfy, suena aunque el teléfono esté bloqueado. Quien no desea ser guardián puede entrar solo a mirar el río de su barrio. |
 | **Registro compartido** | La junta vecinal registra, aprueba y supervisa a las personas desde cualquier dispositivo, con acceso protegido por clave (ver *Backend*). |
 
 **Complemento experimental:** el *oído del río*, un teléfono ubicado junto a la orilla que analiza el sonido grave del caudal (20–300 Hz).
@@ -257,7 +258,9 @@ flowchart LR
 
 ```
 index.html             aplicación principal (mapa, índice, alerta, pared)
-guardian.html          pantalla del teléfono del guardián
+guardian.html          aplicación del celular (guardián o vecino que solo mira)
+movil.webmanifest      instalación de la aplicación del celular
+datos/senamhi.json     boletín oficial de SENAMHI ya procesado (se actualiza solo)
 js/datos.js            barrios, personas de ejemplo, índice de riesgo
 js/lluvia.js           Vigía: Open-Meteo (precipitación) y GloFAS (caudal)
 js/mapa.js             MapLibre y cuenta regresiva sobre el cauce
@@ -397,10 +400,11 @@ In the early hours of **13 December 2025** the Piraí overflowed in **El Torno**
 
 | | Piece | What it does |
 |---|---|---|
-| 🛰️ | **Piraí Watch** | Every 10 min it checks the rain at 5 points of the upper basin (Open-Meteo), the GloFAS discharge at La Angostura and the reports from **upstream watchers**. With that it computes a **risk index from 0 to 100**. Any of the three sources can trigger the alert (2 watchers are enough). |
+| 🛰️ | **Piraí Watch** | Every 10 min it checks the rain at 5 points of the upper basin (Open-Meteo), the GloFAS discharge at La Angostura and the reports from **upstream watchers**. With that it computes a **risk index from 0 to 100**. Any of the three sources can trigger the alert (2 watchers are enough). It also reads the **official SENAMHI hydrological bulletin** every weekday: yellow or orange puts the area on watch, red triggers the alert, so the app never contradicts the official warning. |
 | ⏱️ | **Countdown per neighborhood** | It measures the distance along the real river channel (OSM) and shows messages like “water reaches El Torno in **2 h 20 min**”. |
 | 📷 | **Water on your wall** | Point the camera at your house and the app draws how high the water would rise. Without a camera, it shows it on a drawn wall. |
 | 🤝 | **Neighbor Guardian** | Every vulnerable person has an assigned neighbor. When there is an alert, the guardian’s phone rings and vibrates, and the guardian confirms with one tap. **If nobody confirms 30 min before the water arrives, the case goes to official rescue.** |
+| 📱 | **Phone app** | Installs from the browser («Install as app», no store), remembers each neighbor’s community, works offline and, with the free ntfy app, rings even when the phone is locked. Anyone can open it just to watch the river. |
 
 **Optional extra:** the *river ear*. A phone by the riverbank listens for the water’s low rumble (20–300 Hz).
 
@@ -528,7 +532,9 @@ flowchart LR
 ### 📁 Structure
 ```
 index.html        main app (map, index, alert, wall)
-guardian.html     the guardian’s phone screen
+guardian.html     phone app (guardian, or neighbor who only watches)
+movil.webmanifest phone app install manifest
+datos/senamhi.json official SENAMHI bulletin, parsed daily
 js/datos.js       neighborhoods, sample guardians, risk index
 js/lluvia.js      Watch: Open-Meteo (rain) + GloFAS (discharge)
 js/mapa.js        MapLibre + countdown along the channel
@@ -648,10 +654,11 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 
 | | 部分 | 作用 |
 |---|---|---|
-| 🛰️ | **皮拉伊河守望** | 每 10 分钟检查上游流域 5 个点的降雨（Open-Meteo）、La Angostura 的 GloFAS 流量，以及**上游观察员**的报告，据此计算 **0 到 100 的风险指数**。三个来源中任意一个都能触发警报（2 名观察员即可）。 |
+| 🛰️ | **皮拉伊河守望** | 每 10 分钟检查上游流域 5 个点的降雨（Open-Meteo）、La Angostura 的 GloFAS 流量，以及**上游观察员**的报告，据此计算 **0 到 100 的风险指数**。三个来源中任意一个都能触发警报（2 名观察员即可）。 此外，每个工作日自动读取 **SENAMHI 官方水文公报**：黄色或橙色预警时进入警戒，红色时直接发出警报，应用永远不会与官方预警相矛盾。 |
 | ⏱️ | **各社区倒计时** | 沿真实河道（OSM）测量距离，显示例如「洪水 **2 小时 20 分钟**后到达 El Torno」这样的提示。 |
 | 📷 | **墙上的水位** | 用摄像头对准自家房子，应用会画出洪水会涨到多高。没有摄像头时，就画在一面示意墙上。 |
 | 🤝 | **邻居守护者** | 每位弱势人员都有一位指定邻居。出现警报时，守护者的手机会响铃并振动，守护者一键确认。**若在洪水到达前 30 分钟仍无人确认，则转交官方救援。** |
+| 📱 | **手机应用** | 可从浏览器直接安装（“安装为应用”，无需应用商店），记住每位邻居的社区，离线可用；配合免费的 ntfy 应用，锁屏时也会响铃。任何人都可以只打开它来查看河流。 |
 
 **可选功能：** *河之耳*。放在河岸边的手机监听河水的低频轰鸣（20–300 Hz）。
 
@@ -779,7 +786,9 @@ flowchart LR
 ### 📁 目录结构
 ```
 index.html        主应用（地图、指数、警报、墙面）
-guardian.html     守护者手机页面
+guardian.html     手机应用（守护者或只看河流的邻居）
+movil.webmanifest 手机应用安装清单
+datos/senamhi.json 每日解析的 SENAMHI 官方水文公报
 js/datos.js       社区、示例守护者、风险指数
 js/lluvia.js      守望：Open-Meteo（降雨）+ GloFAS（流量）
 js/mapa.js        MapLibre + 沿河道的倒计时
