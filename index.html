@@ -104,6 +104,10 @@
   </header>
   <ol class="chat-msjs" id="chat-msjs" aria-live="polite"></ol>
   <div class="chat-rapidas" id="chat-rapidas"></div>
+  <div class="chat-confirmar" id="chat-confirmar" hidden>
+    <button class="btn chico chat-ok" id="chat-ok" type="button" disabled aria-describedby="chat-aviso"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Confirmar evacuación</button>
+    <span class="chat-aviso" id="chat-aviso" aria-live="polite"></span>
+  </div>
   <form class="chat-form" id="chat-form" autocomplete="off"><input id="chat-texto" maxlength="160" placeholder="Escribe un mensaje…" aria-label="Mensaje para el ayudante"><button class="btn chico primario" type="submit">Enviar</button></form>
   <p class="chat-pie"><span id="chat-respaldo"></span><span>Demo: el ayudante responde solo durante el simulacro.</span></p>
 </aside>

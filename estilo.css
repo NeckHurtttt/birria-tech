@@ -445,3 +445,18 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 .personas .aviso-chat[data-tipo="espera"] { background: rgba(79,227,154,.1); color: var(--exito); }
 .personas .aviso-chat:hover { filter: brightness(1.15); }
 .personas .aviso-chat:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+/* «Confirmar evacuación» dentro del chat: bloqueado (con aviso) hasta que el ayudante confirme; luego verde y resaltado */
+.chat-confirmar { display: flex; align-items: center; gap: 10px; margin: 0 12px 8px; padding: 8px 10px; border-radius: var(--r-chico); background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.12); }
+.chat-confirmar[hidden] { display: none; }
+.chat-ok { flex: none; min-height: 32px; padding: 4px 12px; gap: 6px; font-size: 12.5px; white-space: nowrap; }
+.chat-ok svg { width: 15px; height: 15px; }
+.chat-ok[disabled] { opacity: .45; cursor: not-allowed; filter: grayscale(1); }
+.chat-aviso { min-width: 0; font-size: 11.5px; line-height: 1.35; color: var(--texto-2); }
+.chat-confirmar[data-listo="si"] { background: rgba(79,227,154,.07); border: 1px solid rgba(79,227,154,.4); }
+.chat-confirmar[data-listo="si"] .chat-ok { background: var(--exito); color: #03281a; border-color: transparent; font-weight: 700; animation: listo-ok 1.6s ease-in-out infinite; }
+.chat-confirmar[data-listo="si"] .chat-ok:hover { background: #7ff0b8; }
+.chat-confirmar[data-listo="si"] .chat-aviso { color: var(--exito); }
+@keyframes listo-ok { 50% { box-shadow: 0 0 0 6px rgba(79,227,154,.18); } }
+/* aviso en la tarjeta: el ayudante va en camino y espera que la central le escriba */
+.personas .aviso-chat[data-tipo="responder"] { background: rgba(91,231,240,.1); color: var(--acento); }
+@media (prefers-reduced-motion: reduce) { .chat-confirmar[data-listo="si"] .chat-ok { animation: none; } }
