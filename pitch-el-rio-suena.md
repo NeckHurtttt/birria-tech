@@ -1,112 +1,79 @@
 # El Río Suena — Discurso del pitch
 
-> **Duración:** 3 min 45 s (el reglamento asigna 4 minutos de exposición y 3 de preguntas) · **Modalidad:** virtual, con pantalla compartida · **Participan:** quien expone, quien opera la demostración y un teléfono de guardián visible en cámara.
-> *Las indicaciones en cursiva no se leen en voz alta.* Cada bloque indica el criterio de evaluación que atiende.
+> **Duración:** 2 min 55 s (3 minutos de exposición; deja 5 s de margen) · **Modalidad:** virtual, con pantalla compartida · **Participan:** quien expone, quien opera la demostración y un teléfono de guardián visible en cámara.
+> *Las indicaciones en cursiva no se leen en voz alta.* En el PPTX, las notas del orador siguen este guion; saltar las diapositivas 4, 5, 9, 12 y 14 (quedan de respaldo para las preguntas). Cada bloque indica el criterio de evaluación que atiende.
 
 ---
 
-## I. Gancho · 0:00 – 0:20 · *relevancia del problema*
+## I. Gancho · 0:00 – 0:15 · *relevancia del problema*
 
-*(Pantalla negra. Silencio de tres segundos.)*
+*(Pantalla negra. Dos segundos de silencio.)*
 
-El 13 de diciembre del año pasado, de madrugada, el Piraí se desbordó en El Torno.
+El 13 de diciembre, de madrugada, el Piraí se desbordó en El Torno. **Veintiséis personas murieron.** Nadie recibió un aviso.
 
-**Veintiséis personas murieron.** Más de mil trescientas familias lo perdieron todo.
-
-Fue la riada más grande en 42 años.
-
-*(Pausa.)*
-
-La pregunta que guio este proyecto fue: **¿era posible avisar antes?**
+Nos preguntamos: **¿se podía avisar antes?**
 
 ---
 
-## II. Lo que descubrimos · 0:20 – 0:55 · *originalidad, viabilidad técnica*
+## II. Lo que descubrimos · 0:15 – 0:40 · *originalidad, viabilidad técnica*
 
-*(Abrir «¿Habría avisado la riada real del 13/12/2025?». Dejar que la gráfica se dibuje.)*
+*(Abrir «¿Habría avisado la riada real del 13/12/2025?».)*
 
-Analizamos los datos abiertos de esa noche: cuatro modelos meteorológicos y el caudal del río.
+Revisamos los datos abiertos de esa noche. **Ningún modelo vio la tormenta.** Una app basada solo en satélites no habría avisado.
 
-**Ninguno registró la tormenta.** Veinte milímetros de lluvia. El caudal, sin variación.
+*(Señalar la línea naranja.)*
 
-*(Señalar la línea gris pegada al piso.)*
-
-Una aplicación basada únicamente en satélites **no habría emitido ninguna alerta.**
-
-Sin embargo, río arriba, en Bermejo y en el río Espejos, **los vecinos sí veían crecer el río.**
-
-*(Señalar la línea naranja que cruza el umbral.)*
-
-Con dos vigías que reporten el crecimiento del río, la alerta se activa **unas cuatro horas antes** del desborde.
-
-*(Si el bot está encendido: reproducir el audio de Telegram de un vigía, «está viniendo turbio, ya tapa la piedra». Aparece en la central «Vigía en Bermejo».)*
-
-Y no necesitan aprender ninguna aplicación: **el vigía manda un audio por Telegram**, una computadora del barrio lo entiende y lo cuenta como reporte.
+Pero río arriba, en Bermejo, **los vecinos sí veían crecer el río.** Con dos vigías que lo reporten, aunque sea con un audio de Telegram, la alerta sale **unas cuatro horas antes.**
 
 ---
 
-## III. La solución · 0:55 – 2:15 · *funcionamiento, creatividad, propuesta*
+## III. La solución · 0:40 – 1:55 · *funcionamiento, creatividad, propuesta*
 
-*(Cerrar el diálogo. Presionar «Sé guardián» y mostrar el código QR durante diez segundos.)*
+*(Presionar «Sé guardián» y mostrar el QR cinco segundos.)*
 
-Los invitamos a escanear este código: durante la demostración, ustedes serán los guardianes.
+Escaneen este código: ustedes serán los guardianes.
 
-*(Cerrar el código. Presionar «Iniciar simulacro».)*
+*(Presionar «Iniciar simulacro».)*
 
-El Río Suena combina cuatro fuentes: **la lluvia de los modelos, los vigías río arriba, la regla pintada en el puente y el aviso oficial de SENAMHI.**
+El Río Suena une **cuatro fuentes**: la lluvia, los vigías, la regla pintada en el puente y **el boletín diario de SENAMHI**, que leemos solos cada día.
 
-**Primero, asigna una hora a cada barrio.**
-No comunica «alerta roja», sino: *«el agua llega a El Torno en 5 horas»*.
+Y no dice «alerta roja»: dice **«el agua llega a El Torno en 3 horas»**, barrio por barrio.
 
 *(Señalar la cuenta regresiva.)*
 
-**Segundo, muestra la altura del agua sobre la pared de cada vivienda**, porque muchas familias no evacúan al no creer que el agua alcanzará su casa.
+Lo más importante: **nadie queda olvidado.** Doña Rosa usa silla de ruedas y tiene un vecino guardián, Marcelo.
 
-**Tercero, nadie queda olvidado.**
-Doña Rosa, que usa silla de ruedas, tiene un vecino guardián: Marcelo.
+*(Suena el celular del guardián. Levantarlo.)*
 
-*(Suena y vibra el celular del guardián. Levantarlo.)*
+Su celular suena **aunque esté bloqueado**. La lleva al punto seguro y confirma con un toque. Si nadie confirma, el caso pasa al rescate oficial.
 
-Marcelo recibe el aviso, la traslada y lo confirma con un toque. La central registra en tiempo real cuánto tardó en responder.
+*(Presionar «Ya la ayudé». Aparece «Todos a salvo».)*
 
-*(Presionar «Ya la ayudé». Si el jurado escaneó el código, señalar sus confirmaciones en pantalla.)*
-
-Sin conexión a internet, el aviso se envía por **SMS o llamada**. Y si nadie confirma 30 minutos antes de la llegada del agua, **el caso se deriva al rescate oficial**.
-
-*(Aparece «Todos a salvo» con los números.)*
+¿Y si es una falsa alarma? **La junta la cancela con un botón** y todos los celulares lo saben al instante.
 
 ---
 
-## IV. Para quién y cómo se implementa · 2:15 – 3:05 · *claridad del público, implementación*
+## IV. Para quién y cómo se implementa · 1:55 – 2:35 · *público, implementación*
 
-Está dirigido a las familias de la ribera, a las personas que no pueden evacuar por sí mismas y a la **junta vecinal y el COED**, que ven en tiempo real quién falta.
+Es para las familias de la ribera, para quien no puede evacuar solo y para la **junta vecinal y el COED**, que ven en vivo quién falta.
 
-*(Abrir el panel de la junta e ingresar la clave 1312.)*
+Se instala en el celular **sin Play Store y funciona sin internet**. Lo probamos con celulares reales: la confirmación llega a la central **en tres segundos.**
 
-La junta registra y aprueba a cada persona desde cualquier teléfono, en un registro compartido protegido por clave.
-
-Es una aplicación que **se instala en el celular sin tienda de aplicaciones, funciona sin internet y suena aunque el teléfono esté bloqueado**. No requiere sensores costosos: un teléfono, pintura y vecinos. Además, una PC del equipo vigila la cuenca las 24 horas y deja la última lectura en la nube; si esa PC se apaga, cada celular sigue vigilando por su cuenta.
-
-Proponemos un piloto en **El Torno durante esta temporada de lluvias**: diez vigías, cinco reglas pintadas y cincuenta personas registradas, por aproximadamente **mil quinientos bolivianos**. Para las familias, **el servicio es gratuito**.
-
-Luego, toda la cuenca del Piraí. Y después, **todo el país**: el Mamoré en el Beni, el Rocha en Cochabamba, los ríos de La Paz. Los datos abiertos cubren todo el territorio y las juntas vecinales ya existen en cada municipio: **solo cambia el mapa.**
-
-*(Si el tiempo lo permite:)* En la temporada pasada, las lluvias afectaron a **más de ciento ochenta y seis mil familias** en Bolivia.
+Piloto en El Torno esta temporada: diez vigías, cinco reglas, cincuenta personas, **unos mil quinientos bolivianos. Gratis para las familias.** Después, todo el país: **solo cambia el mapa.**
 
 ---
 
-## V. Cierre · 3:05 – 3:30 · *impacto*
+## V. Cierre · 2:35 – 2:55 · *impacto*
 
-No reemplazamos la alerta oficial: **leemos cada día el boletín de SENAMHI y lo llevamos hasta cada barrio, con minutos, nombres y vecinos.**
+No reemplazamos la alerta oficial: **la llevamos hasta cada puerta, con minutos, nombres y vecinos.**
 
 El 13 de diciembre, el río sonó, y nadie lo estaba escuchando.
 
 *(Pausa.)*
 
-Cuando el río suena…
-**el barrio responde.**
+Cuando el río suena… **el barrio responde.**
 
-Muchas gracias.
+Gracias.
 
 ---
 
@@ -148,6 +115,9 @@ No: lo usamos. Cada día hábil el sistema lee solo el boletín hidrológico de 
 **«¿Hay una aplicación para el celular?»**
 Sí. Se instala desde el navegador («Instalar como app»), sin Play Store, recuerda la comunidad de cada vecino y, con la app gratuita ntfy, suena aunque la pantalla esté apagada. Quien no quiere ser guardián puede entrar solo a mirar el río de su barrio.
 
+**«¿Y las falsas alarmas, cómo se corrigen?»**
+La junta pulsa «Falsa alarma»: a todos los celulares les llega «Alerta cancelada» en verde, la sirena se apaga y queda en el registro de alertas para ajustar los umbrales. Preferimos una falsa alarma cancelada en un minuto a una riada sin aviso.
+
 **«¿Quién paga esto?»**
 Para las familias es gratuito. El piloto cuesta aproximadamente Bs 1.500; posteriormente, el municipio y la Gobernación financian el servicio por tramo de río, con apoyo de la cooperación internacional.
 
@@ -166,5 +136,5 @@ Para las familias es gratuito. El piloto cuesta aproximadamente Bs 1.500; poster
 - [ ] La PC de Rodrigo encendida y subiendo lecturas: la fuente del Vigía debe decir **«vigía central (PC del equipo)»**
 - [ ] Bot de Telegram encendido (`nodo/`) y un audio de vigía grabado listo para mandar; si falla, usar el botón «Vigía río arriba»
 - [ ] En el discurso mostrar solo **dos** cosas nuevas: el audio del vigía y la cuenta regresiva; lo demás, para las preguntas
-- [ ] Ensayado con cronómetro: **menos de 3:45** (son 4 min + 3 de preguntas)
+- [ ] Ensayado con cronómetro: **menos de 2:55** (son 3 min de exposición; si se pasa, recortar la parte IV)
 - [ ] Tono respetuoso al referirse a las víctimas del 13/12/2025: son la razón del proyecto
