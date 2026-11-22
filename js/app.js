@@ -757,7 +757,7 @@ function exito() {
   $('#exito-texto').textContent = `${activas().length} personas que no podían salir solas ya están en el punto seguro (${[...b].join(', ')}), antes de que llegue el agua.`;
   const m = Object.values(est.margen), prom = m.length ? Math.round(m.reduce((a, x) => a + x, 0) / m.length) : 0;
   const conRescate = activas().filter(p => est.rescate[p.id]).length;
-  $('#exito-datos').innerHTML = `<div><b>${activas().length}</b><span>personas confirmadas</span></div><div><b>${formatoTiempo(prom).replace('ya llegó', '0 min')}</b><span>de margen promedio antes del agua</span></div><div><b>0 Bs</b><span>para las familias</span></div>` + (conRescate ? `<div><b>${conRescate}</b><span>con apoyo del rescate oficial</span></div>` : '');
+  $('#exito-datos').innerHTML = `<div><b>${activas().length}</b><span>personas confirmadas</span></div><div><b>${formatoTiempo(prom).replace('ya llegó', '0 min')}</b><span>de margen promedio antes del agua</span></div><div><b>0 Bs</b><span>costo para las familias</span></div>` + (conRescate ? `<div><b>${conRescate}</b><span>con apoyo del rescate oficial</span></div>` : '');
   $('#respuestas').replaceChildren(); $('#exito').hidden = false; hablar('¡Todos a salvo! Gracias a cada vecino ayudante.'); oido.detener();
   est.fase = 'fin'; $('#exito-cerrar').focus();
 }

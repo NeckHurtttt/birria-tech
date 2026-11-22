@@ -147,17 +147,21 @@ select { min-height: 36px; border-radius: var(--r-chico); background: var(--supe
 
 .exito { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; background: radial-gradient(circle at 50% 40%, rgba(12,52,40,.95), rgba(7,18,25,.97) 65%); backdrop-filter: blur(6px); animation: aparece .4s ease; padding: 16px; }
 .exito-caja { text-align: center; max-width: 420px; }
+/* sello: el ✓ se ve siempre (si el sistema pide menos animación, no queda un círculo vacío); el trazo animado es un extra */
 .exito svg { width: 96px; height: 96px; stroke: var(--exito); stroke-width: 3; }
-.exito svg path { stroke-dasharray: 60; stroke-dashoffset: 60; animation: traza .8s .2s ease forwards; }
+.exito svg circle { fill: rgba(79,227,154,.12); }
+.exito svg path { stroke-width: 5; stroke-dasharray: 44; stroke-dashoffset: 0; animation: traza .8s .2s ease backwards; }
 .exito h2 { font-size: 40px; margin: 16px 0 8px; }
 .exito p { color: var(--texto-2); margin: 0 0 8px; }
 .exito .lema { margin-bottom: 24px; }
+/* nota discreta debajo de los datos: gratis para las familias y sin internet (no compite con las cifras) */
+.exito .exito-nota { margin: 4px 0 14px; font-size: 12.5px; color: var(--texto-2); opacity: .9; }
 
 @keyframes entra { from { opacity: 0; transform: translateY(8px); } }
 @keyframes aparece { from { opacity: 0; } }
 @keyframes late { 50% { opacity: .55; } }
 @keyframes onda { 70% { box-shadow: 0 0 0 14px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
-@keyframes traza { to { stroke-dashoffset: 0; } }
+@keyframes traza { from { stroke-dashoffset: 44; } to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
 @media (max-width: 900px) {

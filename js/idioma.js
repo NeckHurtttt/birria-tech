@@ -311,6 +311,8 @@ const D = {
   'personas confirmadas': ['people confirmed', '人已确认'],
   'de margen promedio antes del agua': ['average margin before the water', '洪水到达前的平均余量'],
   'para las familias': ['for families', '家庭费用'],
+  'costo para las familias': ['cost for families', '家庭费用'],
+  'Gratis para las familias · funciona sin internet, con los celulares que ya tienen.': ['Free for families · works without internet, on the phones they already have.', '对家庭免费 · 无需网络，用现有的手机即可。'],
   'Cuando el río suena, el barrio responde.': ['When the river roars, the neighborhood responds.', '河水作响，邻里相应。'],
   'Ver el mapa': ['See the map', '查看地图'],
   // guardián
