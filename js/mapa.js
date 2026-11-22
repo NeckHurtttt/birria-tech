@@ -60,28 +60,29 @@ export function crearMapa(el, opc = {}) {
   };
   map.on('move', recortar); map.on('resize', recortar); map.on('idle', recortar);
 
-  // punto rojo pulsante del caso cuyo chat está abierto: alrededor del barrio, nunca encima de su etiqueta. La etiqueta
-  // del barrio queda arriba del punto (índice par) o abajo (impar): el punto va al lado contrario, y a un costado que
-  // depende del caso, así dos casos del mismo barrio caen en lugares distintos.
-  let pulso = null, vigilarPulso = 0;
-  const quitarCaso = () => { clearInterval(vigilarPulso); pulso?.remove(); pulso = null; };
-  // corre el punto hasta un lugar libre: no puede caer sobre NINGUNA etiqueta visible (barrios, La Angostura), porque a
-  // ciertos zooms la etiqueta de un barrio vecino queda justo al lado. Prueba primero el lugar preferido y luego
-  // alrededor, en círculos cada vez más amplios. Si el lugar actual sigue libre, no lo mueve (sin saltos).
-  const ubicarPulso = () => {
+  // punto rojo del caso cuyo chat está abierto, ANCLADO a una coordenada real cerca del barrio: es un marcador más del
+  // mapa (sin desplazamiento en pantalla), así se mueve y hace zoom con él. La coordenada se elige una vez al abrir el chat
+  // (y otra cuando el mapa termina de acercarse al barrio): se prueban lugares alrededor del barrio, en círculos, y queda
+  // el primero que no cae sobre ninguna etiqueta visible ni detrás de un panel o del chat. Arranca en un ángulo que depende
+  // del caso, para que dos casos del mismo barrio no caigan en el mismo lugar.
+  let pulso = null, turnoPulso = 0, alLlegar = null;
+  const quitarCaso = () => { turnoPulso++; if (alLlegar) map.off('moveend', alLlegar); alLlegar = null; pulso?.remove(); pulso = null; };
+  const obstaculos = () => [
+    ...[...el.querySelectorAll('.maplibregl-marker')].filter(m => !m.classList.contains('caso-pulso') && m.style.visibility !== 'hidden'),
+    ...document.querySelectorAll('.panel, .flotante, #chat:not([hidden])'),
+  ].map(m => m.getBoundingClientRect()).filter(r => r.width && r.height);
+  const anclarPulso = (b, clave) => {
     if (!pulso) return;
-    const d = pulso.getElement(), caja = el.getBoundingClientRect(), p = map.project(pulso.getLngLat());
-    const etiquetas = [...el.querySelectorAll('.maplibregl-marker')].filter(m => m !== d && m.style.visibility !== 'hidden').map(m => m.getBoundingClientRect());
-    const libre = ([dx, dy]) => {
-      const x = caja.left + p.x + dx, y = caja.top + p.y + dy, r = 13;
-      return !etiquetas.some(q => x - r < q.right && x + r > q.left && y - r < q.bottom && y + r > q.top);
-    };
-    const actual = pulso.getOffset(); if (libre([actual.x, actual.y])) return;
-    const pref = pulso._pref, ang0 = Math.atan2(pref[1], pref[0]);
-    for (const radio of [28, 40, 54, 70, 90]) for (let k = 0; k < 12; k++) {
-      const a = ang0 + (k % 2 ? 1 : -1) * Math.ceil(k / 2) * (Math.PI / 6), o = [Math.round(Math.cos(a) * radio), Math.round(Math.sin(a) * radio)];
-      if (libre(o)) { pulso.setOffset(o); return; }
+    const caja = el.getBoundingClientRect(), c = map.project([b.lon, b.lat]), obs = obstaculos(), r = 16;
+    const libre = (x, y) => x > r && x < caja.width - r && y > r && y < caja.height - r
+      && !obs.some(q => caja.left + x - r < q.right && caja.left + x + r > q.left && caja.top + y - r < q.bottom && caja.top + y + r > q.top);
+    let h = 0; for (const ch of String(clave)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    const ang0 = (h % 16) * Math.PI / 8;
+    for (const radio of [30, 42, 56, 72, 92]) for (let k = 0; k < 16; k++) {
+      const a = ang0 + k * Math.PI / 8, x = c.x + Math.cos(a) * radio, y = c.y + Math.sin(a) * radio;
+      if (libre(x, y)) { pulso.setLngLat(map.unproject([x, y])); return; }
     }
+    pulso.setLngLat(map.unproject([c.x + 30, c.y + 30])); // sin lugar libre a la vista: queda pegado al barrio
   };
 
   return {
@@ -104,27 +105,27 @@ export function crearMapa(el, opc = {}) {
     tramo(b) { const m = innerWidth > 900 ? { top: 60, bottom: 120, left: 80, right: 60 } : { top: 30, bottom: 30, left: 20, right: 20 }; map.fitBounds([[Math.min(SENSOR.lon, b.lon), Math.min(SENSOR.lat, b.lat)], [Math.max(SENSOR.lon, b.lon), Math.max(SENSOR.lat, b.lat)]], { padding: m, pitch: 50, duration: 2500 }); },
     general() { map.flyTo({ center: [-63.36, -17.93], zoom: 9.2, pitch: 55, bearing: -20, duration: 2000, padding: PAD() }); },
     caso(b, clave = '') {
-      quitarCaso();
-      const i = BARRIOS.findIndex(x => x.id === b.id), etiquetaArriba = i % 2 === 0;
-      let h = 0; for (const c of String(clave)) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-      const dx = (h % 2 ? 1 : -1) * (24 + (h % 13)), dy = (etiquetaArriba ? 1 : -1) * (22 + ((h >> 4) % 10));
+      quitarCaso(); const turno = turnoPulso;
       const d = document.createElement('div'); d.className = 'caso-pulso'; d.setAttribute('aria-hidden', 'true'); d.innerHTML = '<i></i>';
-      pulso = new maplibregl.Marker({ element: d, offset: [dx, dy] }).setLngLat([b.lon, b.lat]).addTo(map);
-      pulso._pref = [dx, dy];
-      // si el barrio quedó detrás de los paneles (o fuera del mapa), se lo acerca sin cambiar el zoom; al terminar, 'idle'
-      // vuelve a revisar que el punto no tape ninguna etiqueta
-      const pt = map.project([b.lon, b.lat]), pad = PAD(), w = el.clientWidth, hh = el.clientHeight;
-      if (pt.x < pad.left + 30 || pt.x > w - pad.right - 30 || pt.y < pad.top + 30 || pt.y > hh - pad.bottom - 30)
-        map.easeTo({ center: [b.lon, b.lat], duration: 1200, padding: PAD() });
-      // las etiquetas aparecen y se ocultan solas (al mover el mapa o avanzar la crecida) y durante el simulacro el mapa casi
-      // nunca queda «idle»: mientras el chat está abierto se revisa seguido (si el lugar sigue libre, no se mueve)
-      requestAnimationFrame(ubicarPulso); vigilarPulso = setInterval(ubicarPulso, 400);
+      pulso = new maplibregl.Marker({ element: d }).setLngLat([b.lon, b.lat]).addTo(map);
+      anclarPulso(b, clave);
+      // si el barrio quedó detrás de los paneles o del chat, el mapa se acerca (sin cambiar el zoom) y al terminar se vuelve a
+      // elegir la coordenada, ya con el barrio a la vista
+      const caja = el.getBoundingClientRect(), pt = map.project([b.lon, b.lat]), pad = { ...PAD() };
+      const chat = document.querySelector('#chat:not([hidden])')?.getBoundingClientRect();
+      if (chat && innerWidth > 900) pad.right = Math.max(pad.right, caja.right - chat.left + 20);
+      const hayLugar = caja.width - pad.left - pad.right > 80;
+      if (hayLugar && (pt.x < pad.left + 30 || pt.x > caja.width - pad.right - 30 || pt.y < pad.top + 30 || pt.y > caja.height - pad.bottom - 30)) {
+        // solo el final de ESTE movimiento vuelve a elegir la coordenada: si después la persona hace zoom o mueve el mapa,
+        // el punto se queda en su lugar (anclado)
+        alLlegar = e => { if (e.casoPulso !== turno) return; map.off('moveend', alLlegar); alLlegar = null; if (turno === turnoPulso) anclarPulso(b, clave); };
+        map.on('moveend', alLlegar);
+        map.easeTo({ center: [b.lon, b.lat], duration: 1200, padding: pad }, { casoPulso: turno });
+      }
     },
     quitarCaso,
-    /** vuelve a buscar un lugar libre para el punto del caso (sin tapar etiquetas) */
-    reubicarCaso: () => ubicarPulso(),
-    /** dónde está el punto del caso: desplazamiento actual y preferido (para pruebas) */
-    get casoOffset() { return pulso ? { actual: pulso.getOffset(), pref: pulso._pref } : null; },
+    /** coordenada [lon, lat] donde quedó anclado el punto del caso (para pruebas) */
+    get casoLngLat() { return pulso ? pulso.getLngLat().toArray() : null; },
   };
 }
 function vacio() { return { type: 'FeatureCollection', features: [] }; }

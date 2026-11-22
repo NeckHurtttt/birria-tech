@@ -105,6 +105,7 @@ const D = {
   'En camino: se habilita cuando el ayudante avise que ya están a salvo': ['On the way: enabled once the helper says they’re safe', '在路上：帮手告知已安全后才可点击'],
   'escribiendo': ['typing', '正在输入'],
   'Mensaje nuevo': ['New message', '新消息'],
+  '¡Todos a salvo! Gracias a cada vecino ayudante.': ['Everyone is safe! Thanks to every helper neighbor.', '全员安全！感谢每一位邻居帮手。'],
   'Nuevo': ['New', '新'],
   'Responde en el chat': ['Reply in the chat', '请在聊天中回复'],
   // chat: zona lejos (tono preventivo) y nuevas preguntas de zona cerca
@@ -409,6 +410,13 @@ const P = [
   [/^Niños (\S+) \((\d+)\)$/, (l, m) => l === 'zh' ? `${m[1]} 家的孩子（${m[2]} 人）` : `${m[1]} children (${m[2]})`],
   [/^Familia (\S+)$/, (l, m) => l === 'zh' ? `${m[1]} 一家` : `${m[1]} family`],
   // chat con el ayudante
+  // voz: «X ya está a salvo» (frases variadas) y cierre
+  [/^Los niños (\S+)$/, (l, m) => l === 'zh' ? `${m[1]} 家的孩子们` : `The ${m[1]} children`],
+  [/^La familia (\S+)$/, (l, m) => l === 'zh' ? `${m[1]} 一家` : `The ${m[1]} family`],
+  [/^¡Qué alivio! (.+) ya (está|están) bien y a salvo\.$/, (l, m) => l === 'zh' ? `太好了！${t(m[1], l)}已经平安无事。` : `What a relief! ${t(m[1], l)} ${m[2] === 'están' ? 'are' : 'is'} safe and sound.`],
+  [/^Confirmado: (.+) ya se (encuentra|encuentran) a salvo\. Todo bien por allá\.$/, (l, m) => l === 'zh' ? `已确认：${t(m[1], l)}已经安全了。那边一切都好。` : `Confirmed: ${t(m[1], l)} ${m[2] === 'encuentran' ? 'are' : 'is'} safe. All good over there.`],
+  [/^Listo\. (.+) ya (está|están) fuera de peligro, y bien resguardad[oa]s?\.$/, (l, m) => l === 'zh' ? `好了。${t(m[1], l)}已经脱离危险，安置妥当。` : `Done. ${t(m[1], l)} ${m[2] === 'están' ? 'are' : 'is'} out of danger and well sheltered.`],
+  [/^Buenas noticias: (.+) ya (está|están) a salvo, en un lugar seguro\.$/, (l, m) => l === 'zh' ? `好消息：${t(m[1], l)}已经安全，在安全的地方。` : `Good news: ${t(m[1], l)} ${m[2] === 'están' ? 'are' : 'is'} safe, somewhere secure.`],
   // chat: zona lejos y tarjeta
   [/^¿Ya tienen a (.+) resguardad[oa]s?\?$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 已经安置好了吗？` : `Is ${t(m[1], l)} sheltered yet?`],
   [/^¿(.+) ya saben? que van a salir\?$/, (l, m) => l === 'zh' ? `${t(m[1], l)} 知道要撤离了吗？` : `Does ${t(m[1], l)} know you’re leaving?`],

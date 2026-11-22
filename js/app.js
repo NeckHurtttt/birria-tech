@@ -405,7 +405,7 @@ function confirmar(id, desde) {
   const p = activas().find(x => x.id === id);
   // con la última persona no se dice su nombre: la locución de cierre «Todos a salvo» sale sola, sin pisarse
   const todos = activas().every(x => est.personas[x.id] === 'salvo');
-  if (todos) callar(); else hablar(`${p.nombre} está a salvo.`);
+  if (todos) callar(); else hablar(fraseASalvo(p));
   if (CHAT.abierto === id) mapa.quitarCaso(); // el punto del caso en el mapa se va al confirmar
   if (desde === 'central') canal.enviar({ tipo: 'ok', id }, { titulo: `${p.nombre}: evacuado`, texto: 'Evacuación confirmada desde la central' });
   if (todos) despues(exito, 900);
@@ -721,7 +721,7 @@ function exito() {
   $('#exito-texto').textContent = `${activas().length} personas que no podían salir solas ya están en el punto seguro (${[...b].join(', ')}), antes de que llegue el agua.`;
   const m = Object.values(est.margen), prom = m.length ? Math.round(m.reduce((a, x) => a + x, 0) / m.length) : 0;
   $('#exito-datos').innerHTML = `<div><b>${activas().length}</b><span>personas confirmadas</span></div><div><b>${formatoTiempo(prom).replace('ya llegó', '0 min')}</b><span>de margen promedio antes del agua</span></div><div><b>0 Bs</b><span>para las familias</span></div>`;
-  $('#respuestas').replaceChildren(); $('#exito').hidden = false; hablar('Todos a salvo.'); oido.detener();
+  $('#respuestas').replaceChildren(); $('#exito').hidden = false; hablar('¡Todos a salvo! Gracias a cada vecino ayudante.'); oido.detener();
   est.fase = 'fin'; $('#exito-cerrar').focus();
 }
 $('#exito-cerrar').onclick = () => { callar(); $('#exito').hidden = true; mapa.general(); }; // al volver al mapa no queda voz sonando
@@ -731,12 +731,38 @@ $('#exito-cerrar').onclick = () => { callar(); $('#exito').hidden = true; mapa.g
 // así que se cancela y la nueva sale un momento después; si llega otra antes, solo vale la última
 let vozTurno = 0;
 function callar() { vozTurno++; try { speechSynthesis.cancel(); } catch {} }
+// la voz más natural que tenga el sistema para el idioma (las «Natural»/«Online»/«Neural» suenan mucho menos robóticas)
+function vozNatural(lang) {
+  const voces = (speechSynthesis.getVoices?.() || []).filter(v => String(v.lang).toLowerCase().startsWith(lang.slice(0, 2).toLowerCase()));
+  return voces.find(v => /natural|neural|online/i.test(v.name)) || voces.find(v => /google/i.test(v.name)) || voces.find(v => v.lang === lang) || voces[0] || null;
+}
 function hablar(t) {
   callar(); const turno = vozTurno;
   setTimeout(() => {
     if (turno !== vozTurno) return;
-    try { const u = new SpeechSynthesisUtterance(traducir(t)); u.lang = vozActual(); u.rate = 1.02; speechSynthesis.speak(u); } catch {}
+    try {
+      const u = new SpeechSynthesisUtterance(traducir(t)); u.lang = vozActual();
+      const v = vozNatural(u.lang); if (v) u.voice = v;
+      u.rate = 0.96; u.pitch = 1.03; // un poco más pausado y cálido
+      speechSynthesis.speak(u);
+    } catch {}
   }, 120);
+}
+// aviso por voz de que alguien ya está a salvo: frases variadas (sin repetir la anterior), con la concordancia de la persona
+// («los niños Toledo ya están…», «la familia Quiroga… bien resguardada»). El «(3)» del nombre no se lee.
+let fraseAnterior = -1;
+function fraseASalvo(p) {
+  const n = String(p.nombre), ninos = n.match(/^Niños\s+(\S+)/i), familia = n.match(/^Familia\s+(\S+)/i);
+  const quien = ninos ? `Los niños ${ninos[1]}` : familia ? `La familia ${familia[1]}` : n;
+  const pl = !!ninos, a = pl ? 'os' : (familia || /^Doña\s/i.test(n)) ? 'a' : 'o', esta = pl ? 'están' : 'está';
+  const frases = [
+    `¡Qué alivio! ${quien} ya ${esta} bien y a salvo.`,
+    `Confirmado: ${quien} ya se ${pl ? 'encuentran' : 'encuentra'} a salvo. Todo bien por allá.`,
+    `Listo. ${quien} ya ${esta} fuera de peligro, y bien resguardad${a}.`,
+    `Buenas noticias: ${quien} ya ${esta} a salvo, en un lugar seguro.`,
+  ];
+  let i; do { i = Math.floor(Math.random() * frases.length); } while (i === fraseAnterior);
+  fraseAnterior = i; return frases[i];
 }
 
 // ---------- vigía: escaneo de datos abiertos + reportes ----------
