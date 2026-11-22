@@ -3,7 +3,7 @@
 // Se escucha y se publica en todos a la vez: si el servidor de la comunidad se cae, los avisos siguen por ntfy.sh,
 // y los duplicados se descartan por uid. Un tema público no es privado: en producción va solo el servidor propio.
 import { NTFY_PROPIO } from './config.js';
-const PUBLICO = 'https://ntfy.sh/';
+export const PUBLICO = 'https://ntfy.sh/';
 const conBarra = u => u.replace(/\/*$/, '/');
 /** Servidores ntfy en orden: el propio (de ?ntfy= o de config.js) y después ntfy.sh. Solo https, o http en localhost. */
 export function basesNtfy(param = '', propio = NTFY_PROPIO) {
@@ -12,6 +12,10 @@ export function basesNtfy(param = '', propio = NTFY_PROPIO) {
   return [...new Set([...l, PUBLICO])];
 }
 const BASES = basesNtfy(typeof location === 'object' ? new URLSearchParams(location.search).get('ntfy') || '' : '');
+/** Hay servidor ntfy de la comunidad: va primero y es el único confiable para lo que cambia el estado. */
+export const hayPropio = BASES.length > 1;
+/** Servidor al que apuntan los botones de la notificación (el propio si hay). */
+export const baseEnvio = BASES[0];
 const MAX_VISTOS = 200;          // memoria acotada para no repetir mensajes
 const ENVIO_MS = 6000;           // un POST colgado no debe trabar la interfaz
 const REINTENTO_MIN = 3000, REINTENTO_MAX = 60000;
@@ -50,12 +54,13 @@ export function memoriaAcotada(max = MAX_VISTOS) {
   };
 }
 
-export function abrirCanal(tema, alRecibir) {
+/** filtro(m): opcional; un mensaje rechazado no se marca como visto (puede llegar después por otro servidor). m.via = servidor o 'local'. */
+export function abrirCanal(tema, alRecibir, filtro = null) {
   tema = limpiarTema(tema);
   const bc = typeof BroadcastChannel === 'function' && tema ? new BroadcastChannel(tema) : null;
   const vistos = memoriaAcotada();
-  const entregar = m => { if (!m?.uid || vistos.has(m.uid)) return; vistos.add(m.uid); try { alRecibir(m); } catch (e) { console.error(e); } };
-  if (bc) bc.onmessage = e => entregar(e.data);
+  const entregar = m => { if (!m?.uid || vistos.has(m.uid) || (filtro && !filtro(m))) return; vistos.add(m.uid); try { alRecibir(m); } catch (e) { console.error(e); } };
+  if (bc) bc.onmessage = e => entregar({ ...e.data, via: 'local' });
 
   // EventSource reintenta solo cada ~3 s para siempre: sin internet eso llena la consola.
   // Aquí se reconecta a mano con espera creciente y se pausa si el navegador está offline.
@@ -71,7 +76,7 @@ export function abrirCanal(tema, alRecibir) {
       es.onmessage = e => {
         try {
           const d = JSON.parse(e.data); const m = deTags(d.tags);
-          if (d.event === 'message' && m) entregar({ ...m, uid: m.uid || d.id, titulo: d.title, texto: d.message });
+          if (d.event === 'message' && m) entregar({ ...m, uid: m.uid || d.id, titulo: d.title, texto: d.message, via: base });
         } catch { /* mensaje ajeno al formato */ }
       };
       es.onerror = () => { es?.close(); es = null; programar(); };

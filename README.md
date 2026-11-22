@@ -49,7 +49,7 @@
 > [!TIP]
 > 1. Abra la **[demostración en vivo](https://neckhurtttt.github.io/el-rio-suena/?jurado)** y presione **Iniciar simulacro**. En el modo `?jurado` el tiempo corre 300 veces más rápido.
 > 2. Presione **Sé guardián** y escanee el código QR con su celular (funciona incluso desde una videollamada). Toque **Activar avisos**.
-> 3. Cuando su celular suene, toque **«Ya la ayudé»**: la central registra su respuesta en tiempo real.
+> 3. Cuando su celular suene, toque **«Listo, a salvo»**: la central registra su respuesta en tiempo real.
 
 Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar. **Video de respaldo** (sin conexión, 1 min 45 s, con subtítulos): [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/el-rio-suena/releases/tag/v1.0-abstracthon).
 
@@ -206,7 +206,7 @@ Antes de adoptar el índice, se evaluó su comportamiento con los datos de la no
 
 1. Abrir `?jurado` y presionar **Iniciar simulacro**: se simula una tormenta en la cuenca alta.
 2. El índice supera 55, se emite la **alerta** y cada barrio muestra su cuenta regresiva.
-3. El teléfono del guardián (código QR **Sé guardián**) suena; el guardián presiona **«Ya la ayudé»** y la central muestra el tiempo de respuesta.
+3. El teléfono del guardián (código QR **Sé guardián**) suena; el guardián presiona **«Listo, a salvo»** y la central muestra el tiempo de respuesta.
 4. Cuando todos los guardianes confirman, aparece la pantalla de cierre con las personas trasladadas, el margen y el costo.
 5. **«¿Habría avisado la riada real del 13/12/2025?»** muestra la gráfica de esa noche, hora por hora.
 6. **Panel de la junta**: se ingresa la clave `1312`; las personas registradas desde otro teléfono aparecen en vivo y pueden aprobarse o exportarse a CSV.
@@ -320,6 +320,7 @@ Instalación con Docker en unos 20 minutos: [`nodo/README.md`](nodo/README.md).
 - Con datos abiertos únicamente, el sistema **no habría alertado** la riada del 13/12/2025 (ver *Validación*). La anticipación de aproximadamente 4 horas con vigías es una estimación basada en una hora de reporte hipotética.
 - El sistema **complementa** a las estaciones oficiales; no las reemplaza. La detección acústica es un prototipo, si bien el monitoreo acústico de crecidas es objeto de investigación.
 - Las personas de la demostración son ficticias. El tema público de ntfy y la clave `1312` se utilizan únicamente con fines de demostración.
+- **Avisos falsos:** en la demo el canal es un tema público de ntfy.sh, así que quien lo conozca podría mandar reportes de vigía falsos. Con el servidor ntfy de la comunidad configurado (`NTFY_PROPIO` o `?ntfy=`), la central solo acepta vigías y confirmaciones que llegan por ese servidor; ntfy.sh queda solo como respaldo para que los avisos salgan.
 
 ## Equipo Birria TECH
 
@@ -859,7 +860,7 @@ Sergio（开发）· José Miguel Salinas（路演、文档与调试）· Rodrig
 ### Mba’éichapa ojeporu (demo)
 1. Eipe’a https://neckhurtttt.github.io/el-rio-suena/?jurado ha ejopy **Iniciar simulacro**.
 2. Ehecha mboy aravo’ípa hembýve peteĩteĩ barrio-pe.
-3. Pumbyry ñangarekoha mba’e osapukái → ejopy **«Ya la ayudé ✓»**.
+3. Pumbyry ñangarekoha mba’e osapukái → ejopy **«Listo, a salvo ✓»**.
 4. Opavave oĩma porã rire → **«Todos a salvo»**.
 
 ![Simulacro (interfaz en castellano)](capturas/simulacro.gif)
@@ -891,7 +892,7 @@ Umi aravo ha y ijyvatekue ojekuaa’ỹmi gueteri; oñemohenda va’erã **SEARP
 ### Imaynata llamk’achina (demo)
 1. https://neckhurtttt.github.io/el-rio-suena/?jurado kichay, **Iniciar simulacro** ñit’iy.
 2. Sapa barriopaq minutukunata qhaway.
-3. Amachaqpa celularnin waqan → **«Ya la ayudé ✓»** ñit’iy.
+3. Amachaqpa celularnin waqan → **«Listo, a salvo ✓»** ñit’iy.
 4. Llapanku allinña kaqtinku → **«Todos a salvo»**.
 
 ![Simulacro (interfaz en castellano)](capturas/simulacro.gif)
@@ -916,7 +917,7 @@ Pachakuna, unuq hatun kayninpas yuyaychasqallaraq kanku; **SEARPI**, **COED**-wa
 2. Te dice cuántos minutos faltan para que el agua llegue a tu barrio.
 3. Muestra en la pared de tu casa hasta dónde subiría el agua.
 4. Cada persona que no puede salir sola tiene un vecino que la ayuda.
-5. El celular del vecino suena. El vecino la lleva al lugar seguro y toca «Ya la ayudé».
+5. El celular del vecino suena. El vecino la acompaña al lugar seguro y toca «Listo, a salvo».
 6. Si nadie responde, va el rescate oficial.
 7. Funciona sin internet. Es gratis para las familias.
 

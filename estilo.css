@@ -306,6 +306,7 @@ html.grande .barrios .tiempo { font-size: 26px; }
 .respuesta.cel { border-width: 2px; }
 .respuesta.recib { border-color: var(--acento); } .respuesta.recib b { color: var(--acento); }
 .respuesta.vigia { border-color: var(--alerta); } .respuesta.vigia b { color: var(--alerta); }
+.respuesta.rescate { border-color: var(--alerta); border-width: 2px; } .respuesta.rescate b { color: var(--alerta); }
 @keyframes entra { from { opacity: 0; transform: translateY(-10px); } }
 @media (prefers-reduced-motion: reduce) { .respuesta { animation: none; } }
 @media (max-width: 900px) {

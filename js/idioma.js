@@ -79,6 +79,10 @@ const D = {
   'avisado': ['alerted', '已通知'],
   'a salvo': ['safe', '安全'],
   'al rescate': ['to rescue', '转交救援'],
+  'Rescate oficial confirmó: evacuado.': ['Official rescue confirmed: evacuated.', '官方救援已确认：已撤离。'],
+  'Vayan juntos a la loma de la plaza principal': ['Go together to the hill by the main square', '一起前往主广场旁的高地'],
+  'Cuando estén a salvo, toca el botón verde': ['When you are safe, tap the green button', '确认安全后，点击绿色按钮'],
+  'Listo, a salvo ✓': ['Done, safe ✓', '完成，已安全 ✓'],
   'pendiente': ['pending', '待审批'],
   'Confirmar desde aquí': ['Confirm from here', '在此确认'],
   'Confirmar evacuación': ['Confirm evacuation', '确认撤离'],
@@ -490,6 +494,9 @@ const P = [
     ? `注意。河水在作响。La Angostura 检测到洪水。洪水将在 ${t(m[1], l)}后到达 El Torno。` : `Attention. The river is roaring. Flood detected at La Angostura. The water would reach El Torno in ${t(m[1], l)}.`],
   [/^\((.+)\)$/, (l, m) => (l === 'zh' ? '（' : '(') + t(m[1], l) + (l === 'zh' ? '）' : ')')],
   [/^(.+), Cuadra (\d+)$/, (l, m) => l === 'zh' ? `${t(m[1], l)}，第 ${m[2]} 街区` : `${t(m[1], l)}, Block ${m[2]}`],
+  [/^(.+): al rescate oficial$/, (l, m) => l === 'zh' ? `${m[1]}：转交官方救援` : `${m[1]}: handed to official rescue`],
+  [/^Sin confirmación a 30 min del agua$/, (l) => l === 'zh' ? '距洪水到达 30 分钟仍未确认' : 'No confirmation 30 min before the water'],
+  [/^(.+) pasa al rescate oficial\.$/, (l, m) => l === 'zh' ? `${m[1]} 转交官方救援。` : `${m[1]} is handed to official rescue.`],
   [/^Cuadra (\d+)$/, (l, m) => l === 'zh' ? `第 ${m[1]} 街区` : `Block ${m[1]}`],
 ];
 

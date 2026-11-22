@@ -205,7 +205,7 @@ t('chat: 2 sugerencias de temas distintos y la respuesta del ayudante habla de l
   assert.match(respuestaConfirmacion(casos[2], 'persona'), /los 3/); assert.match(respuestaConfirmacion(casos[3], 'persona'), /familia/);
   assert.match(respuestaConfirmacion(casos[4], 'persona'), /quechua/);
   // zona según el avance de la crecida: lejos (mucho margen) = tono preventivo, nunca agua desbordando
-  assert.equal(zonaPorMinutos(720), 'lejos'); assert.equal(zonaPorMinutos(200), 'cerca'); assert.equal(zonaPorMinutos(-5), 'cerca');
+  assert.equal(zonaPorMinutos(720), 'lejos'); assert.equal(zonaPorMinutos(200), 'lejos'); assert.equal(zonaPorMinutos(45), 'cerca'); assert.equal(zonaPorMinutos(-5), 'cerca');
   const TREMENDO = /bramando|rodilla|tobillos|tapó la calle|corriente ya pasa|se llevó|justo a tiempo|sube rápido|cubriendo la calle|se corta/i;
   const temasLejos = new Set();
   for (const p of casos) for (let k = 0; k < 200; k++) {

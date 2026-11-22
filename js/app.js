@@ -3,7 +3,7 @@ import { Oido } from './oido.js';
 import { crearMapa } from './mapa.js';
 import { Pared } from './pared.js';
 import { escanear } from './lluvia.js';
-import { temaDemo, abrirCanal } from './canal.js';
+import { temaDemo, abrirCanal, baseEnvio, hayPropio, PUBLICO } from './canal.js';
 import { activas, todas, registrar, aprobar, quitar, aCSV, sincronizar, subirPendientes } from './registro.js';
 import { hayNube, claveJunta, comunidad, vigiaCentral, deLectura } from './nube.js';
 import { RIADA_2025 } from './historico.js';
@@ -41,7 +41,7 @@ const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simul
 const tema = temaDemo();
 
 const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set(),
-  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, tema: {}, apuros: {}, apuroTimer: {}, sugeridas: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
+  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, tema: {}, apuros: {}, apuroTimer: {}, sugeridas: {}, rescate: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -83,7 +83,7 @@ const generoPersona = p => /^Doña\s/i.test(p.nombre) ? 'f' : /^Don\s/i.test(p.n
 //   2. la central le escribe (respuesta rápida o texto propio);
 //   3. recién entonces el ayudante confirma que ya están a salvo, y se habilita «Confirmar evacuación» (en el chat y en la tarjeta).
 // Nunca se confirma por temporizador ni sin que la central escriba antes. Si el ayudante confirma desde su celular
-// («Ya la ayudé» en la app), eso vale igual porque es una confirmación real.
+// («Listo, a salvo» en la app), eso vale igual porque es una confirmación real.
 // pasos del ayudante: 1 «en camino» (sale solo) y 2 «a salvo» (solo como respuesta a la central); los textos, según la
 // zona del caso, están en js/chat-textos.js
 const PASOS_AYUDANTE = ['en camino', 'a salvo'];
@@ -98,6 +98,10 @@ const horaChat = () => new Date().toLocaleTimeString('es-BO', { hour: '2-digit',
 const generoAyudante = g => /\(vecina\)\s*$/i.test(g) || NOMBRES_AYUDANTES.f.includes(nombreAyudante(g).replace(/^Profe\s+/i, '')) ? 'f' : 'm';
 const enAlerta = id => est.fase === 'alerta' && est.personas[id] === 'avisado';
 const listoParaConfirmar = id => (est.etapa[id] || 0) >= PASOS_AYUDANTE.length;
+// estado que se muestra: un caso avisado que llegó a T−30 sin que el ayudante confirmara se ve «al rescate» (sigue abierto:
+// el ayudante puede seguir en el chat y la central confirma igual cuando el rescate oficial o el vecino lo logran)
+const estadoDe = id => est.personas[id] === 'avisado' && est.rescate[id] && !listoParaConfirmar(id) ? 'rescate' : est.personas[id];
+const T_RESCATE_MIN = 30;
 function decirChat(id, de, texto) {
   (est.chat[id] ||= []).push({ de, texto, hora: horaChat() });
   if (CHAT.abierto === id) pintarChat(); else if (de === 'ayudante') CHAT.sinLeer.add(id);
@@ -178,7 +182,7 @@ function sugerencias(id, p, n) {
   est.sugeridas[id] = { paso, zona, lista }; return lista;
 }
 function reiniciarEstadoChats() {
-  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.tema = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {};
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.tema = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {}; est.rescate = {};
   CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
 }
 function iniciarChats() {
@@ -200,7 +204,7 @@ function cerrarChat() { CHAT.abierto = null; $('#chat').hidden = true; mapa.quit
 function pintarChat() {
   const id = CHAT.abierto, p = activas().find(x => x.id === id);
   if (!p) { cerrarChat(); return; }
-  const b = BARRIOS.find(x => x.id === p.barrio), e = est.personas[id], n = est.etapa[id] || 0, ayu = nombreAyudante(p.guardian);
+  const b = BARRIOS.find(x => x.id === p.barrio), e = estadoDe(id), n = est.etapa[id] || 0, ayu = nombreAyudante(p.guardian);
   $('#chat-av').innerHTML = SILUETA[generoAyudante(p.guardian)];
   $('#chat-quien').textContent = ayu;
   $('#chat-persona').textContent = `${p.nombre} · ${b.nombre}, ${p.cuadra}`;
@@ -269,13 +273,14 @@ function pintarPersonas() {
     // 'salvo' = el traslado ya se confirmó (desde la central o el celular del ayudante): en la tarjeta dice «evacuado»
     // mientras está avisado, el estado sigue al chat: «en camino» y luego «a salvo» (listo para confirmar, a la espera de la central)
     const paso = e === 'avisado' ? (est.etapa[p.id] || 0) : 0, listoConfirmar = paso >= PASOS_AYUDANTE.length;
-    const txt = paso ? (listoConfirmar ? 'a salvo' : 'en camino') : { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'evacuado', rescate: 'al rescate' }[e];
-    const li = document.createElement('li'); li.dataset.e = e; if (paso) li.dataset.paso = listoConfirmar ? 'listo' : 'camino';
+    const vista = estadoDe(p.id), rescate = vista === 'rescate'; // T−30 sin confirmar: el rescate oficial ya fue avisado
+    const txt = rescate ? 'al rescate' : paso ? (listoConfirmar ? 'a salvo' : 'en camino') : { tranquilo: 'sin alerta', avisado: 'avisado', salvo: 'evacuado' }[e];
+    const li = document.createElement('li'); li.dataset.e = vista; if (paso && !rescate) li.dataset.paso = listoConfirmar ? 'listo' : 'camino';
     li.innerHTML = `<span class="av" aria-hidden="true">${SILUETA[generoPersona(p)]}</span>
       <div class="quien"><b>${esc(p.nombre)}</b><span class="donde">${b.nombre}, ${esc(p.cuadra)}</span></div>
       <div class="que"><span class="tag" title="${esc(p.necesidad)}">${esc(necesidadCorta(p.necesidad))}</span><span class="ayu"><span>Ayudante</span><b>${esc(nombreAyudante(p.guardian))}</b></span></div>
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && !paso && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
-    if (e === 'avisado' || e === 'rescate') {
+    if (e === 'avisado') {
       // una sola fila, siempre visible: [aviso] … [Confirmar] [Chat]
       const acc = document.createElement('div'); acc.className = 'acciones';
       // aviso discreto (abre el chat): mensaje nuevo sin leer, o «Responde en el chat». Cuando ya se puede confirmar, el
@@ -283,7 +288,7 @@ function pintarPersonas() {
       const nuevo = CHAT.sinLeer.has(p.id), responder = paso && !listoConfirmar && !est.pregunta[p.id];
       const tipo = nuevo ? 'nuevo' : responder ? 'responder' : null;
       // «Confirmar» aparece recién cuando el ayudante confirmó en el chat (antes no ocupa lugar: se responde en el chat)
-      const listo = e === 'rescate' || listoConfirmar;
+      const listo = rescate || listoConfirmar;
       if (tipo) {
         const av = document.createElement('button'); av.type = 'button'; av.className = 'aviso-chat'; av.dataset.tipo = tipo;
         // junto a «Confirmar» y «Chat» no entra la frase entera: dice «Nuevo» (el punto del botón Chat también avisa)
@@ -293,8 +298,8 @@ function pintarPersonas() {
       }
       if (listo) {
         const ok = document.createElement('button'); ok.className = 'btn chico ok';
-        ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar';
-        ok.setAttribute('aria-label', e === 'rescate' ? 'Rescate oficial confirmó' : `Confirmar evacuación de ${p.nombre}`);
+        ok.textContent = rescate ? 'Rescate oficial confirmó' : 'Confirmar';
+        ok.setAttribute('aria-label', rescate ? 'Rescate oficial confirmó' : `Confirmar evacuación de ${p.nombre}`);
         ok.onclick = () => confirmar(p.id, 'central');
         acc.append(ok);
       }
@@ -355,12 +360,15 @@ function respuestaEnVivo(id) {
 }
 
 // ---------- canal con guardianes ----------
+// con servidor ntfy propio, lo que cambia el estado (confirmaciones, vigías) solo vale si llega por él o por esta compu:
+// el tema de ntfy.sh es público y cualquiera que lo conozca podría falsificar dos vigías y lanzar la alerta
+const confiable = m => !hayPropio || m.via !== PUBLICO;
 const canal = abrirCanal(tema, m => {
   if (m.tipo === 'ok' && m.id) confirmar(m.id, 'celular');
   if (m.tipo === 'recibido' && m.id) recibido(m.id);
   if (m.tipo === 'vigia') vigiaCelular(m);
   if (m.tipo === 'reg') traerJunta();
-});
+}, confiable);
 const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
 function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id }), per = todas().find(x => x.id === id);
   if (per && !per.demo) { s.set('n', per.nombre); s.set('b', per.barrio); s.set('cu', per.cuadra); s.set('nec', per.necesidad); s.set('g', per.guardian); }
@@ -376,10 +384,10 @@ function avisarGuardianes() {
     est.personas[p.id] = 'avisado';
     canal.enviar({ tipo: 'alerta', id: p.id, min: Math.round(min) }, {
       titulo: `Crecida del Piraí: ayuda a ${p.nombre}`,
-      texto: `${p.nombre}, ${b.nombre} ${p.cuadra} (${p.necesidad}). El agua llega en ${formatoTiempo(Math.round(min))}. Llévala al punto seguro.`,
+      texto: `${p.nombre}, ${b.nombre} ${p.cuadra} (${p.necesidad}). El agua llega en ${formatoTiempo(Math.round(min))}. Vayan juntos al punto seguro.`,
       prioridad: 5,
       acciones: [
-        { action: 'http', label: 'Ya la ayudé', url: 'https://ntfy.sh/', method: 'POST', body: JSON.stringify({ topic: tema, title: `${p.nombre}: a salvo`, message: `Confirmado por ${p.guardian}`, tags: ['rs', 'tipo=ok', `id=${p.id}`] }), clear: true },
+        { action: 'http', label: 'Listo, a salvo', url: baseEnvio, method: 'POST', body: JSON.stringify({ topic: tema, title: `${p.nombre}: a salvo`, message: `Confirmado por ${p.guardian}`, tags: ['rs', 'tipo=ok', `id=${p.id}`] }), clear: true },
         { action: 'view', label: 'Abrir', url: urlGuardian(p.id) },
       ],
     });
@@ -389,14 +397,15 @@ function avisarGuardianes() {
 }
 function confirmar(id, desde) {
   // solo se confirma a quien fue avisado: ignora toques viejos o de otro simulacro
-  if (est.fase !== 'alerta' || !['avisado', 'rescate'].includes(est.personas[id])) return;
+  if (est.fase !== 'alerta' || est.personas[id] !== 'avisado') return;
+  const porRescate = estadoDe(id) === 'rescate';
   est.personas[id] = 'salvo';
   clearTimeout(est.chatTimer[id]); delete est.chatTimer[id]; CHAT.escribiendo.delete(id); pararApuro(id); CHAT.sinLeer.delete(id);
   if (desde === 'celular') {
-    // confirmó desde su celular («Ya la ayudé»): en el chat queda su «¡Listo!» aunque no hubiera escrito antes
+    // confirmó desde su celular («Listo, a salvo»): en el chat queda su «¡Listo!» aunque no hubiera escrito antes
     if ((est.etapa[id] || 0) < PASOS_AYUDANTE.length) { est.etapa[id] = PASOS_AYUDANTE.length; decirChat(id, 'ayudante', '¡Listo! Ya estamos a salvo.'); }
     decirChat(id, 'sistema', 'Confirmó desde su celular: evacuado.');
-  } else decirChat(id, 'sistema', 'Evacuación confirmada en la central.');
+  } else decirChat(id, 'sistema', porRescate ? 'Rescate oficial confirmó: evacuado.' : 'Evacuación confirmada en la central.');
   est.resp[id] = { seg: Math.round((Date.now() - est.avisoT) / 1000), desde };
   pintarPersonas(); respuestaEnVivo(id);
   // el evacuado bajó al final: la lista vuelve arriba, donde queda el siguiente caso pendiente listo para abrir
@@ -470,7 +479,10 @@ setInterval(() => {
     li.querySelector('.barra-t i').style.width = Math.min(100, est.simMin / total * 100) + '%';
     li.querySelector('.info').textContent = llego ? 'El agua llegó' : `${b.km} km · hasta ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m de agua`;
     mapa.barrio(b.id, llego ? `agua ${alturaEn(b, est.intensidad).toFixed(1).replace('.', ',')} m` : formatoTiempo(resta), llego ? 'llego' : 'alerta');
-    // sin paso automático a «al rescate»: cada caso queda abierto hasta que la central confirme la evacuación
+    // T−30 sin confirmación del ayudante: el caso se deriva al rescate oficial (sin cerrarlo: el chat sigue abierto)
+    if (resta <= T_RESCATE_MIN) activas().forEach(p => {
+      if (p.barrio === b.id && est.personas[p.id] === 'avisado' && !est.rescate[p.id] && !listoParaConfirmar(p.id)) { derivarRescate(p, b); cambio = true; }
+    });
   });
   if (cambio) pintarPersonas();
   // mensajes de emergencia: se encolan al cambiar el estado de cada tramo (con la hora en que pasó)
@@ -482,6 +494,15 @@ setInterval(() => {
     programarMsj();
   }
 }, 250);
+
+/** El caso pasa al rescate oficial: aviso en la central, en el chat y al canal (el COED escucha el mismo tema). */
+function derivarRescate(p, b) {
+  est.rescate[p.id] = true;
+  decirChat(p.id, 'sistema', 'Sin confirmación a T−30: pasa al rescate oficial.');
+  aviso(`${p.nombre}: al rescate oficial`, `Sin confirmación a 30 min del agua · ${b.nombre}, ${p.cuadra}`, 'rescate');
+  canal.enviar({ tipo: 'rescate', id: p.id }, { titulo: `Rescate oficial: ${p.nombre}`, texto: `${p.nombre} (${p.necesidad}), ${b.nombre} ${p.cuadra}. Sin confirmación del vecino ayudante a 30 min del agua.`, prioridad: 5 });
+  hablar(`${p.nombre} pasa al rescate oficial.`);
+}
 
 // ---------- mensajes de emergencia por tramo del río ----------
 // Sin scroll: una pila de tarjetas. La activa queda quieta su tiempo de lectura y la nueva entra desde
@@ -858,7 +879,7 @@ $('#junta-entrar').onclick = () => traerJunta($('#junta-clave').value.trim(), tr
 $('#junta-clave').onkeydown = e => { if (e.key === 'Enter') $('#junta-entrar').click(); };
 function pintarJunta() {
   const tb = $('#junta-filas'); if (!tb) return; tb.innerHTML = '';
-  const l = todas(), estados = { ...est.personas };
+  const l = todas(), estados = Object.fromEntries(Object.keys(est.personas).map(id => [id, estadoDe(id)]));
   const n = { total: l.length, pend: l.filter(p => !p.aprobado).length, salvo: l.filter(p => estados[p.id] === 'salvo').length, falta: l.filter(p => ['avisado', 'rescate'].includes(estados[p.id])).length };
   $('#junta-resumen').textContent = `${n.total} personas · ${n.pend} pendientes de aprobar · ${n.salvo} a salvo · ${n.falta} sin confirmar`;
   l.forEach(p => {
@@ -888,7 +909,7 @@ $('#btn-junta').onclick = () => {
 $('#junta-cerrar').onclick = () => $('#dlg-junta').close();
 $('#junta-imprimir').onclick = () => window.print();
 $('#junta-csv').onclick = () => {
-  const blob = new Blob([aCSV(todas(), est.personas, nombreBarrio)], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob([aCSV(todas(), Object.fromEntries(Object.keys(est.personas).map(id => [id, estadoDe(id)])), nombreBarrio)], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `el-rio-suena-junta-${new Date().toISOString().slice(0, 10)}.csv`; a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 };

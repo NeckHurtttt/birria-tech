@@ -4,8 +4,9 @@
 //   'cerca' → queda poco o el agua ya llegó: tono de emergencia.
 // Sin DOM: se prueba en pruebas.mjs.
 
-/** Más de esto (minutos hasta que llega el agua al barrio) = zona 'lejos'. */
-export const MARGEN_LEJOS_MIN = 300;
+/** Más de esto (minutos hasta que llega el agua al barrio) = zona 'lejos'. Con más de 1 h de margen el ayudante todavía no
+ * puede decir que el agua tapa la calle. */
+export const MARGEN_LEJOS_MIN = 60;
 export const zonaPorMinutos = min => (min > MARGEN_LEJOS_MIN ? 'lejos' : 'cerca');
 
 const elegir = (lista, azar = Math.random) => lista[Math.floor(azar() * lista.length) % lista.length];
