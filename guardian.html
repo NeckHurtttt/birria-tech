@@ -6,6 +6,11 @@
 <title>Guardián · El Río Suena</title>
 <meta name="theme-color" content="#071219">
 <link rel="icon" href="icono.svg" type="image/svg+xml">
+<link rel="manifest" href="movil.webmanifest">
+<link rel="apple-touch-icon" href="icono-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Río Suena">
 <link rel="stylesheet" href="vendor/fuentes.css">
 <link rel="stylesheet" href="vendor/maplibre-gl.css">
 <style>
@@ -30,14 +35,17 @@
   .agua .olas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
   .agua .ola1 { fill: var(--agua); opacity: .28; animation: ola 7s linear infinite; }
   .agua .ola2 { fill: var(--agua); opacity: .18; animation: ola 11s linear infinite reverse; top: 10px; }
-  .agua .cuerpo { position: absolute; left: 0; right: 0; top: 58px; bottom: 0; background: linear-gradient(var(--agua), transparent 140%); opacity: .22; }
+  .agua .cuerpo { position: absolute; left: 0; right: 0; top: 58px; bottom: 0; background: linear-gradient(var(--agua), transparent 140%); opacity: .16; }
 
   .caja { position: relative; z-index: 1; width: 100%; max-width: 480px; margin: 0 auto; padding: 60px 16px 48px; text-align: center; }
   body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 64px; z-index: 2; pointer-events: none; background: linear-gradient(180deg, var(--fondo) 72%, rgba(7,18,25,0)); }
   .marca-app { position: fixed; top: 14px; left: 16px; z-index: 3; display: flex; align-items: center; gap: 8px; font: 600 12px var(--mono); color: var(--texto-2); letter-spacing: .06em; text-transform: uppercase; }
   .marca-app svg { width: 22px; height: 22px; fill: none; stroke: var(--acento); stroke-width: 2; stroke-linecap: round; }
   h1 { font-size: 26px; line-height: 1.2; margin: 6px 0 8px; overflow-wrap: anywhere; }
-  p { color: var(--texto-2); margin: 0 0 14px; }
+  p { color: var(--texto-2); margin: 0 0 14px; text-shadow: 0 1px 6px rgba(7,18,25,.9); }
+  .app-extra { margin-top: 18px; padding: 14px; border: 1px solid var(--borde); border-radius: 16px; background: rgba(7,18,25,.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); text-align: left; }
+  .app-extra p { font-size: 14px; margin: 6px 0 0; }
+  .app-extra a { color: var(--acento); }
   .tarjeta { position: relative; background: var(--sup); backdrop-filter: blur(8px); border: 1px solid var(--borde); border-radius: 18px; padding: 16px; margin: 14px 0; text-align: left; }
   .etiqueta { font: 600 11px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--texto-2); }
 
@@ -95,7 +103,7 @@
   button.pulso-btn { animation: pulso 1.8s infinite; }
   button.activo { background: rgba(79,227,154,.14); color: var(--exito); border: 1px solid rgba(79,227,154,.4); }
   button.ok { background: var(--exito); color: #03281a; }
-  button.sec { min-height: 46px; margin-top: 10px; background: transparent; color: var(--texto-2); border: 1px solid var(--borde); font-size: 15px; font-weight: 600; }
+  button.sec { min-height: 46px; margin-top: 10px; background: rgba(7,18,25,.72); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--texto-2); border: 1px solid var(--borde); font-size: 15px; font-weight: 600; }
   .escucha { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 12px 0 0; font-size: 14px; color: var(--exito); }
   .latido { width: 10px; height: 10px; border-radius: 50%; background: var(--exito); animation: latido 1.6s infinite; }
 
@@ -173,6 +181,13 @@ import { cargarSenamhi, amenazaHoy, textoOficial } from './js/senamhi.js';
 iniciarIdioma(document.body);
 const $ = s => document.querySelector(s);
 // un enlace mal copiado (p= desconocido o t= con símbolos) no debe dejar la pantalla en blanco
+const GUARDADO = 'rs-guardian-q';
+{
+  const actual = new URLSearchParams(location.search); actual.delete('app'); actual.delete('v');
+  let guardado = null; try { guardado = localStorage.getItem(GUARDADO); } catch {}
+  if (![...actual.keys()].length && guardado) history.replaceState(null, '', '?' + guardado);
+  else if (actual.get('t') || actual.get('modo')) { try { localStorage.setItem(GUARDADO, actual.toString()); } catch {} }
+}
 const q = new URLSearchParams(location.search), tema = limpiarTema(q.get('t'));
 const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const deEnlace = () => q.get('n') && BARRIOS.some(x => x.id === q.get('b'))
@@ -270,7 +285,7 @@ function esperar() {
   const pie = vecino
     ? `${tema ? '' : '<p class="nota-vecino">Para que este celular suene con la alerta de tu comunidad, escanea el código QR de tu junta vecinal.</p>'}<button class="sec" id="ser-guardian">Quiero ser guardián de alguien</button>`
     : `<button class="sec" id="solo-ver">Solo quiero ver el río</button>`;
-  vista.innerHTML = `${cabeza}${tarjetaRio()}<div class="entra">${botonAvisos()}${pie}</div>`;
+  vista.innerHTML = `${cabeza}${tarjetaRio()}<div class="entra">${botonAvisos()}${pie}${extrasApp()}</div>`;
   $('#activar').onclick = async () => {
     activo = true;
     // un solo AudioContext: el navegador limita cuántos puede haber abiertos
@@ -289,6 +304,27 @@ function esperar() {
   });
   iniciarMapa();
 }
+// ---------- app en el celular: instalar y sonar con la pantalla bloqueada ----------
+let pedirInstalar = null;
+const instalada = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const esIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+addEventListener('beforeinstallprompt', e => { e.preventDefault(); pedirInstalar = e; const x = $('#instalar'); if (x) x.hidden = false; });
+addEventListener('appinstalled', () => { pedirInstalar = null; const x = $('#instalar'); if (x) x.hidden = true; });
+function extrasApp() {
+  const ntfy = tema ? `<button class="sec" id="ntfy">Que suene con el celular bloqueado</button>
+    <p>Usa la app gratuita ntfy: el aviso llega aunque la pantalla esté apagada.
+    ${esIOS ? '<a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank" rel="noopener">Bajar ntfy</a>' : '<a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank" rel="noopener">Bajar ntfy</a>'}
+    · tema <b>${esc(tema)}</b></p>` : '';
+  const inst = instalada() ? '' : `<button class="sec" id="instalar" ${pedirInstalar ? '' : 'hidden'}>Instalar como app</button>
+    ${esIOS ? '<p>Para instalarla: botón Compartir y luego «Agregar a inicio».</p>' : ''}`;
+  return ntfy || inst.trim() ? `<div class="app-extra">${inst}${ntfy}</div>` : '';
+}
+document.addEventListener('click', async e => {
+  if (e.target.closest('#instalar') && pedirInstalar) { pedirInstalar.prompt(); await pedirInstalar.userChoice.catch(() => {}); pedirInstalar = null; e.target.closest('#instalar').hidden = true; }
+  if (e.target.closest('#ntfy')) location.href = `ntfy://ntfy.sh/${tema}`;
+});
+if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
+
 // la pantalla no se apaga mientras espera; al volver a la pestaña el navegador suelta el bloqueo
 async function despertar() { try { await navigator.wakeLock?.request('screen'); } catch {} }
 document.addEventListener('visibilitychange', () => { if (activo && document.visibilityState === 'visible') despertar(); });
