@@ -23,15 +23,20 @@ export const LAG_VIGIA_MIN = 60; // un vigía río arriba (Bermejo / río Espejo
  * del Amboró (máx. 3 mm/h), pero los vecinos río arriba sí veían el río crecer.
  * Los reportes de la ribera (crecido / desborde) solo suben el índice: solos no alertan.
  */
-export function indiceRiesgo({ ll6 = 0, ll24 = 0, prox6 = 0, caudal = 0, crecido = 0, desborde = 0, vigias = 0 } = {}) {
+// oficial: amenaza de SENAMHI de hoy ('sin'|'amarilla'|'naranja'|'roja'); pone un piso al índice
+// (amarilla/naranja = vigilancia, roja = alerta) para no decir "normal" cuando el aviso oficial dice otra cosa.
+const PISO_OFICIAL = { sin: 0, amarilla: 0.25, naranja: 0.4, roja: 0.6 };
+export function indiceRiesgo({ ll6 = 0, ll24 = 0, prox6 = 0, caudal = 0, crecido = 0, desborde = 0, vigias = 0, oficial = null } = {}) {
   const c = x => Math.min(1, Math.max(0, x));
   const lluvia = Math.max(c((ll6 - 10) / 40), 0.8 * c((ll24 - 25) / 75), 0.7 * c((prox6 - 10) / 40));
   const rio = c((caudal - CAUDAL_HIST.p95) / (CAUDAL_HIST.max * 1.5 - CAUDAL_HIST.p95));
   const vecinos = c(crecido * 0.34 + desborde * 0.6);
   const arriba = c(vigias * 0.5);
-  const r = c(Math.max(lluvia, rio, arriba) * 0.75 + vecinos * 0.35);
-  const fuente = arriba >= Math.max(lluvia, rio) && arriba > 0 ? 'vigias' : rio > lluvia ? 'rio' : 'lluvia';
-  return { r, intensidad: 1 + 3 * r, estado: r >= 0.55 ? 'alerta' : r >= 0.25 ? 'vigilancia' : 'normal', fuente, partes: { lluvia, rio, vecinos, arriba } };
+  const propio = c(Math.max(lluvia, rio, arriba) * 0.75 + vecinos * 0.35);
+  const piso = PISO_OFICIAL[oficial] || 0;
+  const r = Math.max(propio, piso);
+  const fuente = piso > propio ? 'senamhi' : arriba >= Math.max(lluvia, rio) && arriba > 0 ? 'vigias' : rio > lluvia ? 'rio' : 'lluvia';
+  return { r, intensidad: 1 + 3 * r, estado: r >= 0.55 ? 'alerta' : r >= 0.25 ? 'vigilancia' : 'normal', fuente, partes: { lluvia, rio, vecinos, arriba, oficial: piso } };
 }
 export const UMBRAL_ALERTA = 0.55;
 

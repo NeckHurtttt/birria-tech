@@ -10,6 +10,7 @@ import { escanear } from '../js/lluvia.js';
 import { indiceRiesgo } from '../js/datos.js';
 import { SUPABASE_URL, SUPABASE_KEY } from '../js/config.js';
 import { filaLectura, vigiaCentral } from '../js/nube.js';
+import { cargarSenamhi, amenazaHoy, textoOficial } from '../js/senamhi.js';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
 const RUTA = n => join(AQUI, n);
@@ -49,7 +50,11 @@ export async function unaVez() {
   for (let i = 0; !l.vivo && i < 2; i++) { // Open-Meteo a veces tarda más de 6 s: reintentar antes de rendirse
     log('Open-Meteo no respondió, reintento en 20 s'); await new Promise(r => setTimeout(r, 20_000)); l = await escanear();
   }
-  const idx = indiceRiesgo({ ll6: l.ll6, ll24: l.ll24, prox6: l.prox6, caudal: l.caudalPico });
+  // aviso oficial de SENAMHI: primero el de Pages (se actualiza solo), si no hay red el del repo
+  const sen = (await cargarSenamhi()) || leerJson('../datos/senamhi.json', null);
+  const of = amenazaHoy(sen);
+  log(of ? textoOficial(of) + ` (boletín ${of.boletin})` : 'SENAMHI: sin boletín vigente');
+  const idx = indiceRiesgo({ ll6: l.ll6, ll24: l.ll24, prox6: l.prox6, caudal: l.caudalPico, oficial: of?.nivel });
   const fila = filaLectura(l, idx);
   log(`lectura: riesgo ${fila.indice} (${fila.estado}) · ll6 ${fila.ll6} mm · caudal ${fila.caudal_pico} m³/s · ${l.fuente}`);
   if (!l.vivo) { log('sin datos en vivo (¿sin internet?): no se sube el respaldo'); return; }

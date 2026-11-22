@@ -8,6 +8,7 @@ import { activas, todas, registrar, aprobar, quitar, aCSV, sincronizar, subirPen
 import { hayNube, claveJunta, comunidad, vigiaCentral, deLectura } from './nube.js';
 import { RIADA_2025 } from './historico.js';
 import { repetirRiada, LAG_VIGIA_MIN, CAUDAL_HIST } from './datos.js';
+import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 
 // idioma de la interfaz (ES · EN · 中文): cambia sin recargar; ver js/idioma.js
@@ -19,7 +20,7 @@ const JURADO = params.has('jurado');
 const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simulados por minuto real
 const tema = temaDemo();
 
-const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set() };
+const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set() };
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -346,7 +347,7 @@ function hablar(t) {
 const fmt = x => x.toFixed(x < 10 ? 1 : 0).replace('.', ',');
 function evaluar() {
   const d = est.escenario || est.lluvia; if (!d) return;
-  const idx = indiceRiesgo({ ll6: d.ll6, ll24: d.ll24, prox6: d.prox6, caudal: d.caudalPico, ...est.vecinos });
+  const idx = indiceRiesgo({ ll6: d.ll6, ll24: d.ll24, prox6: d.prox6, caudal: d.caudalPico, ...est.vecinos, oficial: est.oficial?.nivel });
   const e = est.fase === 'alerta' ? 'alerta' : idx.estado;
   $('#riesgo-num').textContent = Math.round(idx.r * 100);
   const ag = $('.aguja'); ag.style.setProperty('--p', Math.round(idx.r * 100)); ag.dataset.e = e;
@@ -361,13 +362,26 @@ function evaluar() {
   $('#fuente-escaneo').textContent = d === est.escenario ? 'Simulacro: tormenta en la cuenca alta (datos reales de hoy como punto de partida)' : `Datos abiertos de la cuenca alta · ${d.fuente} · sin hardware`;
   if (idx.estado === 'alerta' && est.fase !== 'alerta') {
     if (idx.fuente === 'vigias') alerta(idx.intensidad, 'dos vigías río arriba', LAG_VIGIA_MIN);
+    else if (idx.fuente === 'senamhi') alerta(idx.intensidad, 'aviso rojo de SENAMHI', LAG_CUENCA_MIN);
     else alerta(idx.intensidad, 'datos abiertos de la cuenca alta', LAG_CUENCA_MIN);
   }
-  if (est.fase !== 'alerta') $('#detalle-riesgo').textContent = idx.estado === 'vigilancia'
+  if (est.fase !== 'alerta') $('#detalle-riesgo').textContent = idx.fuente === 'senamhi' && idx.estado === 'vigilancia'
+    ? `Vigilancia por el aviso oficial: SENAMHI prevé amenaza ${est.oficial.nivel} en la cuenca del Piraí. Revisen la regla y tengan lista la mochila.`
+    : idx.estado === 'vigilancia'
     ? 'Vigilancia: el riesgo sube. Pedimos a los vecinos de la ribera foto de la regla.'
     : 'La lluvia en Samaipata y Bermejo tarda unas 2 h 30 min en bajar hasta La Angostura: ese es el tiempo que ganamos.';
 }
+// aviso oficial de SENAMHI (boletín diario procesado en datos/senamhi.json)
+async function oficial() {
+  est.oficial = amenazaHoy(await cargarSenamhi('datos/senamhi.json'));
+  const el = $('#oficial'); if (!el) return;
+  el.hidden = !est.oficial; if (!est.oficial) return;
+  el.dataset.n = est.oficial.nivel;
+  el.querySelector('span').textContent = textoOficial(est.oficial);
+  const a = el.querySelector('a'); a.hidden = !est.oficial.url; if (est.oficial.url) a.href = est.oficial.url;
+}
 async function escaneo() {
+  await oficial();
   // primero la PC del equipo (vigía central); si no hay lectura fresca, el navegador escanea solo
   let l = null;
   if (hayNube()) { try { l = deLectura(await vigiaCentral.ultima()); } catch {} }

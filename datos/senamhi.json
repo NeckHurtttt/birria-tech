@@ -1,0 +1,230 @@
+{
+ "fuente": "SENAMHI · Boletín de pronóstico hidrológico Santa Cruz (OMM-GloFAS)",
+ "boletin": "2026-11-20",
+ "url": "https://senamhi.gob.bo/meteorologia/boletines/pronostico_hidrologico/2026/NOVIEMBRE/SC-BOLET%c3%8dN%20DE%20PRON%c3%93STICO%20HIDROL%c3%93GICO%20SENAMHI%20VIERNES%2020-11-2026.pdf",
+ "leido_en": "2026-11-22T00:21:24+00:00",
+ "resumen": "Amenaza Naranja en toda la cuenca Ascensos de nivel entre el 21 al 23, 23 al 25, 25 al 27, 30 noviembre al 02, 03 al 05 diciembre Condiciones inestables el resto del periodo Se preveen ascensos significativos",
+ "estacion": {
+  "nombre": "Puente San Luis",
+  "nivel_m": 0.69,
+  "alerta_roja_m": null
+ },
+ "tramos": {
+  "alta": [
+   {
+    "fecha": "2026-11-20",
+    "amenaza": "sin",
+    "tendencia": "poco variable"
+   },
+   {
+    "fecha": "2026-11-21",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-22",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-23",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-24",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-25",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-26",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-27",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-28",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-29",
+    "amenaza": "sin",
+    "tendencia": "poco variable"
+   },
+   {
+    "fecha": "2026-11-30",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-01",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-02",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-03",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   }
+  ],
+  "media": [
+   {
+    "fecha": "2026-11-20",
+    "amenaza": "sin",
+    "tendencia": "poco variable"
+   },
+   {
+    "fecha": "2026-11-21",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-22",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-23",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-24",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-25",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-26",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-27",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-28",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-29",
+    "amenaza": "sin",
+    "tendencia": "poco variable"
+   },
+   {
+    "fecha": "2026-11-30",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-01",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-02",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-03",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   }
+  ],
+  "baja": [
+   {
+    "fecha": "2026-11-20",
+    "amenaza": "sin",
+    "tendencia": "poco variable"
+   },
+   {
+    "fecha": "2026-11-21",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-22",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-23",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-24",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-25",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-26",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-27",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-28",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-11-29",
+    "amenaza": "sin",
+    "tendencia": "poco variable"
+   },
+   {
+    "fecha": "2026-11-30",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-01",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-02",
+    "amenaza": "naranja",
+    "tendencia": "ascensos"
+   },
+   {
+    "fecha": "2026-12-03",
+    "amenaza": "amarilla",
+    "tendencia": "ascensos"
+   }
+  ]
+ }
+}

@@ -48,6 +48,12 @@ h1 { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
 .medidor { height: 8px; border-radius: 99px; background: rgba(255,255,255,.07); margin: 12px 0 8px; overflow: hidden; }
 #medidor-barra { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--acento), var(--aviso), var(--alerta)); transition: width .2s; }
 .detalle { margin: 0 0 12px; font-size: 13px; color: var(--texto-2); }
+.oficial { display: flex; align-items: center; gap: 8px; margin: -4px 0 12px; padding: 6px 10px; border: 1px solid var(--borde, rgba(255,255,255,.15)); border-radius: 8px; font-size: 12.5px; color: var(--texto-2); }
+.oficial i { width: 10px; height: 10px; border-radius: 50%; background: var(--exito); flex: none; }
+.oficial[data-n="amarilla"] i { background: #ffd84a; } .oficial[data-n="naranja"] i { background: var(--aviso); } .oficial[data-n="roja"] i { background: var(--alerta); }
+.oficial[data-n="naranja"], .oficial[data-n="roja"] { color: var(--texto); }
+.oficial span { flex: 1 1 0; min-width: 0; }
+.oficial a { color: inherit; flex: none; }
 .fila { display: flex; flex-wrap: wrap; gap: 8px; }
 .estado { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .06em; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.06); color: var(--texto-2); }
 .estado[data-e="normal"] { color: var(--acento); background: rgba(91,231,240,.1); }

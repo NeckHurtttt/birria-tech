@@ -88,3 +88,20 @@ t('ntfy: servidor propio primero, ntfy.sh siempre de respaldo, solo https', () =
   assert.deepEqual(basesNtfy('http://localhost:8090', ''), ['http://localhost:8090/', 'https://ntfy.sh/']);
 });
 console.log('ntfy ok');
+import { amenazaHoy, textoOficial } from './js/senamhi.js';
+import { readFileSync as leerS } from 'node:fs';
+t('SENAMHI: amenaza oficial pone piso al índice y se lee del boletín', () => {
+  assert.equal(indiceRiesgo({ ll6: 0, ll24: 3, caudal: 7.6, oficial: 'amarilla' }).estado, 'vigilancia');
+  assert.equal(indiceRiesgo({ ll6: 0, ll24: 3, caudal: 7.6, oficial: 'naranja' }).fuente, 'senamhi');
+  assert.equal(indiceRiesgo({ oficial: 'roja' }).estado, 'alerta');
+  assert.equal(indiceRiesgo({ ll6: 46, ll24: 64, prox6: 30, caudal: 30, oficial: 'amarilla' }).fuente, 'lluvia'); // lo propio manda si es mayor
+  const s = { boletin: '2026-11-20', tramos: { alta: [{ fecha: '2026-11-21', amenaza: 'amarilla', tendencia: 'ascensos' }, { fecha: '2026-11-23', amenaza: 'naranja', tendencia: 'ascensos' }], baja: [{ fecha: '2026-11-21', amenaza: 'sin', tendencia: 'poco variable' }] } };
+  const a = amenazaHoy(s, new Date(2026, 10, 21, 10));
+  assert.equal(a.nivel, 'amarilla'); assert.equal(a.sube.nivel, 'naranja');
+  assert.match(textoOficial(a), /amarilla.*sube a naranja/);
+  assert.equal(amenazaHoy(s, new Date(2026, 10, 30)), null); // boletín vencido
+  assert.equal(amenazaHoy(null), null);
+  const real = JSON.parse(leerS('./datos/senamhi.json', 'utf8'));
+  assert.equal(Object.values(real.tramos).every(d => d.length === 14 && d.every(x => x.amenaza)), true);
+});
+console.log('senamhi ok');
