@@ -460,3 +460,13 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 /* aviso en la tarjeta: el ayudante va en camino y espera que la central le escriba */
 .personas .aviso-chat[data-tipo="responder"] { background: rgba(91,231,240,.1); color: var(--acento); }
 @media (prefers-reduced-motion: reduce) { .chat-confirmar[data-listo="si"] .chat-ok { animation: none; } }
+/* chat más limpio: avisos de sistema en una línea fina; abajo, o se escribe o se confirma (nunca ambos) */
+.chat-msjs li.sistema { padding: 2px 8px; font-size: 10.5px; line-height: 1.35; background: transparent; color: rgba(157,182,191,.75); }
+.chat-form[hidden] { display: none; }
+.chat-confirmar { margin: 0; padding: 10px 12px; border: 0; border-top: 1px solid var(--borde); border-radius: 0; background: transparent; }
+.chat-confirmar[data-listo], .chat-confirmar { background: rgba(79,227,154,.06); }
+.chat-ok, .chat-confirmar .chat-ok { flex: 1 1 auto; width: 100%; min-height: 42px; font-size: 14px; background: var(--exito); color: #03281a; border-color: transparent; font-weight: 700; animation: listo-ok 1.6s ease-in-out infinite; }
+.chat-ok:hover { background: #7ff0b8; }
+.chat-ok svg { width: 18px; height: 18px; }
+.chat-rapidas .btn { text-align: left; }
+@media (prefers-reduced-motion: reduce) { .chat-ok { animation: none; } }

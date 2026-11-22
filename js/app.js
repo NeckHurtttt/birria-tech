@@ -40,7 +40,7 @@ const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simul
 const tema = temaDemo();
 
 const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set(),
-  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, apuros: {}, apuroTimer: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
+  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, apuros: {}, apuroTimer: {}, sugeridas: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -127,8 +127,7 @@ function pasoAyudante(id) {
     if (est.pregunta[id]) programarPaso(id, 3500 + Math.random() * 2000); else programarApuro(id);
   } else {
     est.pregunta[id] = false;
-    decirChat(id, 'sistema', 'El ayudante confirmó: ya puedes confirmar la evacuación.');
-    programarApuro(id);
+    programarApuro(id); // sin aviso de sistema: el botón verde de abajo ya lo dice
   }
   pintarPersonas();
 }
@@ -182,8 +181,23 @@ function enviarCentral(id, texto) {
   programarPaso(id, (est.etapa[id] || 0) ? 2500 + Math.random() * 1500 : 1800);
   pintarPersonas();
 }
+// sugerencias de la central: 3 sacadas de un banco variado según el paso; quedan fijas mientras ese paso no cambie
+// (así no saltan cada vez que llega un mensaje)
+const SUGERENCIAS = [
+  [() => '¿Ya vas en camino?', () => '¿Ya saliste para allá?', p => `¿Cuánto te falta para llegar donde ${p.nombre}?`, () => 'Avísame apenas llegues.'],
+  [() => '¿Ya lograron llegar a zona alta?', () => 'Confírmame por favor si ya están fuera de peligro.',
+    () => '¿Cómo está la calle por ahí? Avísame cuando estén a salvo.', p => `¿Ya tienen a ${p.nombre} en lugar seguro?`,
+    () => 'Reporta en cuanto estén resguardados.', () => '¿Necesitan apoyo o ya están fuera del agua?', () => 'Avísame cuando estén a salvo.'],
+];
+function sugerencias(id, p, n) {
+  const paso = Math.min(n, SUGERENCIAS.length - 1), guardadas = est.sugeridas[id];
+  if (guardadas?.paso === paso) return guardadas.lista;
+  const banco = SUGERENCIAS[paso].map(f => f(p)), lista = [];
+  while (lista.length < 3 && banco.length) lista.push(banco.splice(Math.floor(Math.random() * banco.length), 1)[0]);
+  est.sugeridas[id] = { paso, lista }; return lista;
+}
 function reiniciarEstadoChats() {
-  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.apuros = {}; est.apuroTimer = {};
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {};
   CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
 }
 function iniciarChats() {
@@ -230,23 +244,23 @@ function pintarChat() {
     li.innerHTML = `<span class="burbuja" aria-label="escribiendo"><i></i><i></i><i></i></span>`;
     ol.append(li);
   }
-  ol.scrollTop = ol.scrollHeight;
-  // respuestas rápidas: mandan un mensaje de verdad (cuentan como «la central escribió»); nada de atajos que lo salteen
+  // zona de abajo, sin cuadros extra:
+  //  - mientras falta la confirmación del ayudante: sugerencias + campo de escribir (la indicación va en el placeholder)
+  //  - en cuanto el ayudante confirma: solo el botón «Confirmar evacuación», grande y verde
+  const listo = enAlerta(id) && listoParaConfirmar(id), escribir = enAlerta(id) && !listo;
+  const form = $('#chat-form'), input = $('#chat-texto'), zona = $('#chat-confirmar'), ok = $('#chat-ok');
+  const teniaFoco = document.activeElement === input;
+  form.hidden = !escribir;
+  input.placeholder = est.pregunta[id] ? 'Esperando la confirmación del ayudante…' : 'Responde al ayudante para que confirme…';
+  zona.hidden = !listo; ok.disabled = !listo;
+  if (listo && teniaFoco) ok.focus(); // el campo desaparece: el foco pasa al botón
+  // sugerencias variadas: mandan un mensaje de verdad (cuentan como «la central escribió»); nada de atajos que lo salteen
   const rap = $('#chat-rapidas'); rap.replaceChildren();
-  if (enAlerta(id) && !listoParaConfirmar(id) && !est.pregunta[id]) {
-    const rapidas = n ? ['Avísame cuando estén a salvo.', '¿Ya están a salvo?'] : ['¿Ya vas en camino?', 'Avísame cuando estén a salvo.'];
-    for (const texto of rapidas) { const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn chico'; bt.textContent = texto; bt.onclick = () => enviarCentral(id, texto); rap.append(bt); }
+  if (escribir && !est.pregunta[id]) {
+    for (const texto of sugerencias(id, p, n)) { const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn chico'; bt.textContent = texto; bt.onclick = () => enviarCentral(id, texto); rap.append(bt); }
   }
-  // «Confirmar evacuación» dentro del chat: bloqueado hasta que el ayudante confirme después de un mensaje de la central
-  const zona = $('#chat-confirmar'), ok = $('#chat-ok'), aviso = $('#chat-aviso');
-  zona.hidden = e !== 'avisado';
-  if (e === 'avisado') {
-    const listo = listoParaConfirmar(id);
-    ok.disabled = !listo; zona.dataset.listo = listo ? 'si' : 'no';
-    aviso.textContent = listo ? 'El ayudante confirmó que están a salvo.'
-      : est.pregunta[id] ? 'Mensaje enviado: espera la confirmación del ayudante.'
-        : 'Responde en el chat y espera la confirmación del ayudante.';
-  }
+  // auto-scroll al último mensaje, también después de que la zona de abajo cambie de alto
+  ol.scrollTop = ol.scrollHeight; requestAnimationFrame(() => { ol.scrollTop = ol.scrollHeight; });
   // respaldo sin internet: SMS (sin número abre la app de SMS para elegir el contacto) y llamada si hay número
   const min = Math.max(0, Math.round(minutosHasta(b, est.intensidad, est.lag) - est.simMin));
   const resp = $('#chat-respaldo'); resp.replaceChildren();
@@ -259,7 +273,8 @@ function pintarChat() {
   }
 }
 $('#chat-cerrar').onclick = cerrarChat;
-$('#chat-ok').onclick = () => { const id = CHAT.abierto; if (id && enAlerta(id) && listoParaConfirmar(id)) confirmar(id, 'central'); };
+// confirmar desde el chat: queda EVACUADO en la tarjeta y el chat se cierra solo para seguir con los demás casos
+$('#chat-ok').onclick = () => { const id = CHAT.abierto; if (id && enAlerta(id) && listoParaConfirmar(id)) { confirmar(id, 'central'); cerrarChat(); } };
 $('#chat-form').onsubmit = ev => { ev.preventDefault(); const i = $('#chat-texto'); if (CHAT.abierto) enviarCentral(CHAT.abierto, i.value); i.value = ''; };
 document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('#chat').hidden && !document.querySelector('dialog[open]')) cerrarChat(); });
 
