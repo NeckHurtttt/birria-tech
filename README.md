@@ -51,7 +51,7 @@
 > 2. Presione **Sé guardián** y escanee el código QR con su celular (funciona incluso desde una videollamada). Toque **Activar avisos**.
 > 3. Cuando su celular suene, toque **«Listo, a salvo»**: la central registra su respuesta en tiempo real.
 
-Los botones **ES · EN · 中文** de la barra cambian el idioma de la interfaz sin recargar. **Video de respaldo** (sin conexión, 1 min 45 s, con subtítulos): [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/birria-tech/releases/tag/v1.0-abstracthon).
+El menú **⚙** de la barra cambia el idioma (ES · EN · 中文) sin recargar. **Video de respaldo** (sin conexión, 2 min 51 s, con subtítulos): [capturas/demo-respaldo.mp4](capturas/demo-respaldo.mp4), también en la [publicación v1.0-abstracthon](https://github.com/NeckHurtttt/birria-tech/releases/tag/v1.0-abstracthon).
 
 Proyecto presentado en Abstracthon 2026 por el equipo **Birria TECH**, en el track **Ayuda Tecnológica**, que combina:
 
@@ -251,7 +251,7 @@ flowchart LR
 - **Registro compartido:** `js/nube.js` y `js/registro.js` con Supabase; funciones RPC definidas en `supabase/esquema.sql`.
 - **Vigía central:** una PC del equipo corre `recolector/` cada 10 min (Tarea programada en Windows) y sube la lectura de la cuenca a Supabase (`rs_lecturas`, con token propio). La app la usa si tiene menos de 20 min; si no, cada navegador escanea por su cuenta, así que esa PC no es un punto único de falla. Ver [recolector/README.md](recolector/README.md).
 - **Funcionamiento sin conexión:** `sw.js` almacena la aplicación, la última consulta de datos y el mapa visitado; los guardianes cuentan con SMS y llamada de respaldo.
-- **Idiomas:** `js/idioma.js` traduce la interfaz al inglés y al chino con los botones **ES · EN · 中文**, sin recargar; `?lang=en` y `?lang=zh` abren la interfaz en ese idioma. Los mensajes para los guardianes (SMS/ntfy) y el CSV permanecen en castellano, el idioma de la ribera.
+- **Idiomas:** `js/idioma.js` traduce la interfaz al inglés y al chino con el selector **ES · EN · 中文** del menú ⚙, sin recargar; `?lang=en` y `?lang=zh` abren la interfaz en ese idioma. Los mensajes para los guardianes (SMS/ntfy) y el CSV permanecen en castellano, el idioma de la ribera.
 - **Accesibilidad:** botón **Aa** (letra grande y alto contraste) y lectura del aviso en voz alta, en el idioma elegido.
 
 ## Estructura del repositorio
@@ -373,7 +373,7 @@ Sergio (desarrollo) · José Miguel Salinas (pitch, documentación y depuración
 > 2. Press **Be a guardian** and scan the QR code with your phone (it even works over a video call). Tap **Turn on alerts**.
 > 3. When your phone rings, tap **“Done, safe”**: the control room logs your response in real time.
 
-The **ES · EN · 中文** buttons in the top bar switch the interface language without reloading. **Backup video** (offline): [capturas/en/demo-respaldo.mp4](capturas/en/demo-respaldo.mp4).
+The **⚙** menu in the top bar switches the language (ES · EN · 中文) without reloading. **Backup video** (offline): [capturas/en/demo-respaldo.mp4](capturas/en/demo-respaldo.mp4).
 
 Presented at Abstracthon 2026 by team **Birria TECH**, in the **Technology Aid** track, combining:
 - **Communication:** it changes how a riverside neighborhood gets informed, connects and coordinates: the countdown per neighborhood, neighbor reports and the guardian’s one-tap confirmation.
@@ -527,7 +527,7 @@ flowchart LR
 - **Channel to the guardians:** ntfy.sh (pub/sub, also reaches the ntfy app), with BroadcastChannel as a backup.
 - **Offline (PWA):** `sw.js` stores the app, the last scan and the map already viewed; it installs from the browser. Guardians have SMS and call as a backup. **The demo doesn’t go down.**
 - **Registration and panel:** `js/registro.js`. New people stay pending until the board approves them; CSV with `;` for Spanish-language Excel.
-- **Languages:** `js/idioma.js` translates the interface into English and Chinese with the **ES · EN · 中文** buttons, without reloading. Messages to guardians (SMS/ntfy) and the CSV stay in Spanish, the language of the riverbank.
+- **Languages:** `js/idioma.js` translates the interface into English and Chinese with the **ES · EN · 中文** selector in the ⚙ menu, without reloading. Messages to guardians (SMS/ntfy) and the CSV stay in Spanish, the language of the riverbank.
 - **Accessibility:** **Aa** button (large text and high contrast) and 🔊 button to read the alert aloud, in the chosen language.
 
 ### 📁 Structure
@@ -627,7 +627,7 @@ Sergio (development) · José Miguel Salinas (pitch, documentation and debugging
 > 2. 点击 **成为守护者**，用手机扫描二维码（视频通话中也可以扫）。点击 **开启提醒**。
 > 3. 手机响起后，点击 **「完成，已安全」**：指挥中心会实时记录你的响应。
 
-顶部的 **ES · EN · 中文** 按钮可直接切换界面语言，无需刷新。**备用视频**（离线可看）：[capturas/zh/demo-respaldo.mp4](capturas/zh/demo-respaldo.mp4)。
+顶部的 **⚙** 菜单可切换界面语言（ES · EN · 中文），无需刷新。**备用视频**（离线可看）：[capturas/zh/demo-respaldo.mp4](capturas/zh/demo-respaldo.mp4)。
 
 由 **Birria TECH** 团队在 Abstracthon 2026 **科技助力**赛道提交，融合了：
 - **沟通：** 改变河岸社区获取信息、彼此联系和协同行动的方式：各社区倒计时、邻居报告，以及守护者的一键确认。
@@ -781,7 +781,7 @@ flowchart LR
 - **守护者通道：** ntfy.sh（发布/订阅，也会推送到 ntfy 应用），以 BroadcastChannel 作为备用。
 - **离线（PWA）：** `sw.js` 保存应用、最近一次扫描和看过的地图；可从浏览器安装。守护者有短信和电话作为备用。**演示不会中断。**
 - **登记与面板：** `js/registro.js`。新登记的人员需等委员会审批；CSV 使用 `;` 分隔，方便西班牙语版 Excel 打开。
-- **语言：** `js/idioma.js` 通过 **ES · EN · 中文** 按钮把界面翻译成英文和中文，无需刷新。发给守护者的消息（短信/ntfy）和 CSV 保持西班牙语，即河岸居民使用的语言。
+- **语言：** `js/idioma.js` 通过 ⚙ 菜单中的 **ES · EN · 中文** 选择器把界面翻译成英文和中文，无需刷新。发给守护者的消息（短信/ntfy）和 CSV 保持西班牙语，即河岸居民使用的语言。
 - **无障碍：** **Aa** 按钮（大字与高对比度）和 🔊 按钮（用所选语言朗读警报）。
 
 ### 📁 目录结构
