@@ -12,7 +12,7 @@ import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 import { mensajesNuevos } from './mensajes.js';
 import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios, ayudantesAleatorios, NOMBRE_SORTEADO, AYUDANTE_SORTEADO, NOMBRES_AYUDANTES } from './datos.js';
-import { elegirSugerencias, temaDe, respuestaConfirmacion } from './chat-textos.js';
+import { elegirSugerencias, temaDe, respuestaConfirmacion, mensajeEnCamino, APUROS, zonaPorMinutos } from './chat-textos.js';
 
 // Nombres de las personas de ejemplo y de sus ayudantes: se sortean al abrir la central (no hay uno fijo). Se guardan
 // en esta pestaña para que al recargar o reiniciar el simulacro sigan siendo los mismos que ya viajaron en el QR al
@@ -84,19 +84,14 @@ const generoPersona = p => /^Doña\s/i.test(p.nombre) ? 'f' : /^Don\s/i.test(p.n
 //   3. recién entonces el ayudante confirma que ya están a salvo, y se habilita «Confirmar evacuación» (en el chat y en la tarjeta).
 // Nunca se confirma por temporizador ni sin que la central escriba antes. Si el ayudante confirma desde su celular
 // («Ya la ayudé» en la app), eso vale igual porque es una confirmación real.
-const VARIANTE = lista => lista[Math.floor(Math.random() * lista.length)];
-const PASOS_AYUDANTE = [
-  // 1: en camino (sale solo al saltar la alerta)
-  [p => `¡Ya voy por ${p.nombre}! El agua ya está cubriendo la calle.`,
-    p => `¡Voy corriendo a buscar a ${p.nombre}, el río está bramando!`,
-    p => `¡En camino por ${p.nombre}! La corriente ya pasa por la esquina.`,
-    p => `¡Ya salgo por ${p.nombre}! El río suena cada vez más fuerte.`],
-  // 2: a salvo (solo como respuesta a un mensaje de la central)
-  [() => '¡Listo! Ya estamos a salvo en la loma, el agua ya tapó la calle.',
-    p => `¡Ya está! Sacamos a ${p.nombre} justo a tiempo, estamos en punto alto.`,
-    () => '¡A salvo! Llegamos a la plaza; atrás el río ya se llevó la vereda.',
-    p => `¡Lo logramos! ${p.nombre} ya está con nosotros en la escuela, el agua sigue subiendo.`],
-];
+// pasos del ayudante: 1 «en camino» (sale solo) y 2 «a salvo» (solo como respuesta a la central); los textos, según la
+// zona del caso, están en js/chat-textos.js
+const PASOS_AYUDANTE = ['en camino', 'a salvo'];
+// zona según el avance de la crecida: 'lejos' (todavía hay bastante margen, tono preventivo) o 'cerca' (emergencia)
+function zonaDe(p) {
+  const b = BARRIOS.find(x => x.id === p.barrio);
+  return b ? zonaPorMinutos(minutosHasta(b, est.intensidad, est.lag) - est.simMin) : 'cerca';
+}
 const CHAT = { abierto: null, sinLeer: new Set(), escribiendo: new Set() };
 const horaChat = () => new Date().toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: false });
 // silueta del ayudante: «(vecina)» o un nombre de la lista de mujeres → mujer; si no, hombre
@@ -122,7 +117,8 @@ function pasoAyudante(id) {
   // la confirmación (paso 2) solo sale si la central escribió: nunca por tiempo
   if (!p || !enAlerta(id) || n >= PASOS_AYUDANTE.length || (n === 1 && !est.pregunta[id])) { if (CHAT.abierto === id) pintarChat(); pintarPersonas(); return; }
   est.etapa[id] = n + 1;
-  decirChat(id, 'ayudante', n === 0 ? VARIANTE(PASOS_AYUDANTE[0])(p) : respuestaConfirmacion(p, est.tema[id] || 'general'));
+  const zona = zonaDe(p);
+  decirChat(id, 'ayudante', n === 0 ? mensajeEnCamino(p, zona) : respuestaConfirmacion(p, est.tema[id] || 'general', Math.random, zona));
   if (n === 0) {
     // ya va en camino: si la central escribió antes de este aviso, la confirmación sigue; si no, espera su mensaje
     if (est.pregunta[id]) programarPaso(id, 3500 + Math.random() * 2000); else programarApuro(id);
@@ -135,20 +131,6 @@ function pasoAyudante(id) {
 // apuro: si la central tarda en entrar a ese chat (porque atiende otro), el ayudante insiste cada 12–18 s, hasta 3 veces
 // por tramo y sin repetir. En camino pide respuesta (sin decir que ya están a salvo); ya a salvo pide que confirmen.
 // Si la central está mirando ese chat, o ya le escribió y la respuesta viene en camino, esa vez no insiste.
-const APUROS = {
-  camino: [
-    p => `¡Central, respondan! Ya llegué donde ${p.nombre}, el agua nos llega a los tobillos.`,
-    () => '¿Me copian? El río sigue creciendo, necesito que me respondan.',
-    p => `¡Sigo con ${p.nombre} y la señal se corta! Escríbanme por favor.`,
-    () => '¡Central! Aquí el agua sube rápido, ¿me escuchan?',
-  ],
-  listo: [
-    p => `¡Central, por favor confirmen recibido! Ya estamos en punto alto con ${p.nombre}.`,
-    () => '¿Me copian en la central? Ya salimos de la zona baja, espero confirmación.',
-    p => `¡Sigo esperando que confirmen la evacuación de ${p.nombre}, la señal está inestable!`,
-    () => '¡Por favor respondan! Necesito saber si ya nos registraron como evacuados.',
-  ],
-};
 const MAX_APUROS = 3;
 const tramoApuro = id => listoParaConfirmar(id) ? 'listo' : 'camino';
 function programarApuro(id) {
@@ -162,10 +144,11 @@ function apurar(id) {
   if (!p || !enAlerta(id) || !(est.etapa[id] || 0)) return;
   // la central está en este chat, o ya escribió y la respuesta del ayudante viene en camino: no hace falta insistir
   if (CHAT.abierto === id || (!listoParaConfirmar(id) && est.pregunta[id])) { programarApuro(id); return; }
-  const tramo = tramoApuro(id), usados = ((est.apuros[id] ||= {})[tramo] ||= []);
-  const libres = APUROS[tramo].map((_, i) => i).filter(i => !usados.includes(i));
-  const i = libres[Math.floor(Math.random() * libres.length)]; usados.push(i);
-  decirChat(id, 'ayudante', APUROS[tramo][i](p));
+  const tramo = tramoApuro(id), zona = zonaDe(p), usados = ((est.apuros[id] ||= {})[tramo] ||= []);
+  const lista = APUROS[zona][tramo], libres = lista.map((_, i) => i).filter(i => !usados.includes(`${zona}:${i}`));
+  if (!libres.length) return;
+  const i = libres[Math.floor(Math.random() * libres.length)]; usados.push(`${zona}:${i}`);
+  decirChat(id, 'ayudante', lista[i](p));
   pintarPersonas(); programarApuro(id);
 }
 function pararApuro(id) { clearTimeout(est.apuroTimer[id]); delete est.apuroTimer[id]; }
@@ -189,10 +172,10 @@ function enviarCentral(id, texto, tema) {
 // sugerencias de la central: 2 de temas distintos, del banco de js/chat-textos.js; quedan fijas mientras el paso del
 // ayudante no cambie (así no saltan cada vez que llega un mensaje)
 function sugerencias(id, p, n) {
-  const paso = n ? 1 : 0, guardadas = est.sugeridas[id];
-  if (guardadas?.paso === paso) return guardadas.lista;
-  const lista = elegirSugerencias(p, paso);
-  est.sugeridas[id] = { paso, lista }; return lista;
+  const paso = n ? 1 : 0, zona = zonaDe(p), guardadas = est.sugeridas[id];
+  if (guardadas?.paso === paso && guardadas.zona === zona) return guardadas.lista;
+  const lista = elegirSugerencias(p, paso, Math.random, 2, zona);
+  est.sugeridas[id] = { paso, zona, lista }; return lista;
 }
 function reiniciarEstadoChats() {
   est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.tema = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {};
@@ -291,29 +274,43 @@ function pintarPersonas() {
       <div class="quien"><b>${esc(p.nombre)}</b><span class="donde">${b.nombre}, ${esc(p.cuadra)}</span></div>
       <div class="que"><span class="tag" title="${esc(p.necesidad)}">${esc(necesidadCorta(p.necesidad))}</span><span class="ayu"><span>Ayudante</span><b>${esc(nombreAyudante(p.guardian))}</b></span></div>
       <span class="est">${txt}${e === 'salvo' && est.resp[p.id] ? ` · ${reloj(est.resp[p.id].seg)}` : ''}${e === 'avisado' && !paso && est.recib[p.id] != null ? ` · recibió ${reloj(est.recib[p.id])}` : ''}</span>`;
-    // aviso discreto: mensaje nuevo del ayudante sin leer o, ya leído, el caso espera que la central confirme (abre el chat)
-    const nuevo = CHAT.sinLeer.has(p.id) && e === 'avisado', responder = paso && !listoConfirmar && !est.pregunta[p.id];
-    if (nuevo || listoConfirmar || responder) {
-      const tipo = nuevo ? 'nuevo' : listoConfirmar ? 'espera' : 'responder';
-      const av = document.createElement('button'); av.type = 'button'; av.className = 'aviso-chat'; av.dataset.tipo = tipo;
-      av.textContent = { nuevo: 'Mensaje nuevo', espera: 'Esperando confirmación', responder: 'Responde en el chat' }[tipo]; av.onclick = () => abrirChat(p.id); li.append(av);
-    }
     if (e === 'avisado' || e === 'rescate') {
-      // «Confirmar evacuación» se habilita recién cuando el ayudante avisó en el chat que va en camino y que ya están a salvo
-      const listo = e === 'rescate' || (est.etapa[p.id] || 0) >= PASOS_AYUDANTE.length;
-      const ok = document.createElement('button'); ok.className = 'btn chico ok';
-      ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar evacuación';
-      ok.disabled = !listo;
-      if (!listo) ok.title = 'Responde en el chat y espera la confirmación del ayudante';
-      ok.onclick = () => confirmar(p.id, 'central');
-      const acc = document.createElement('div'); acc.className = 'acciones'; acc.append(ok);
+      // una sola fila, siempre visible: [aviso] … [Confirmar] [Chat]
+      const acc = document.createElement('div'); acc.className = 'acciones';
+      // aviso discreto (abre el chat): mensaje nuevo sin leer, o «Responde en el chat». Cuando ya se puede confirmar, el
+      // botón verde «Confirmar» hace de aviso (así la fila no se aprieta ni se corta)
+      const nuevo = CHAT.sinLeer.has(p.id), responder = paso && !listoConfirmar && !est.pregunta[p.id];
+      const tipo = nuevo ? 'nuevo' : responder ? 'responder' : null;
+      // «Confirmar» aparece recién cuando el ayudante confirmó en el chat (antes no ocupa lugar: se responde en el chat)
+      const listo = e === 'rescate' || listoConfirmar;
+      if (tipo) {
+        const av = document.createElement('button'); av.type = 'button'; av.className = 'aviso-chat'; av.dataset.tipo = tipo;
+        // junto a «Confirmar» y «Chat» no entra la frase entera: dice «Nuevo» (el punto del botón Chat también avisa)
+        av.textContent = tipo === 'nuevo' ? (listo ? 'Nuevo' : 'Mensaje nuevo') : 'Responde en el chat';
+        av.setAttribute('aria-label', tipo === 'nuevo' ? 'Mensaje nuevo' : 'Responde en el chat');
+        av.onclick = () => abrirChat(p.id); acc.append(av);
+      }
+      if (listo) {
+        const ok = document.createElement('button'); ok.className = 'btn chico ok';
+        ok.textContent = e === 'rescate' ? 'Rescate oficial confirmó' : 'Confirmar';
+        ok.setAttribute('aria-label', e === 'rescate' ? 'Rescate oficial confirmó' : `Confirmar evacuación de ${p.nombre}`);
+        ok.onclick = () => confirmar(p.id, 'central');
+        acc.append(ok);
+      }
       // chat con el ayudante (el SMS y la llamada de respaldo sin internet están dentro del chat)
       const chat = document.createElement('button'); chat.className = 'btn chico chat-btn'; chat.textContent = 'Chat';
       chat.setAttribute('aria-label', `Chat con ${nombreAyudante(p.guardian)}`);
-      if (CHAT.sinLeer.has(p.id)) chat.dataset.nuevo = '';
+      if (nuevo) chat.dataset.nuevo = '';
       chat.onclick = () => abrirChat(p.id);
       acc.append(chat);
       li.append(acc);
+    }
+    // toda la tarjeta abre el chat (si ya hubo alerta para ese caso), además del botón Chat y del aviso
+    if (est.chat[p.id]?.length) {
+      li.classList.add('abre-chat'); li.tabIndex = 0;
+      li.title = `Abrir chat con ${nombreAyudante(p.guardian)}`;
+      li.onclick = ev => { if (!ev.target.closest('button, a')) abrirChat(p.id); };
+      li.onkeydown = ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === li) { ev.preventDefault(); abrirChat(p.id); } };
     }
     listaP.append(li);
   });
@@ -401,6 +398,8 @@ function confirmar(id, desde) {
   } else decirChat(id, 'sistema', 'Evacuación confirmada en la central.');
   est.resp[id] = { seg: Math.round((Date.now() - est.avisoT) / 1000), desde };
   pintarPersonas(); respuestaEnVivo(id);
+  // el evacuado bajó al final: la lista vuelve arriba, donde queda el siguiente caso pendiente listo para abrir
+  listaP.scrollTo({ top: 0, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   { const pb = activas().find(x => x.id === id), bb = BARRIOS.find(x => x.id === pb.barrio); est.margen[id] = Math.round(minutosHasta(bb, est.intensidad, est.lag) - est.simMin); }
   const p = activas().find(x => x.id === id);
   hablar(`${p.nombre} está a salvo.`);

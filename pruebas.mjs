@@ -169,7 +169,7 @@ t('ayudantes sorteados: variados, sin repetir y con la forma que la central y el
   assert.ok([...NOMBRES_AYUDANTES.f, ...NOMBRES_AYUDANTES.m].every(x => !personas.has(x) && !/\s/.test(x)));
   assert.equal(new Set([...NOMBRES_DEMO.f, ...NOMBRES_DEMO.m, ...NOMBRES_DEMO.apellidos]).size, NOMBRES_DEMO.f.length + NOMBRES_DEMO.m.length + NOMBRES_DEMO.apellidos.length, 'sin duplicados');
 });
-import { elegirSugerencias, temaDe, respuestaConfirmacion, tipoAsistencia } from './js/chat-textos.js';
+import { elegirSugerencias, temaDe, respuestaConfirmacion, tipoAsistencia, mensajeEnCamino, APUROS, zonaPorMinutos } from './js/chat-textos.js';
 import { t as traducirTexto } from './js/idioma.js';
 t('chat: 2 sugerencias de temas distintos y la respuesta del ayudante habla de lo que se le preguntó', () => {
   const casos = [
@@ -193,17 +193,42 @@ t('chat: 2 sugerencias de temas distintos y la respuesta del ayudante habla de l
   assert.equal(temaDe('¿ya llegaron arriba?', g), 'alto'); assert.equal(temaDe('¿la abuela está bien?', g), 'persona');
   assert.equal(temaDe('¿Graciela está con ustedes?', g), 'persona'); assert.equal(temaDe('hola', g), 'general');
   // respuestas: siempre confirman que están a salvo y hablan del tema
-  const a = respuestaConfirmacion(g, 'agua'), al = respuestaConfirmacion(g, 'alto'), pa = respuestaConfirmacion(g, 'paso');
-  for (const r of [a, al, pa, respuestaConfirmacion(g, 'general')]) assert.match(r, /salvo|seguro|resguardados|fuera del agua|punto alto/i);
-  assert.match(a, /agua|calle|nivel|río/i); assert.match(al, /alto|arriba|loma|escuela/i); assert.match(pa, /puente|paso|salida|calle de arriba/i);
+  // se recorren TODAS las variantes (azar fijo por índice), no una al azar: así la prueba no depende de la suerte
+  const SEGURO = /salvo|seguro|segura|resguardados|fuera del agua|punto alto|escuela|punto de encuentro/i;
+  const todas = (p, tema, zona = 'cerca') => Array.from({ length: 8 }, (_, i) => respuestaConfirmacion(p, tema, () => i / 8, zona));
+  for (const zona of ['cerca', 'lejos']) for (const tema of ['agua', 'alto', 'paso', 'general', 'persona', 'preparar', 'preventivo', 'animo'])
+    for (const p of casos) todas(p, tema, zona).forEach(r => assert.match(r, SEGURO, `${zona}/${tema}: ${r}`));
+  todas(g, 'agua').forEach(r => assert.match(r, /agua|calle|nivel|río/i));
+  todas(g, 'alto').forEach(r => assert.match(r, /alto|arriba|loma|escuela/i));
+  todas(g, 'paso').forEach(r => assert.match(r, /puente|paso|salida|calle de arriba/i));
   assert.match(respuestaConfirmacion(casos[0], 'persona'), /silla de ruedas/); assert.match(respuestaConfirmacion(casos[1], 'persona'), /señas/);
   assert.match(respuestaConfirmacion(casos[2], 'persona'), /los 3/); assert.match(respuestaConfirmacion(casos[3], 'persona'), /familia/);
   assert.match(respuestaConfirmacion(casos[4], 'persona'), /quechua/);
-  // todo lo que puede decir el chat está traducido al inglés
-  const textos = new Set();
+  // zona según el avance de la crecida: lejos (mucho margen) = tono preventivo, nunca agua desbordando
+  assert.equal(zonaPorMinutos(720), 'lejos'); assert.equal(zonaPorMinutos(200), 'cerca'); assert.equal(zonaPorMinutos(-5), 'cerca');
+  const TREMENDO = /bramando|rodilla|tobillos|tapó la calle|corriente ya pasa|se llevó|justo a tiempo|sube rápido|cubriendo la calle|se corta/i;
+  const temasLejos = new Set();
   for (const p of casos) for (let k = 0; k < 200; k++) {
-    for (const paso of [0, 1]) elegirSugerencias(p, paso).forEach(x => textos.add(x.texto));
-    for (const tema of ['agua', 'alto', 'paso', 'persona', 'general']) textos.add(respuestaConfirmacion(p, tema));
+    for (const paso of [0, 1]) {
+      const s = elegirSugerencias(p, paso, Math.random, 2, 'lejos');
+      assert.equal(s.length, 2); if (paso) assert.notEqual(s[0].tema, s[1].tema);
+      s.forEach(x => { assert.equal(temaDe(x.texto, p), x.tema); temasLejos.add(x.tema); });
+    }
+    assert.doesNotMatch(mensajeEnCamino(p, 'lejos'), TREMENDO, 'lejos: en camino tranquilo');
+    for (const tema of ['preparar', 'preventivo', 'animo', 'alto', 'agua', 'paso', 'general']) assert.doesNotMatch(respuestaConfirmacion(p, tema, Math.random, 'lejos'), TREMENDO);
+  }
+  for (const tema of ['preparar', 'preventivo', 'animo']) assert.ok(temasLejos.has(tema), 'lejos pregunta por ' + tema);
+  for (const l of Object.values(APUROS.lejos)) l.forEach(fn => assert.doesNotMatch(fn(casos[0]), TREMENDO));
+  assert.match(respuestaConfirmacion(g, 'preparar', Math.random, 'lejos'), /mochila|documentos|alistamos/i);
+  assert.match(respuestaConfirmacion(g, 'preventivo', Math.random, 'lejos'), /preventiva|adelantarnos/i);
+  assert.match(respuestaConfirmacion(g, 'animo', Math.random, 'lejos'), /ánimo|ordenado|organizaron/i);
+  // todo lo que puede decir el chat está traducido al inglés (las dos zonas)
+  const textos = new Set();
+  for (const zona of ['cerca', 'lejos']) for (const p of casos) for (let k = 0; k < 200; k++) {
+    for (const paso of [0, 1]) elegirSugerencias(p, paso, Math.random, 2, zona).forEach(x => textos.add(x.texto));
+    for (const tema of ['agua', 'alto', 'paso', 'persona', 'general', 'preparar', 'preventivo', 'animo']) textos.add(respuestaConfirmacion(p, tema, Math.random, zona));
+    textos.add(mensajeEnCamino(p, zona));
+    for (const l of Object.values(APUROS[zona])) l.forEach(fn => textos.add(fn(p)));
   }
   const sinTraducir = [...textos].filter(x => traducirTexto(x, 'en') === x);
   assert.deepEqual(sinTraducir, [], 'sin traducir: ' + sinTraducir.join(' | '));

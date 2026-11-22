@@ -470,3 +470,16 @@ html.grande .msj .lugar, html.grande .msj .hora { font-size: 14px; }
 .chat-ok svg { width: 18px; height: 18px; }
 .chat-rapidas .btn { text-align: left; }
 @media (prefers-reduced-motion: reduce) { .chat-ok { animation: none; } }
+
+/* tarjeta: la fila de acciones entra siempre entera ([aviso] … [Confirmar] [Chat]); el aviso se achica antes que los botones */
+.personas li { padding: 7px 8px; gap: 3px 8px; }
+.personas .acciones { grid-column: 2 / -1; display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; min-width: 0; margin-top: 2px; }
+.personas .acciones .aviso-chat { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.personas .acciones .btn { flex: none; min-height: 28px; padding: 3px 10px; font-size: 12px; }
+.personas .acciones .ok { margin-left: auto; background: var(--exito); color: #03281a; border-color: transparent; font-weight: 700; }
+.personas .acciones .ok:hover { background: #7ff0b8; }
+.personas .acciones .aviso-chat + .chat-btn, .personas .acciones .chat-btn:first-child { margin-left: auto; }
+.personas li.abre-chat { cursor: pointer; }
+.personas li.abre-chat:hover { background: rgba(255,255,255,.06); }
+.personas li.abre-chat:focus-visible { outline: 2px solid var(--acento); outline-offset: 1px; }
+.guardianes .personas { scroll-padding-top: 4px; }
