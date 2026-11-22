@@ -62,31 +62,31 @@ export function abrirCanal(tema, alRecibir, filtro = null) {
   const entregar = m => { if (!m?.uid || vistos.has(m.uid) || (filtro && !filtro(m))) return; vistos.add(m.uid); try { alRecibir(m); } catch (e) { console.error(e); } };
   if (bc) bc.onmessage = e => entregar({ ...e.data, via: 'local' });
 
-  // EventSource reintenta solo cada ~3 s para siempre: sin internet eso llena la consola.
-  // Aquí se reconecta a mano con espera creciente y se pausa si el navegador está offline.
+  // Suscripción por WebSocket (/ws): pasa por túneles de Cloudflare, que retienen las respuestas en streaming (SSE).
+  // Se reconecta a mano con espera creciente y se pausa si el navegador está offline.
   let cerrado = false;
   const suscribir = base => {
-    let es = null, espera = REINTENTO_MIN, timer = null;
+    let es = null, espera = REINTENTO_MIN, timer = null, vivo = false;
     const conectar = () => {
       clearTimeout(timer); timer = null;
-      if (cerrado || !tema || typeof EventSource !== 'function') return;
+      if (cerrado || !tema || typeof WebSocket !== 'function') return;
       if (navigator.onLine === false) return; // se retoma con el evento 'online'
-      try { es = new EventSource(`${base}${tema}/sse?since=30s`); } catch { return programar(); }
-      es.onopen = () => { espera = REINTENTO_MIN; };
+      try { es = new WebSocket(`${base.replace(/^http/, 'ws')}${tema}/ws?since=30s`); } catch { return programar(); }
+      es.onopen = () => { espera = REINTENTO_MIN; vivo = true; };
       es.onmessage = e => {
         try {
           const d = JSON.parse(e.data); const m = deTags(d.tags);
           if (d.event === 'message' && m) entregar({ ...m, uid: m.uid || d.id, titulo: d.title, texto: d.message, via: base });
         } catch { /* mensaje ajeno al formato */ }
       };
-      es.onerror = () => { es?.close(); es = null; programar(); };
+      es.onclose = () => { vivo = false; es = null; programar(); };
     };
     const programar = () => {
       if (cerrado || timer) return;
       timer = setTimeout(conectar, espera); espera = Math.min(REINTENTO_MAX, espera * 2);
     };
     conectar();
-    return { enLinea() { espera = REINTENTO_MIN; if (!es) conectar(); }, cerrar() { clearTimeout(timer); es?.close(); es = null; } };
+    return { vivo: () => vivo, enLinea() { espera = REINTENTO_MIN; if (!es) conectar(); }, cerrar() { clearTimeout(timer); if (es) { es.onclose = null; es.close(); } es = null; vivo = false; } };
   };
   const subs = BASES.map(suscribir);
   const enLinea = () => subs.forEach(s => s.enLinea());
@@ -117,6 +117,8 @@ export function abrirCanal(tema, alRecibir, filtro = null) {
         : Promise.all(BASES.map(uno)).then(r => r.some(Boolean));
       return Object.assign(m, { red });
     },
+    /** El servidor de la comunidad está conectado ahora (si no hay o se cayó: false). */
+    propioVivo: () => hayPropio && subs[0].vivo(),
     cerrar,
   };
 }

@@ -372,8 +372,9 @@ function respuestaEnVivo(id) {
 
 // ---------- canal con guardianes ----------
 // con servidor ntfy propio, lo que cambia el estado (confirmaciones, vigías) solo vale si llega por él o por esta compu:
-// el tema de ntfy.sh es público y cualquiera que lo conozca podría falsificar dos vigías y lanzar la alerta
-const confiable = m => !hayPropio || m.via !== PUBLICO;
+// el tema de ntfy.sh es público y cualquiera que lo conozca podría falsificar dos vigías y lanzar la alerta.
+// Si el servidor propio se cae (PC apagada, túnel caído), ntfy.sh vuelve a valer: avisar a tiempo pesa más.
+const confiable = m => !hayPropio || m.via !== PUBLICO || !canal.propioVivo();
 const canal = abrirCanal(tema, m => {
   if (m.tipo === 'ok' && m.id) confirmar(m.id, 'celular');
   if (m.tipo === 'recibido' && m.id) recibido(m.id);
@@ -381,7 +382,9 @@ const canal = abrirCanal(tema, m => {
   if (m.tipo === 'reg') traerJunta();
 }, confiable);
 const PUBLICA = 'https://neckhurtttt.github.io/el-rio-suena/';
-function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id }), per = todas().find(x => x.id === id);
+// el servidor de ?ntfy= viaja en los enlaces de ayudantes y vigías, para que respondan por el mismo
+const conNtfy = () => { const n = new URLSearchParams(location.search).get('ntfy'); return n ? { ntfy: n } : {}; };
+function urlGuardian(id) { const u = new URL('guardian.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); const s = new URLSearchParams({ t: tema, p: id, ...conNtfy() }), per = todas().find(x => x.id === id);
   if (per && !per.demo) { s.set('n', per.nombre); s.set('b', per.barrio); s.set('cu', per.cuadra); s.set('nec', per.necesidad); s.set('g', per.guardian); }
   else if (per) { s.set('n', per.nombre); s.set('g', per.guardian); } // persona de ejemplo: nombre y ayudante sorteados viajan en el QR para que el celular muestre los mismos
   u.search = '?' + s; return u.href; }
@@ -690,7 +693,7 @@ $('#dlg-pared').addEventListener('close', () => pared.apagar()); // también con
 // QR del guardián
 $('#btn-qr-jurado').onclick = () => $('#btn-qr').click();
 $('#btn-qr').onclick = () => abrirQR('rosa');
-function urlVigia() { const u = new URL('vigia.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); u.search = '?' + new URLSearchParams({ t: tema }); return u.href; }
+function urlVigia() { const u = new URL('vigia.html', /^(localhost|127\.|192\.168\.)/.test(location.hostname) || location.protocol === 'file:' ? PUBLICA : location.href); u.search = '?' + new URLSearchParams({ t: tema, ...conNtfy() }); return u.href; }
 $('#btn-qr-vigia').onclick = () => {
   if ($('#dlg-qr').open) return;
   $('#dlg-qr h3').textContent = 'Sé vigía río arriba';
