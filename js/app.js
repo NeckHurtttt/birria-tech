@@ -174,6 +174,8 @@ function alerta(intensidad, fuente, lag = 0) {
     ? `Atención. Lluvia fuerte en la cuenca alta del Piraí. La crecida llegaría a La Angostura en ${enVoz(lag)} y a El Torno en ${enVoz(min)}.`
     : `Atención. El río suena. Crecida detectada en La Angostura. El agua llegaría a El Torno en ${enVoz(min)}.`);
   avisarGuardianes();
+  est.alertaDesde = { t: new Date().toISOString(), fuente };
+  $('#btn-falsa').hidden = false;
   $('#chip-reloj').hidden = false;
   despues(() => mapa.tramo(torno), 1500);
 }
@@ -245,8 +247,24 @@ function reiniciar() {
   activas().forEach(p => est.personas[p.id] = 'tranquilo'); pintarPersonas();
   BARRIOS.forEach(b => { const li = $('#b-' + b.id); li.dataset.e = 'tranquilo'; li.querySelector('.tiempo').textContent = 'sin crecida'; li.querySelector('.barra-t i').style.width = 0; li.querySelector('.info').textContent = `${b.km} km río abajo de La Angostura`; mapa.barrio(b.id, 'sin alerta', 'tranquilo'); });
   mapa.crecida(0); mapa.sensor(''); mapa.general();
-  $('#confianza').hidden = true; $('#chip-reloj').hidden = true; $('#exito').hidden = true;
+  $('#confianza').hidden = true; $('#chip-reloj').hidden = true; $('#exito').hidden = true; $('#btn-falsa').hidden = true;
 }
+// ---------- falsa alarma: la junta verificó el río y no hay crecida ----------
+// se cancela en todos los celulares (sirena apagada, pantalla verde con el motivo) y queda en el registro de alertas
+function falsaAlarma() {
+  if (est.fase !== 'alerta') return;
+  const motivo = 'La junta verificó el río y está normal.';
+  canal.enviar({ tipo: 'cancelar' }, { titulo: 'Alerta cancelada', texto: `Falsa alarma. ${motivo} Gracias por estar atentos.`, prioridad: 4 });
+  try {
+    const r = JSON.parse(localStorage.getItem('rs-alertas') || '[]');
+    r.push({ ...est.alertaDesde, cancelada: new Date().toISOString(), motivo, respondieron: Object.keys(est.resp || {}).length });
+    localStorage.setItem('rs-alertas', JSON.stringify(r.slice(-100)));
+  } catch {}
+  reiniciar();
+  $('#detalle-riesgo').textContent = `Alerta cancelada: falsa alarma. ${motivo} Se avisó a todos los celulares y quedó en el registro para ajustar los umbrales.`;
+  hablar('Alerta cancelada. Falsa alarma. El río está normal.');
+}
+$('#btn-falsa').onclick = falsaAlarma;
 
 // pared
 const pared = new Pared($('#video'), $('#lienzo-pared'), $('#pared-msg'));

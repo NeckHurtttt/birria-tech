@@ -396,7 +396,15 @@ function salvo(texto, titulo = `${p.nombre} está a salvo`) {
   vista.innerHTML = `<svg class="visto" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/><path d="M38 62l15 15 30-32"/></svg>
     <h1>${titulo}</h1><p>${texto}</p>`;
 }
+function cancelada() {
+  clearInterval(reloj); navigator.vibrate?.(0); crecida = null; document.body.className = 'salvo';
+  vista.innerHTML = `<svg class="visto" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/><path d="M38 62l15 15 30-32"/></svg>
+    <h1>Alerta cancelada</h1><p>Falsa alarma: la junta verificó el río y está normal. Gracias por estar atentos.</p>
+    <button class="sec" id="volver">Volver</button>`;
+  $('#volver').onclick = esperar;
+}
 const canal = !tema ? null : abrirCanal(tema, m => {
+  if (m.tipo === 'cancelar') { if (document.body.classList.contains('alerta')) cancelada(); else crecida = null; return; }
   if (m.tipo === 'crecida') {
     crecida = { i: Number(m.i) || 1, lag: Number(m.lag) || 0, sim: Number(m.sim) || 0, t0: Date.now() };
     if (vecino && !document.body.classList.contains('alerta')) alertaVecino();

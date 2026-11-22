@@ -299,3 +299,4 @@ html.grande .barrios .tiempo { font-size: 26px; }
 #idioma-sel { display: contents; }
 /* chino: las fuentes de la app no tienen caracteres CJK */
 html:lang(zh-Hans) { --f: "Space Grotesk", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", system-ui, sans-serif; --mono: "JetBrains Mono", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", "WenQuanYi Zen Hei", ui-monospace, monospace; }
+#btn-falsa { white-space: nowrap; border-color: var(--alerta); color: var(--alerta); }
