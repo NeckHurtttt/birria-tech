@@ -6,3 +6,6 @@ recolector/registro.log*
 nodo/.env
 nodo/datos/
 __pycache__/
+/n*.png
+/m*.png
+/f*.png
