@@ -68,7 +68,7 @@ const ETIQUETA = { tranquilo: 'sin alerta', avisado: 'avisado, sin confirmar', s
 /** CSV para la junta / el COED (separado por ; para que Excel en español lo abra bien). */
 export function aCSV(lista, estados, barrioDe) {
   const c = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
-  const filas = [['Persona', 'Edad', 'Necesidad', 'Barrio', 'Cuadra', 'Guardián', 'Teléfono guardián', 'Idioma', 'Aprobado', 'Estado']];
+  const filas = [['Persona', 'Edad', 'Necesidad', 'Barrio', 'Cuadra', 'Ayudante', 'Teléfono ayudante', 'Idioma', 'Aprobado', 'Estado']];
   lista.forEach(p => filas.push([p.nombre, p.edad, p.necesidad, barrioDe(p.barrio), p.cuadra, p.guardian, p.tel || '', p.idioma, p.aprobado ? 'sí' : 'pendiente', ETIQUETA[estados[p.id]] || 'sin alerta']));
   return '﻿' + filas.map(f => f.map(c).join(';')).join('\r\n');
 }

@@ -1,7 +1,7 @@
 {
   "name": "El Río Suena · alerta de crecidas del Piraí",
   "short_name": "El Río Suena",
-  "description": "Alerta de crecidas del Piraí por barrio, con datos abiertos, vigías río arriba y vecinos guardianes.",
+  "description": "Alerta de crecidas del Piraí por barrio, con datos abiertos, vigías río arriba y vecinos ayudantes.",
   "lang": "es-BO",
   "start_url": "./",
   "scope": "./",

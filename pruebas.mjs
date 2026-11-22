@@ -130,3 +130,23 @@ t('cada mensaje dice quién lo manda', () => {
   assert.ok(todos.find(m => m.clave === 'cuenca').quien.sistema, 'el aviso de lluvia es automático');
   assert.ok(!todos.find(m => m.clave === 'llego-eltorno').quien.sistema, 'el desborde lo reporta un vecino');
 });
+import { nombresAleatorios, NOMBRES_DEMO, PERSONAS } from './js/datos.js';
+t('nombres sorteados: sin repetir, con tratamiento y sin nombre fijo', () => {
+  const vistos = new Set();
+  for (let k = 0; k < 40; k++) {
+    const n = nombresAleatorios(PERSONAS);
+    assert.equal(new Set(Object.values(n)).size, PERSONAS.length, 'no repite dentro de una central');
+    assert.match(n.rosa, /^Doña \S/); assert.match(n.teo, /^Don \S/); assert.match(n.juana, /^Doña \S/);
+    assert.match(n.nina, /^Niños \S+ \(3\)$/);
+    vistos.add(n.rosa);
+  }
+  assert.ok(vistos.size > 5, 'cambia entre una central y otra');
+  const fijo = nombresAleatorios(PERSONAS, () => 0);
+  assert.equal(fijo.rosa, 'Doña ' + NOMBRES_DEMO.f[0]); assert.equal(fijo.juana, 'Doña ' + NOMBRES_DEMO.f[1]);
+});
+import { NOMBRES_FIJOS } from './js/datos.js';
+t('el sorteo nunca devuelve los nombres fijos de antes (Doña Rosa, Don Teodoro…)', () => {
+  assert.ok(NOMBRES_FIJOS.includes('Doña Rosa'));
+  for (let k = 0; k < 500; k++) Object.values(nombresAleatorios(PERSONAS)).forEach(n => assert.ok(!NOMBRES_FIJOS.includes(n), n));
+  for (const l of Object.values(NOMBRES_DEMO)) assert.ok(l.every(x => !/\s/.test(x)), 'sin espacios: la traducción de «Niños X (N)» espera una palabra');
+});
