@@ -169,3 +169,42 @@ t('ayudantes sorteados: variados, sin repetir y con la forma que la central y el
   assert.ok([...NOMBRES_AYUDANTES.f, ...NOMBRES_AYUDANTES.m].every(x => !personas.has(x) && !/\s/.test(x)));
   assert.equal(new Set([...NOMBRES_DEMO.f, ...NOMBRES_DEMO.m, ...NOMBRES_DEMO.apellidos]).size, NOMBRES_DEMO.f.length + NOMBRES_DEMO.m.length + NOMBRES_DEMO.apellidos.length, 'sin duplicados');
 });
+import { elegirSugerencias, temaDe, respuestaConfirmacion, tipoAsistencia } from './js/chat-textos.js';
+import { t as traducirTexto } from './js/idioma.js';
+t('chat: 2 sugerencias de temas distintos y la respuesta del ayudante habla de lo que se le preguntó', () => {
+  const casos = [
+    { nombre: 'Doña Graciela', necesidad: 'silla de ruedas', g: 'f' }, { nombre: 'Don Óscar', necesidad: 'no oye: aviso en señas', g: 'm' },
+    { nombre: 'Niños Toledo (3)', necesidad: 'solos hasta las 19:00', g: 'ninos' }, { nombre: 'Familia Quiroga', necesidad: 'solos hasta las 19:00', g: 'ninos' },
+    { nombre: 'Doña Teresa', necesidad: 'habla quechua', g: 'f' },
+  ];
+  assert.deepEqual(casos.map(tipoAsistencia), ['silla', 'sordo', 'grupo', 'grupo', 'idioma']);
+  const vistas = new Set();
+  for (const p of casos) for (let k = 0; k < 200; k++) for (const paso of [0, 1]) {
+    const s = elegirSugerencias(p, paso);
+    assert.equal(s.length, 2, 'siempre 2 sugerencias');
+    assert.notEqual(s[0].texto, s[1].texto);
+    if (paso) assert.notEqual(s[0].tema, s[1].tema, 'en camino: dos temas distintos');
+    s.forEach(x => { assert.equal(temaDe(x.texto, p), x.tema, 'el tema coincide con el de un texto escrito igual'); vistas.add(x.texto.replace(p.nombre, '·')); });
+  }
+  assert.ok(vistas.size >= 20, `banco variado (${vistas.size})`);
+  // texto libre de la central → tema
+  const g = casos[0];
+  assert.equal(temaDe('¿el puente aguanta?', g), 'paso'); assert.equal(temaDe('¿cómo está la calle?', g), 'agua');
+  assert.equal(temaDe('¿ya llegaron arriba?', g), 'alto'); assert.equal(temaDe('¿la abuela está bien?', g), 'persona');
+  assert.equal(temaDe('¿Graciela está con ustedes?', g), 'persona'); assert.equal(temaDe('hola', g), 'general');
+  // respuestas: siempre confirman que están a salvo y hablan del tema
+  const a = respuestaConfirmacion(g, 'agua'), al = respuestaConfirmacion(g, 'alto'), pa = respuestaConfirmacion(g, 'paso');
+  for (const r of [a, al, pa, respuestaConfirmacion(g, 'general')]) assert.match(r, /salvo|seguro|resguardados|fuera del agua|punto alto/i);
+  assert.match(a, /agua|calle|nivel|río/i); assert.match(al, /alto|arriba|loma|escuela/i); assert.match(pa, /puente|paso|salida|calle de arriba/i);
+  assert.match(respuestaConfirmacion(casos[0], 'persona'), /silla de ruedas/); assert.match(respuestaConfirmacion(casos[1], 'persona'), /señas/);
+  assert.match(respuestaConfirmacion(casos[2], 'persona'), /los 3/); assert.match(respuestaConfirmacion(casos[3], 'persona'), /familia/);
+  assert.match(respuestaConfirmacion(casos[4], 'persona'), /quechua/);
+  // todo lo que puede decir el chat está traducido al inglés
+  const textos = new Set();
+  for (const p of casos) for (let k = 0; k < 200; k++) {
+    for (const paso of [0, 1]) elegirSugerencias(p, paso).forEach(x => textos.add(x.texto));
+    for (const tema of ['agua', 'alto', 'paso', 'persona', 'general']) textos.add(respuestaConfirmacion(p, tema));
+  }
+  const sinTraducir = [...textos].filter(x => traducirTexto(x, 'en') === x);
+  assert.deepEqual(sinTraducir, [], 'sin traducir: ' + sinTraducir.join(' | '));
+});

@@ -12,6 +12,7 @@ import { cargarSenamhi, amenazaHoy, textoOficial } from './senamhi.js';
 import { iniciarIdioma, idiomaActual, vozActual, t as traducir } from './idioma.js';
 import { mensajesNuevos } from './mensajes.js';
 import { PERSONAS, NOMBRES_FIJOS, nombresAleatorios, ayudantesAleatorios, NOMBRE_SORTEADO, AYUDANTE_SORTEADO, NOMBRES_AYUDANTES } from './datos.js';
+import { elegirSugerencias, temaDe, respuestaConfirmacion } from './chat-textos.js';
 
 // Nombres de las personas de ejemplo y de sus ayudantes: se sortean al abrir la central (no hay uno fijo). Se guardan
 // en esta pestaña para que al recargar o reiniciar el simulacro sigan siendo los mismos que ya viajaron en el QR al
@@ -40,7 +41,7 @@ const ACELERA = Number(params.get('x')) || (JURADO ? 300 : 60); // minutos simul
 const tema = temaDemo();
 
 const est = { fase: 'espera', intensidad: 1, simMin: 0, lag: 0, lluvia: null, escenario: null, vecinos: { crecido: 0, desborde: 0, vigias: 0 }, oficial: null, personas: {}, margen: {}, regla: null, avisoT: 0, resp: {}, recib: {}, vigiasCel: new Set(),
-  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, apuros: {}, apuroTimer: {}, sugeridas: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
+  chat: {}, etapa: {}, chatTimer: {}, pregunta: {}, tema: {}, apuros: {}, apuroTimer: {}, sugeridas: {} }; // chat con cada ayudante: mensajes, paso del ayudante (0 avisado, 1 en camino, 2 a salvo) y su próximo mensaje
 // temporizadores de un simulacro: se cancelan todos al reiniciar (evita pantallas fantasma)
 const timers = new Set();
 const despues = (f, ms) => { const id = setTimeout(() => { timers.delete(id); f(); }, ms); timers.add(id); return id; };
@@ -121,7 +122,7 @@ function pasoAyudante(id) {
   // la confirmación (paso 2) solo sale si la central escribió: nunca por tiempo
   if (!p || !enAlerta(id) || n >= PASOS_AYUDANTE.length || (n === 1 && !est.pregunta[id])) { if (CHAT.abierto === id) pintarChat(); pintarPersonas(); return; }
   est.etapa[id] = n + 1;
-  decirChat(id, 'ayudante', VARIANTE(PASOS_AYUDANTE[n])(p));
+  decirChat(id, 'ayudante', n === 0 ? VARIANTE(PASOS_AYUDANTE[0])(p) : respuestaConfirmacion(p, est.tema[id] || 'general'));
   if (n === 0) {
     // ya va en camino: si la central escribió antes de este aviso, la confirmación sigue; si no, espera su mensaje
     if (est.pregunta[id]) programarPaso(id, 3500 + Math.random() * 2000); else programarApuro(id);
@@ -169,11 +170,15 @@ function apurar(id) {
 }
 function pararApuro(id) { clearTimeout(est.apuroTimer[id]); delete est.apuroTimer[id]; }
 /** Mensaje de la central: es lo que destraba la confirmación del ayudante. */
-function enviarCentral(id, texto) {
+function enviarCentral(id, texto, tema) {
   texto = String(texto || '').trim().slice(0, 160); if (!texto) return;
   // se anota antes de pintar el mensaje: así el chat ya muestra «Mensaje enviado…» y oculta las respuestas rápidas
   const espera = enAlerta(id) && !listoParaConfirmar(id), yaPregunto = est.pregunta[id];
-  if (espera) est.pregunta[id] = true;
+  if (espera) {
+    est.pregunta[id] = true;
+    // de qué trata lo que escribió (o la sugerencia que tocó): la respuesta del ayudante habla de eso; vale el último mensaje
+    est.tema[id] = tema || temaDe(texto, activas().find(x => x.id === id));
+  }
   decirChat(id, 'central', texto);
   if (!espera) return;
   if (yaPregunto && est.chatTimer[id]) return; // ya hay una respuesta en camino: no la reinicia
@@ -181,23 +186,16 @@ function enviarCentral(id, texto) {
   programarPaso(id, (est.etapa[id] || 0) ? 2500 + Math.random() * 1500 : 1800);
   pintarPersonas();
 }
-// sugerencias de la central: 3 sacadas de un banco variado según el paso; quedan fijas mientras ese paso no cambie
-// (así no saltan cada vez que llega un mensaje)
-const SUGERENCIAS = [
-  [() => '¿Ya vas en camino?', () => '¿Ya saliste para allá?', p => `¿Cuánto te falta para llegar donde ${p.nombre}?`, () => 'Avísame apenas llegues.'],
-  [() => '¿Ya lograron llegar a zona alta?', () => 'Confírmame por favor si ya están fuera de peligro.',
-    () => '¿Cómo está la calle por ahí? Avísame cuando estén a salvo.', p => `¿Ya tienen a ${p.nombre} en lugar seguro?`,
-    () => 'Reporta en cuanto estén resguardados.', () => '¿Necesitan apoyo o ya están fuera del agua?', () => 'Avísame cuando estén a salvo.'],
-];
+// sugerencias de la central: 2 de temas distintos, del banco de js/chat-textos.js; quedan fijas mientras el paso del
+// ayudante no cambie (así no saltan cada vez que llega un mensaje)
 function sugerencias(id, p, n) {
-  const paso = Math.min(n, SUGERENCIAS.length - 1), guardadas = est.sugeridas[id];
+  const paso = n ? 1 : 0, guardadas = est.sugeridas[id];
   if (guardadas?.paso === paso) return guardadas.lista;
-  const banco = SUGERENCIAS[paso].map(f => f(p)), lista = [];
-  while (lista.length < 3 && banco.length) lista.push(banco.splice(Math.floor(Math.random() * banco.length), 1)[0]);
+  const lista = elegirSugerencias(p, paso);
   est.sugeridas[id] = { paso, lista }; return lista;
 }
 function reiniciarEstadoChats() {
-  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {};
+  est.chat = {}; est.etapa = {}; est.chatTimer = {}; est.pregunta = {}; est.tema = {}; est.apuros = {}; est.apuroTimer = {}; est.sugeridas = {};
   CHAT.sinLeer.clear(); CHAT.escribiendo.clear();
 }
 function iniciarChats() {
@@ -257,7 +255,7 @@ function pintarChat() {
   // sugerencias variadas: mandan un mensaje de verdad (cuentan como «la central escribió»); nada de atajos que lo salteen
   const rap = $('#chat-rapidas'); rap.replaceChildren();
   if (escribir && !est.pregunta[id]) {
-    for (const texto of sugerencias(id, p, n)) { const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn chico'; bt.textContent = texto; bt.onclick = () => enviarCentral(id, texto); rap.append(bt); }
+    for (const { texto, tema } of sugerencias(id, p, n)) { const bt = document.createElement('button'); bt.type = 'button'; bt.className = 'btn chico'; bt.textContent = texto; bt.onclick = () => enviarCentral(id, texto, tema); rap.append(bt); }
   }
   // auto-scroll al último mensaje, también después de que la zona de abajo cambie de alto
   ol.scrollTop = ol.scrollHeight; requestAnimationFrame(() => { ol.scrollTop = ol.scrollHeight; });
@@ -280,7 +278,9 @@ document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('#cha
 
 function pintarPersonas() {
   listaP.innerHTML = '';
-  activas().forEach(p => {
+  // los ya evacuados bajan al final para que los casos pendientes queden arriba, a mano; el resto conserva su orden
+  const ordenadas = activas().map((p, i) => ({ p, i, fin: est.personas[p.id] === 'salvo' })).sort((a, b) => a.fin - b.fin || a.i - b.i).map(x => x.p);
+  ordenadas.forEach(p => {
     const b = BARRIOS.find(x => x.id === p.barrio), e = est.personas[p.id] || (est.personas[p.id] = 'tranquilo');
     // 'salvo' = el traslado ya se confirmó (desde la central o el celular del ayudante): en la tarjeta dice «evacuado»
     // mientras está avisado, el estado sigue al chat: «en camino» y luego «a salvo» (listo para confirmar, a la espera de la central)
