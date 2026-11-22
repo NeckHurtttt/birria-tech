@@ -262,7 +262,7 @@ html.grande .barrios .tiempo { font-size: 26px; }
 @media (min-width: 901px) {
   .tablero { grid-template-rows: auto minmax(230px, 1fr); }
   .oido, .cuenta { max-height: calc(100vh - 65px - 32px - 16px - 230px); }
-  .oido .fila { flex-wrap: nowrap; }
+  .oido .fila { flex-wrap: wrap; }
   .oido .fila .btn.chico { padding: 6px 8px; gap: 6px; }
 }
 
